@@ -1,132 +1,101 @@
-# Contributing to Skyblock Calculator
+# Contributing to sbcalc
 
-Thank you for your interest in contributing to Skyblock Calculator! We welcome contributions from the community.
+Thanks for helping improve sbcalc. This document keeps contributions simple and consistent.
 
-## 🚀 Getting Started
-
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/sbcalc.git`
-3. Install dependencies: `pnpm install`
-4. Create a new branch: `git checkout -b feature/your-feature-name`
-
-## 🛠️ Development Setup
-
-### Prerequisites
+## Prerequisites
 
 - Node.js 20+
 - pnpm 10+
 
-### Running the Project
+## Setup
 
 ```bash
-# Install dependencies
+git clone https://github.com/Hexeption/sbcalc.git
+cd sbcalc
 pnpm install
-
-# Start development server
-pnpm dev
-
-# Run linting
-pnpm lint
-
-# Format code
-pnpm format
 ```
 
-## 📝 Code Guidelines
+## Development
 
-### TypeScript
+- Run everything in dev mode:
+  ```bash
+  pnpm dev
+  ```
+- Build all packages:
+  ```bash
+  pnpm build
+  ```
+- Lint and format:
+  ```bash
+  pnpm lint
+  pnpm format
+  ```
 
-- Use strict TypeScript
-- Prefer interfaces over types for object definitions
-- Export types and interfaces explicitly
+The web app runs at http://localhost:3000.
 
-### React/Next.js
+## Data refresh (NEU)
 
-- Use functional components with hooks
-- Prefer server components when possible
-- Use proper TypeScript types for props
+The app uses data from NotEnoughUpdates (NEU).
 
-### Styling
+- Reclone NEU and regenerate data:
+  ```bash
+  pnpm run build:clean:neu
+  ```
+- Clean web build with fresh data:
+  ```bash
+  pnpm --filter sbcalc-web run build:clean
+  ```
 
-- Use Tailwind CSS classes
-- Follow the existing design system
-- Use shadcn/ui components when available
+Regular dev/build commands in `apps/web` will generate data as part of the run.
 
-### Code Style
+## Testing
 
-- Use Prettier for formatting (automatic on save)
-- Follow ESLint rules
-- Use meaningful variable and function names
-- Add comments for complex logic
+Some packages include tests (Vitest).
 
-## 🐛 Bug Reports
+- SNBT parser:
+  ```bash
+  pnpm --filter @workspace/snbt-parser test
+  ```
+- Web app tests (no script defined; run Vitest directly):
+  ```bash
+  pnpm --filter sbcalc-web vitest run
+  ```
 
-When reporting bugs, please include:
+## Coding guidelines
 
-- Steps to reproduce
-- Expected behavior
-- Actual behavior
-- Browser/environment information
-- Screenshots if applicable
+- TypeScript everywhere; keep types explicit where helpful
+- React function components with hooks; co-locate component logic
+- Use Tailwind CSS and existing shadcn/ui components
+- Keep changes small and focused
 
-## ✨ Feature Requests
+## Commit messages
 
-For feature requests:
+Use Conventional Commits:
 
-- Describe the problem you're solving
-- Explain your proposed solution
-- Consider implementation complexity
-- Check if it aligns with project goals
+- feat: add new feature
+- fix: resolve bug
+- docs: update docs
+- refactor: restructure without behavior change
+- test: add or update tests
+- chore: tooling/maintenance
 
-## 🔍 Pull Request Process
+Example: `feat: add clean NEU reclone and build scripts`
 
-1. Ensure your code follows the style guidelines
-2. Update documentation if needed
-3. Add tests for new functionality
-4. Ensure all tests pass: `pnpm test`
-5. Update the README.md if necessary
-6. Create a descriptive pull request title and description
+## Pull requests
 
-### Commit Message Format
+- Branch from `main` (e.g., `feat/xyz`, `fix/abc`)
+- Ensure build, lint, and tests pass
+- Update docs when behavior changes
+- Link related issues and keep the PR description short and clear
 
-Use conventional commits:
+## Project structure (brief)
 
-- `feat: add new feature`
-- `fix: resolve bug`
-- `docs: update documentation`
-- `style: formatting changes`
-- `refactor: code refactoring`
-- `test: add tests`
-- `chore: maintenance tasks`
+- `apps/web/` – Next.js app
+- `packages/ui/` – shared UI components
+- `packages/neu-recipe-processor/` – pulls/processes NEU data
+- `packages/snbt-parser/` – SNBT parser with tests
+- `packages/eslint-config/`, `packages/typescript-config/` – shared configs
 
-## 📦 Package Structure
+## License
 
-- `apps/web/` - Main Next.js application
-- `packages/ui/` - Shared UI components
-- `packages/neu-recipe-processor/` - Data processing utilities
-- `packages/eslint-config/` - ESLint configuration
-- `packages/typescript-config/` - TypeScript configuration
-
-## 🎯 Areas for Contribution
-
-- **UI/UX Improvements**: Better user interface and experience
-- **Performance**: Optimization and faster load times
-- **Features**: New calculator features or item support
-- **Documentation**: Improve docs and add examples
-- **Testing**: Add unit and integration tests
-- **Accessibility**: Improve a11y support
-
-## 🤝 Community
-
-- Be respectful and constructive
-- Help others learn and grow
-- Focus on the project's goals
-- Follow the code of conduct
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
-## ❓ Questions?
-
-Feel free to open an issue for any questions about contributing!
+By contributing, you agree your contributions are licensed under MIT.
