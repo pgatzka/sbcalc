@@ -8,7 +8,10 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "clean:neu": "rm -rf ./output/NotEnoughUpdates-REPO",
+    "clean:outputs": "rm -f ./output/merged_items.json ./output/recipes_items.json",
+    "build:clean": "pnpm run clean:neu && pnpm run clean:outputs && pnpm run build && pnpm run start"
   },
   "dependencies": {
     "simple-git": "^3.19.1",

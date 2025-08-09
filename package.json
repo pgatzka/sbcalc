@@ -26,7 +26,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "build:clean:neu": "pnpm -F @workspace/neu-recipe-processor run build:clean"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

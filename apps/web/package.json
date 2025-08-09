@@ -14,8 +14,10 @@
   ],
   "scripts": {
     "generate:recipes": "cd ../../packages/neu-recipe-processor && pnpm run build && node dist/index.js && cp output/recipes_items.json ../../apps/web/data/recipes_items.json && cp output/merged_items.json ../../apps/web/data/items.json && cd - > /dev/null",
+    "generate:recipes:clean": "cd ../../packages/neu-recipe-processor && pnpm run build:clean && cp output/recipes_items.json ../../apps/web/data/recipes_items.json && cp output/merged_items.json ../../apps/web/data/items.json && cd - > /dev/null",
     "dev": "pnpm run generate:recipes && next dev --turbopack",
     "build": "pnpm run generate:recipes && next build",
+    "build:clean": "pnpm run generate:recipes:clean && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
