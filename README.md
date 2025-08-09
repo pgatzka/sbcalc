@@ -1,92 +1,85 @@
 # Skyblock Calculator (sbcalc)
 
-A comprehensive web application for calculating Minecraft Hypixel Skyblock item recipes, forge times, and base material requirements. Built with Next.js, TypeScript, and shadcn/ui components.
+Web app for calculating Hypixel Skyblock item recipes, forge times, and base material requirements. Built with Next.js and TypeScript.
 
-🌐 **Live Site**: [https://sbcalc.net](https://sbcalc.net)
+Live site: https://sbcalc.net
 
-## 🎮 Features
+## Features
 
-- **Recipe Tree Visualization**: Interactive tree view of item crafting recipes
-- **Base Requirements Calculator**: Calculate all base materials needed for any item
-- **Forge Time Calculator**: Compute total forge times for items requiring furnace/forge processing
-- **Item Search**: Fast search through thousands of Skyblock items
-- **Multiplier Support**: Calculate requirements for multiple quantities
-- **Expandable Recipe Views**: Drill down into complex crafting chains
-- **Real-time Data**: Uses the latest item and recipe data from NotEnoughUpdates (NEU)
+- Recipe tree view for crafting chains
+- Base material requirements calculator
+- Forge time calculation
+- Fast item search
+- Quantity multiplier
 
-## 🚀 Tech Stack
+## Tech stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **UI Components**: shadcn/ui with Tailwind CSS
-- **Build System**: Turbo (monorepo)
-- **Package Manager**: pnpm
-- **Data Processing**: Custom NEU recipe processor
-- **Deployment**: Ready for Vercel/Netlify
+- Next.js 15, React 19, TypeScript
+- Tailwind CSS, shadcn/ui
+- Turbo (monorepo), pnpm
+- Custom NEU data processor
 
-## 📦 Project Structure
+## Repository layout
 
-This is a monorepo containing:
+- `apps/web/` – Next.js app
+- `packages/ui/` – shared UI components
+- `packages/neu-recipe-processor/` – pulls and processes NEU data
+- `packages/eslint-config/` – shared ESLint config
+- `packages/typescript-config/` – shared TS config
 
-- `apps/web/` - Main Next.js web application
-- `packages/ui/` - Shared UI components library
-- `packages/neu-recipe-processor/` - Data processing utilities for NEU repo
-- `packages/eslint-config/` - Shared ESLint configuration
-- `packages/typescript-config/` - Shared TypeScript configuration
+## Getting started
 
-## 🛠️ Development
-
-### Prerequisites
-
+Prerequisites:
 - Node.js 20+
 - pnpm 10+
 
-### Installation
+Install:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Hexeption/sbcalc.git
-cd sbcalc
-
-# Install dependencies
 pnpm install
 ```
 
-### Running the Development Server
+Development:
 
 ```bash
-# Start development server for all apps
 pnpm dev
-
-# Or run specific commands
-pnpm build    # Build all packages
-pnpm lint     # Lint all packages
-pnpm format   # Format code with Prettier
 ```
 
-The web app will be available at `http://localhost:3000`.
+Other commands:
 
-## 📊 Data Sources
+```bash
+pnpm build    # build all packages
+pnpm lint     # lint all packages
+pnpm format   # format with Prettier
+```
 
-This project uses data from the [NotEnoughUpdates (NEU) repository](https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO), which provides comprehensive item and recipe information for Hypixel Skyblock.
+The web app runs at http://localhost:3000.
 
-## 🎯 Usage
+## Data
 
-1. **Search for Items**: Use the search bar to find any Skyblock item
-2. **View Recipe Tree**: See the complete crafting chain for complex items
-3. **Calculate Requirements**: Get a breakdown of all base materials needed
-4. **Adjust Quantities**: Use the multiplier to calculate for multiple items
-5. **Expand/Collapse**: Click on recipe nodes to explore crafting dependencies
+This project uses item and recipe data from the NotEnoughUpdates (NEU) repository: https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO
 
-## 🤝 Contributing
+To refresh data and reclone the NEU repo:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```bash
+# from repo root
+pnpm run build:clean:neu
 
-## 📄 License
+# or for a clean web build with fresh data
+pnpm --filter sbcalc-web run build:clean
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Regular dev/build scripts in `apps/web` will generate data as part of the run.
 
-## 🙏 Acknowledgments
+## Contributing
 
-- [NotEnoughUpdates](https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO) for the comprehensive item and recipe data
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
-- The Hypixel Skyblock community for inspiration and feedback
+Contributions are welcome. See CONTRIBUTING.md for guidelines.
+
+## License
+
+MIT
+
+## Acknowledgments
+
+- NotEnoughUpdates for item and recipe data
+- shadcn/ui for UI components
