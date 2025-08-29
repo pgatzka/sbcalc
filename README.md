@@ -30,6 +30,7 @@ Live site: https://sbcalc.net
 ## Getting started
 
 Prerequisites:
+
 - Node.js 20+
 - pnpm 10+
 
