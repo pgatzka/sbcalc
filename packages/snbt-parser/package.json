@@ -27,7 +27,7 @@
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4",
-    "@vitest/coverage-v8": "^3.2.4"
+    "vitest": "4.0.6",
+    "@vitest/coverage-v8": "4.0.6"
   }
 }
