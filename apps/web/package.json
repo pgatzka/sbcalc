@@ -13,8 +13,8 @@
     "react"
   ],
   "scripts": {
-    "generate:recipes": "cd ../../packages/neu-recipe-processor && pnpm run build && node dist/index.js && cp output/recipes_items.json ../../apps/web/data/recipes_items.json && cp output/merged_items.json ../../apps/web/data/items.json && cd - > /dev/null",
-    "generate:recipes:clean": "cd ../../packages/neu-recipe-processor && pnpm run build:clean && cp output/recipes_items.json ../../apps/web/data/recipes_items.json && cp output/merged_items.json ../../apps/web/data/items.json && cd - > /dev/null",
+    "generate:recipes": "pnpm --filter sbcalc-web run generate:recipes",
+    "generate:recipes:clean": "pnpm --filter sbcalc-web run generate:recipes:clean",
     "dev": "pnpm run generate:recipes && next dev --turbopack",
     "build": "pnpm run generate:recipes && next build",
     "build:clean": "pnpm run generate:recipes:clean && next build",

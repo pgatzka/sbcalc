@@ -22,12 +22,14 @@
     "url": "https://github.com/Hexeption/sbcalc/issues"
   },
   "homepage": "https://sbcalc.net",
+  "type": "module",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "build:clean:neu": "pnpm -F @workspace/neu-recipe-processor run build:clean"
+    "generate:recipes": "node scripts/generate-recipes.js",
+    "generate:recipes:clean": "node scripts/generate-recipes-clean.js"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

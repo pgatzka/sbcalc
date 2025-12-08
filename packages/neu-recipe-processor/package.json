@@ -4,14 +4,14 @@
   "description": "Process NotEnoughUpdates repository JSON files and combine items with recipes for Hypixel Skyblock",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "author": "Hexeption",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean:neu": "rm -rf ./output/NotEnoughUpdates-REPO",
-    "clean:outputs": "rm -f ./output/merged_items.json ./output/recipes_items.json",
-    "build:clean": "pnpm run clean:neu && pnpm run clean:outputs && pnpm run build && pnpm run start"
+    "clean": "node clean.js",
+    "build:clean": "pnpm run clean && pnpm run build && pnpm run start"
   },
   "dependencies": {
     "simple-git": "^3.19.1",
