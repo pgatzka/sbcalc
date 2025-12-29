@@ -78,6 +78,7 @@ export function SkyblockCalculatorClient() {
 
     const [searchValue, setSearchValue] = useState<string>("");
     const [hasLoadedSharedRecipe, setHasLoadedSharedRecipe] = useState(false);
+    const [hasRestoredMultiItem, setHasRestoredMultiItem] = useState(false);
     const [multiTreeSelectedItem, setMultiTreeSelectedItem] = useState<
         string | null
     >(null);
@@ -120,6 +121,13 @@ export function SkyblockCalculatorClient() {
         setItemList,
     ]);
 
+    // Reset restoration flag when switching modes
+    useEffect(() => {
+        if (mode === "single") {
+            setHasRestoredMultiItem(false);
+        }
+    }, [mode]);
+
     // Sync search value with selected item when it loads from localStorage
     useEffect(() => {
         if (selectedItem && mode === "single") {
@@ -143,16 +151,22 @@ export function SkyblockCalculatorClient() {
 
     // Restore last multi-selected item from localStorage on load or mode change
     useEffect(() => {
-        if (mode === "multi" && lastMultiSelectedItem && itemList.length > 0) {
+        if (
+            mode === "multi" &&
+            lastMultiSelectedItem &&
+            itemList.length > 0 &&
+            !hasRestoredMultiItem
+        ) {
             // Verify the item exists in the current list
             const itemExists = itemList.some(
                 (item) => item.itemId === lastMultiSelectedItem,
             );
             if (itemExists) {
                 setMultiTreeSelectedItem(lastMultiSelectedItem);
+                setHasRestoredMultiItem(true);
             }
         }
-    }, [mode, lastMultiSelectedItem, itemList]);
+    }, [mode]); // Only depend on mode, not itemList or lastMultiSelectedItem
 
     // Save multi-selected item to localStorage when changed
     useEffect(() => {
