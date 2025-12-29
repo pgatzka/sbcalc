@@ -58,27 +58,28 @@ export function extractFromSNBT(nbttag: string): {
   try {
     const parsed = parseSNBT(nbttag);
 
-    // Extract player head texture using MineSkin API
+    // Extract player head texture
     let textureUrl: string | null = null;
     if (parsed && typeof parsed === "object" && "SkullOwner" in parsed) {
       const skullOwner = parsed.SkullOwner as any;
 
-      // Primary method: Use MineSkin API with the direct Minecraft texture URL
       if (skullOwner?.Properties?.textures?.[0]?.Value) {
         try {
           const decodedTexture = JSON.parse(
             atob(skullOwner.Properties.textures[0].Value),
           );
           if (decodedTexture.textures?.SKIN?.url) {
-            const minecraftTextureUrl = decodedTexture.textures.SKIN.url;
-            // MineSkin can render custom textures from Minecraft URLs (works for items like Judgement Core)
+            let minecraftTextureUrl = decodedTexture.textures.SKIN.url;
+            // Ensure https instead of http
+            minecraftTextureUrl = minecraftTextureUrl.replace(
+              /^http:\/\//,
+              "https://",
+            );
+            // MineSkin can render custom textures from Minecraft URLs
             textureUrl = `https://api.mineskin.org/render/head?url=${encodeURIComponent(minecraftTextureUrl)}`;
           }
         } catch (e) {
-          // Fallback to UUID-based approach for regular players
-          if (skullOwner?.Id) {
-            textureUrl = `https://crafatar.com/renders/head/${skullOwner.Id}`;
-          }
+          // Silent fail
         }
       }
     }
@@ -93,7 +94,7 @@ export function extractFromSNBT(nbttag: string): {
     }
 
     return { textureUrl, itemModel };
-  } catch {
+  } catch (e) {
     // If our custom SNBT parser fails, return null values
     return { textureUrl: null, itemModel: null };
   }
