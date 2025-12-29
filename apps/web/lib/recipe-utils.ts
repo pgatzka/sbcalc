@@ -111,3 +111,32 @@ export const getBaseRequirements = (
 
   return acc;
 };
+
+/**
+ * Get combined base requirements for multiple items
+ */
+export const getCombinedBaseRequirements = (
+  itemList: Array<{ itemId: string; quantity: number }>,
+  recipes: RecipesData,
+  itemsData?: RecipesData,
+): Record<string, number> => {
+  const combined: Record<string, number> = {};
+
+  for (const { itemId, quantity } of itemList) {
+    const requirements = getBaseRequirements(
+      itemId,
+      recipes,
+      quantity,
+      {},
+      new Set(),
+      itemsData,
+    );
+
+    // Merge requirements into combined
+    for (const [material, count] of Object.entries(requirements)) {
+      combined[material] = (combined[material] || 0) + count;
+    }
+  }
+
+  return combined;
+};

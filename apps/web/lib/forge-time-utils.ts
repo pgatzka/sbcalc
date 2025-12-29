@@ -129,3 +129,32 @@ export function applyQuickForgeReduction(
 
   return Math.floor(forgeTime * reductionMultiplier);
 }
+
+/**
+ * Get combined forge time for multiple items
+ */
+export function getCombinedForgeTime(
+  itemList: Array<{ itemId: string; quantity: number }>,
+  recipes: RecipesData,
+  options: ForgeSettings = {
+    forgeSlots: 2,
+    useMultipleSlots: true,
+    quickForgeLevel: 0,
+  },
+): number {
+  let totalTime = 0;
+
+  for (const { itemId, quantity } of itemList) {
+    const time = getTotalForgeTime(
+      itemId,
+      recipes,
+      quantity,
+      new Set(),
+      options,
+    );
+    totalTime += time;
+  }
+
+  return totalTime;
+}
+
