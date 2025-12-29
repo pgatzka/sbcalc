@@ -26,6 +26,8 @@ export function useRecipeState() {
         "sbcalc_itemList",
         [],
     );
+    const [lastMultiSelectedItem, setLastMultiSelectedItem] =
+        useLocalStorage<string | null>("sbcalc_lastMultiSelectedItem", null);
 
     const handleModeSwitch = (newMode: "single" | "multi") => {
         setMode(newMode);
@@ -57,6 +59,8 @@ export function useRecipeState() {
         setMultiplier,
         itemList,
         setItemList,
+        lastMultiSelectedItem,
+        setLastMultiSelectedItem,
         handleModeSwitch,
         getRecipeState,
     };

@@ -70,6 +70,8 @@ export function SkyblockCalculatorClient() {
         setMultiplier,
         itemList,
         setItemList,
+        lastMultiSelectedItem,
+        setLastMultiSelectedItem,
         handleModeSwitch,
         getRecipeState,
     } = useRecipeState();
@@ -117,6 +119,47 @@ export function SkyblockCalculatorClient() {
         setMultiplier,
         setItemList,
     ]);
+
+    // Sync search value with selected item when it loads from localStorage
+    useEffect(() => {
+        if (selectedItem && mode === "single") {
+            const item = recipes[selectedItem as keyof typeof recipes];
+            if (item) {
+                let displayName =
+                    item.displayname?.replace(/§./g, "") || item.internalname || selectedItem;
+
+                // For enchanted books, use the first lore line as the label
+                if (item.itemid === "minecraft:enchanted_book") {
+                    const loreLine = item.lore?.[0];
+                    if (loreLine) {
+                        displayName = loreLine.replace(/§./g, "");
+                    }
+                }
+
+                setSearchValue(displayName);
+            }
+        }
+    }, [selectedItem, mode, recipes]);
+
+    // Restore last multi-selected item from localStorage on load or mode change
+    useEffect(() => {
+        if (mode === "multi" && lastMultiSelectedItem && itemList.length > 0) {
+            // Verify the item exists in the current list
+            const itemExists = itemList.some(
+                (item) => item.itemId === lastMultiSelectedItem,
+            );
+            if (itemExists) {
+                setMultiTreeSelectedItem(lastMultiSelectedItem);
+            }
+        }
+    }, [mode, lastMultiSelectedItem, itemList]);
+
+    // Save multi-selected item to localStorage when changed
+    useEffect(() => {
+        if (mode === "multi" && multiTreeSelectedItem) {
+            setLastMultiSelectedItem(multiTreeSelectedItem);
+        }
+    }, [mode, multiTreeSelectedItem, setLastMultiSelectedItem]);
 
     const {
         expandedItems,
