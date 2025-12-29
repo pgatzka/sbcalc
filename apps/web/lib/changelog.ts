@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         title: "December 2025",
         items: [
             {
+                title: "Reorder items with drag-and-drop",
+                description:
+                    "Rearrange your item list by dragging and dropping items. Hover over any item name to see the full name if it's truncated.",
+            },
+            {
                 title: "Cookie consent and privacy policy",
                 description:
                     "We've added a cookie consent banner and a dedicated privacy page so you know exactly how we use cookies and protect your data. Your calculator settings stay private in your browser.",
