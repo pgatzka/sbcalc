@@ -27,6 +27,7 @@ import { getTotalForgeTime, getCombinedForgeTime } from "@/lib/forge-time-utils"
 import { useSettings } from "@/lib/settings-context";
 import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { Button } from "@workspace/ui/components/button";
@@ -49,10 +50,10 @@ export interface ItemListEntry {
 }
 
 export function ItemSearchClient() {
-  const [mode, setMode] = useState<"single" | "multi">("single");
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const [multiplier, setMultiplier] = useState<number>(1);
-  const [itemList, setItemList] = useState<ItemListEntry[]>([]);
+  const [mode, setMode] = useLocalStorage<"single" | "multi">("sbcalc_mode", "single");
+  const [selectedItem, setSelectedItem] = useLocalStorage<string | null>("sbcalc_selectedItem", null);
+  const [multiplier, setMultiplier] = useLocalStorage<number>("sbcalc_multiplier", 1);
+  const [itemList, setItemList] = useLocalStorage<ItemListEntry[]>("sbcalc_itemList", []);
   const [searchValue, setSearchValue] = useState<string>("");
   const [hasLoadedSharedRecipe, setHasLoadedSharedRecipe] = useState(false);
   const [multiTreeSelectedItem, setMultiTreeSelectedItem] = useState<string | null>(null);
