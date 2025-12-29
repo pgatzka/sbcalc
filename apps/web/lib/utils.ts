@@ -4,12 +4,22 @@ import { parseSNBT } from "@workspace/snbt-parser";
 /**
  * Get display name from recipe entry, removing Minecraft formatting codes
  * Falls back to items data, then formats internal name if not found in either
+ * For enchanted books, uses the first lore line
  */
 export const getDisplayName = (
   recipeEntry: RecipeEntry | undefined,
   internalname: string,
   itemsData?: RecipesData,
 ): string => {
+  // For enchanted books, use the first lore line
+  if (
+    recipeEntry?.itemid === "minecraft:enchanted_book" &&
+    Array.isArray(recipeEntry?.lore) &&
+    recipeEntry.lore.length > 0
+  ) {
+    return recipeEntry.lore[0]?.replace(/§./g, "") || "";
+  }
+
   // First try to get from recipe entry
   if (recipeEntry?.displayname) {
     return recipeEntry.displayname.replace(/§./g, "");
@@ -17,7 +27,16 @@ export const getDisplayName = (
 
   // Then try to get from items data
   if (itemsData && itemsData[internalname]?.displayname) {
-    return itemsData[internalname].displayname!.replace(/§./g, "");
+    const entry = itemsData[internalname];
+    // Check if it's an enchanted book in items data
+    if (
+      entry.itemid === "minecraft:enchanted_book" &&
+      Array.isArray(entry.lore) &&
+      entry.lore.length > 0
+    ) {
+      return entry.lore[0]?.replace(/§./g, "") || "";
+    }
+    return entry.displayname!.replace(/§./g, "");
   }
 
   // Last resort: format the internal name

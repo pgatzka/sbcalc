@@ -18,6 +18,7 @@ export interface RecipeEntry {
   ItemModel?: string;
   itemmodel?: string;
   item_model?: string;
+  lore?: string[];
 }
 
 export interface ForgeSettings {

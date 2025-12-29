@@ -62,5 +62,31 @@ for (const [key, itemRaw] of Object.entries(merged)) {
   }
 }
 
+// Also include items from items.json that are enchanted books with recipes
+console.log("Looking for additional items (like books) from NEU repo items...");
+const itemsDir = join(REPO_DIR, "items");
+const allFiles = readdirSync(itemsDir).filter((f) => f.endsWith(".json"));
+for (const file of allFiles) {
+  const filePath = join(itemsDir, file);
+  try {
+    const data = JSON.parse(readFileSync(filePath, "utf8"));
+    const itemsArray = Array.isArray(data) ? data : [data];
+    for (const item of itemsArray) {
+      if (
+        item.internalname &&
+        !filtered[item.internalname] &&
+        item.recipe &&
+        typeof item.recipe === "object" &&
+        (item.itemid === "minecraft:enchanted_book" ||
+          item.itemid?.includes("book"))
+      ) {
+        filtered[item.internalname] = item;
+      }
+    }
+  } catch {
+    // Skip files that can't be parsed
+  }
+}
+
 writeFileSync(RECIPES_FILE, JSON.stringify(filtered, null, 2));
 console.log(`Filtered items written to ${RECIPES_FILE}`);
