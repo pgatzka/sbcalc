@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         title: "December 2025",
         items: [
             {
+                title: "Cookie consent and privacy policy",
+                description:
+                    "We've added a cookie consent banner and a dedicated privacy page so you know exactly how we use cookies and protect your data. Your calculator settings stay private in your browser.",
+            },
+            {
                 title: "Cleaner code under the hood",
                 description:
                     "We've reorganized the calculator's internal structure to make it easier to maintain and extend. The app is now built from smaller, focused components that work together smoothly.",
