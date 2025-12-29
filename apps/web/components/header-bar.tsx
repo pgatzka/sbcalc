@@ -1,14 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { Github, History, Heart } from "lucide-react";
+import { Github, History, Moon, Sun } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
+import { useTheme } from "next-themes";
 
 export function HeaderBar() {
+    const { theme, setTheme } = useTheme();
     return (
         <div className="text-center py-8 px-4 relative">
             <div className="absolute top-4 right-4 md:top-8 md:right-8">
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                    >
+                        {theme === "dark" || theme === "system" ? (
+                            <Sun className="w-4 h-4 md:w-5 md:h-5" />
+                        ) : (
+                            <Moon className="w-4 h-4 md:w-5 md:h-5" />
+                        )}
+                    </Button>
                     <Button variant="outline" size="sm" asChild>
                         <Link
                             href="/changelog"
