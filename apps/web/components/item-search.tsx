@@ -34,8 +34,11 @@ export function ItemSearch({
         let label = value.displayname?.replace(/§./g, "") || value.internalname || key;
 
         // For enchanted books, use the first lore line as the label
-        if (value.itemid === "minecraft:enchanted_book" && Array.isArray(value.lore) && value.lore.length > 0) {
-          label = value.lore[0].replace(/§./g, "");
+        if (value.itemid === "minecraft:enchanted_book") {
+          const loreLine = value.lore?.[0];
+          if (loreLine) {
+            label = loreLine.replace(/§./g, "");
+          }
         }
 
         return {

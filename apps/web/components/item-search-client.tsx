@@ -12,6 +12,7 @@ import {
   Clipboard,
   Heart,
   List,
+  History,
 } from "lucide-react";
 import { ItemSearch } from "@/components/item-search";
 import { ItemListManager } from "@/components/item-list-manager";
@@ -21,6 +22,7 @@ import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { ForgeSettings } from "@/components/forge-settings";
 import { RecipeSummaryCards } from "@/components/recipe-summary-cards";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
+import Link from "next/link";
 import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
 import { getTotalForgeTime, getCombinedForgeTime } from "@/lib/forge-time-utils";
@@ -158,18 +160,26 @@ export function ItemSearchClient() {
       {/* Header */}
       <div className="text-center py-8 px-4 relative">
         <div className="absolute top-4 right-4 md:top-8 md:right-8">
-          <Button variant="outline" size="sm" asChild>
-            <a
-              href="https://github.com/Hexeption/sbcalc"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="View on GitHub"
-              className="flex items-center gap-2"
-            >
-              <Github className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">GitHub</span>
-            </a>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/changelog" title="View Changelog" className="flex items-center gap-2">
+                <History className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline">Changelog</span>
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <a
+                href="https://github.com/Hexeption/sbcalc"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="View on GitHub"
+                className="flex items-center gap-2"
+              >
+                <Github className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline">GitHub</span>
+              </a>
+            </Button>
+          </div>
         </div>
         <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-2">
           Skyblock Calculator
