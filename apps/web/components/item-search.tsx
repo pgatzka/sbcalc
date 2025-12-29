@@ -31,7 +31,8 @@ export function ItemSearch({
   const items = useMemo(
     () =>
       Object.entries(recipes).map(([key, value]) => {
-        let label = value.displayname?.replace(/§./g, "") || value.internalname || key;
+        let label =
+          value.displayname?.replace(/§./g, "") || value.internalname || key;
 
         // For enchanted books, use the first lore line as the label
         if (value.itemid === "minecraft:enchanted_book") {

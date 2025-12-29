@@ -82,7 +82,9 @@ export function ItemListManager({
       {items.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between mb-2">
-            <Label className="text-sm font-medium">Items ({items.length})</Label>
+            <Label className="text-sm font-medium">
+              Items ({items.length})
+            </Label>
             <Button
               variant="ghost"
               size="sm"
@@ -121,7 +123,10 @@ export function ItemListManager({
                       {displayName}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Input
                       type="number"
                       min={1}

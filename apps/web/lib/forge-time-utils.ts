@@ -157,4 +157,3 @@ export function getCombinedForgeTime(
 
   return totalTime;
 }
-

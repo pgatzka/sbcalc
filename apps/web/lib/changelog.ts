@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         title: "December 2025",
         items: [
             {
+                title: "Cleaner code under the hood",
+                description:
+                    "We've reorganized the calculator's internal structure to make it easier to maintain and extend. The app is now built from smaller, focused components that work together smoothly.",
+            },
+            {
                 title: "Changelog page added",
                 description:
                     "There's a new Changelog page. It's powered by a simple data file, so adding entries is quick and easy.",

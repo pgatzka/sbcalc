@@ -1,4 +1,4 @@
-import { ItemSearchClient } from "@/components/item-search-client";
+import { SkyblockCalculatorClient } from "@/components/skyblock-calculator-client";
 import { generateMetadata as generateDynamicMetadata } from "@/lib/metadata";
 import { Metadata } from "next";
 
@@ -19,7 +19,7 @@ export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   return (
     <div>
-      <ItemSearchClient />
+      <SkyblockCalculatorClient />
     </div>
   );
 }
