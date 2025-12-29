@@ -3,7 +3,9 @@
 import { useState, useMemo } from "react";
 import { Input } from "@workspace/ui/components/input";
 import { ItemImage } from "@/components/item-image";
+import { parseMinecraftColors } from "@/lib/utils";
 import type { RecipesData } from "@/lib/types";
+import { useSettings } from "@/lib/settings-context";
 
 export interface ItemSearchProps {
   onSelect?: (itemValue: string) => void;
@@ -22,6 +24,7 @@ export function ItemSearch({
   searchValue,
   onSearchChange,
 }: ItemSearchProps) {
+  const { settings } = useSettings();
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -32,18 +35,22 @@ export function ItemSearch({
     () =>
       Object.entries(recipes).map(([key, value]) => {
         let label =
-          value.displayname?.replace(/§./g, "") || value.internalname || key;
+          value.displayname?.replace(/{LVL}/g, "100") || value.internalname || key;
+        let searchLabel = label.replace(/§./g, ""); // For search matching
 
         // For enchanted books, use the first lore line as the label
         if (value.itemid === "minecraft:enchanted_book") {
           const loreLine = value.lore?.[0];
           if (loreLine) {
-            label = loreLine.replace(/§./g, "");
+            label = loreLine.replace(/{LVL}/g, "100");
+            searchLabel = label.replace(/§./g, "");
           }
         }
 
         return {
           label,
+          searchLabel,
+          displayNode: parseMinecraftColors(label),
           value: value.internalname || key,
         };
       }),
@@ -54,14 +61,15 @@ export function ItemSearch({
   const filteredItems = useMemo(() => {
     if (!currentSearch) return items.slice(0, 10);
     const filtered = items.filter((item) =>
-      item.label.toLowerCase().includes(currentSearch.toLowerCase()),
+      item.searchLabel.toLowerCase().includes(currentSearch.toLowerCase()),
     );
     return filtered.slice(0, 10);
   }, [items, currentSearch]);
 
   const handleSelect = (itemValue: string) => {
     const selectedItem = items.find((item) => item.value === itemValue);
-    const newSearchValue = selectedItem?.label || "";
+    // Use plain text (no color codes) for the input field
+    const newSearchValue = selectedItem?.searchLabel || "";
 
     if (onSearchChange) {
       onSearchChange(newSearchValue);
@@ -110,7 +118,15 @@ export function ItemSearch({
                 height={24}
                 itemsData={itemsData}
               />
-              <span>{item.label}</span>
+              <span>
+                {settings.enableColoredNames
+                  ? item.displayNode.map((segment, idx) => (
+                    <span key={idx} style={{ color: segment.color }}>
+                      {segment.text}
+                    </span>
+                  ))
+                  : item.searchLabel}
+              </span>
             </div>
           ))}
         </div>

@@ -9,6 +9,8 @@ import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { useSettings } from "@/lib/settings-context";
 
 export interface ItemListEntry {
     itemId: string;
@@ -32,6 +34,7 @@ export function ItemListManager({
     selectedItemId,
     onItemClick,
 }: ItemListManagerProps) {
+    const { settings } = useSettings();
     const [isAdding, setIsAdding] = useState(false);
     const [tempSearch, setTempSearch] = useState("");
     const [tempQuantity, setTempQuantity] = useState(1);
@@ -124,6 +127,7 @@ export function ItemListManager({
                         {items.map((item, index) => {
                             const entry = recipes[item.itemId];
                             const displayName = getDisplayName(entry, item.itemId, itemsData);
+                            const plainDisplayName = displayName.replace(/§./g, "");
                             const isSelected = selectedItemId === item.itemId;
                             return (
                                 <div
@@ -133,8 +137,8 @@ export function ItemListManager({
                                     onDragOver={handleDragOver}
                                     onDrop={() => handleDrop(index)}
                                     className={`flex items-center gap-2 p-2 rounded-lg border transition-colors ${isSelected
-                                            ? "bg-primary/10 border-primary"
-                                            : "bg-muted/50 border-border/50 hover:bg-muted/70"
+                                        ? "bg-primary/10 border-primary"
+                                        : "bg-muted/50 border-border/50 hover:bg-muted/70"
                                         } ${draggedIndex === index ? "opacity-50" : ""} ${onItemClick ? "cursor-pointer" : ""}`}
                                     onClick={() => onItemClick?.(item.itemId)}
                                 >
@@ -146,23 +150,23 @@ export function ItemListManager({
                                     >
                                         <GripVertical className="w-4 h-4 text-muted-foreground" />
                                     </div>
-                                    <div title={displayName}>
+                                    <div title={plainDisplayName}>
                                         <ItemImage
                                             entry={entry}
                                             internalname={item.itemId}
-                                            alt={displayName}
+                                            alt={plainDisplayName}
                                             width={32}
                                             height={32}
                                             itemsData={itemsData}
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p
-                                            className="text-sm font-medium truncate"
-                                            title={displayName}
-                                        >
-                                            {displayName}
-                                        </p>
+                                        <MinecraftColoredText
+                                            text={displayName}
+                                            className="text-sm font-medium truncate block"
+                                            title={plainDisplayName}
+                                            enabled={settings.enableColoredNames}
+                                        />
                                     </div>
                                     <div
                                         className="flex items-center gap-2"

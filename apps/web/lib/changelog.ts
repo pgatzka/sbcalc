@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         title: "December 2025",
         items: [
             {
+                title: "Pet names now display in color",
+                description:
+                    "Pet names and enchanted book titles now display in their original Minecraft colors. Level 100 is automatically displayed for all pets, so you can see exactly what you're upgrading.",
+            },
+            {
                 title: "Reorder items with drag-and-drop",
                 description:
                     "Rearrange your item list by dragging and dropping items. Hover over any item name to see the full name if it's truncated.",

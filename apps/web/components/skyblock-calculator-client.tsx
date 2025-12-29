@@ -128,26 +128,17 @@ export function SkyblockCalculatorClient() {
         }
     }, [mode]);
 
-    // Sync search value with selected item when it loads from localStorage
+    // Sync search value with selected item when it loads from localStorage (strip color codes for input)
     useEffect(() => {
         if (selectedItem && mode === "single") {
             const item = recipes[selectedItem as keyof typeof recipes];
             if (item) {
-                let displayName =
-                    item.displayname?.replace(/§./g, "") || item.internalname || selectedItem;
-
-                // For enchanted books, use the first lore line as the label
-                if (item.itemid === "minecraft:enchanted_book") {
-                    const loreLine = item.lore?.[0];
-                    if (loreLine) {
-                        displayName = loreLine.replace(/§./g, "");
-                    }
-                }
-
-                setSearchValue(displayName);
+                const displayNameColored = getDisplayName(item, selectedItem, items);
+                const displayNamePlain = displayNameColored.replace(/§./g, "");
+                setSearchValue(displayNamePlain);
             }
         }
-    }, [selectedItem, mode, recipes]);
+    }, [selectedItem, mode, recipes, items]);
 
     // Restore last multi-selected item from localStorage on load or mode change
     useEffect(() => {

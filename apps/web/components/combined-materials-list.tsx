@@ -10,6 +10,8 @@ import { Clipboard } from "lucide-react";
 import { ItemImage } from "@/components/item-image";
 import { getDisplayName } from "@/lib/utils";
 import type { RecipesData } from "@/lib/types";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { useSettings } from "@/lib/settings-context";
 
 export function CombinedMaterialsList(props: {
     baseRequirements: Record<string, number>;
@@ -17,6 +19,7 @@ export function CombinedMaterialsList(props: {
     itemsData: RecipesData;
 }) {
     const { baseRequirements, recipes, itemsData } = props;
+    const { settings } = useSettings();
 
     return (
         <Card className="flex-1 flex flex-col mb-20">
@@ -35,6 +38,7 @@ export function CombinedMaterialsList(props: {
                             const displayName = entry
                                 ? getDisplayName(entry, materialName, itemsData)
                                 : materialName;
+                            const plainDisplayName = displayName.replace(/§./g, "");
                             return (
                                 <div
                                     key={materialName}
@@ -43,15 +47,18 @@ export function CombinedMaterialsList(props: {
                                     <ItemImage
                                         entry={entry}
                                         internalname={materialName}
-                                        alt={displayName}
+                                        alt={plainDisplayName}
                                         width={32}
                                         height={32}
                                         itemsData={itemsData}
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">
-                                            {displayName}
-                                        </p>
+                                        <MinecraftColoredText
+                                            text={displayName}
+                                            className="text-sm font-medium truncate block"
+                                            title={plainDisplayName}
+                                            enabled={settings.enableColoredNames}
+                                        />
                                         <p className="text-xs text-muted-foreground">
                                             {count.toLocaleString()}x
                                         </p>

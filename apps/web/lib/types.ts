@@ -31,6 +31,7 @@ export interface Settings {
   forgeSlots: number;
   useMultipleSlots: boolean;
   quickForgeLevel: number;
+  enableColoredNames: boolean;
 }
 
 export type RecipesData = Record<string, RecipeEntry>;

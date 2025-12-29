@@ -11,6 +11,8 @@ import { ChevronDown, ChevronUp, Wrench, X } from "lucide-react";
 import { RecipeTree } from "@/components/recipe-tree";
 import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { useSettings } from "@/lib/settings-context";
 
 export function CraftingTreeMulti(props: {
     selectedItemId: string;
@@ -41,6 +43,8 @@ export function CraftingTreeMulti(props: {
         forgeSettings,
     } = props;
 
+    const { settings } = useSettings();
+
     const multiplier =
         itemList.find((i) => i.itemId === selectedItemId)?.quantity || 1;
     const displayName = getDisplayName(
@@ -48,6 +52,7 @@ export function CraftingTreeMulti(props: {
         selectedItemId,
         itemsData,
     );
+    const plainDisplayName = displayName.replace(/§./g, "");
 
     return (
         <Card className="flex-1 flex flex-col">
@@ -55,7 +60,12 @@ export function CraftingTreeMulti(props: {
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-3">
                         <Wrench className="w-5 h-5" />
-                        Crafting Tree - {displayName}
+                        <span>Crafting Tree - </span>
+                        <MinecraftColoredText
+                            text={displayName}
+                            title={plainDisplayName}
+                            enabled={settings.enableColoredNames}
+                        />
                     </CardTitle>
                     <div className="flex gap-2">
                         <Button

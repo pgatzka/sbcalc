@@ -20,7 +20,10 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 );
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_FORGE_SETTINGS);
+  const [settings, setSettings] = useState<Settings>({
+    ...DEFAULT_FORGE_SETTINGS,
+    enableColoredNames: true,
+  });
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -28,7 +31,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem("sbcalc-settings");
       if (saved) {
         const parsedSettings = JSON.parse(saved);
-        setSettings({ ...DEFAULT_FORGE_SETTINGS, ...parsedSettings });
+        setSettings({
+          ...DEFAULT_FORGE_SETTINGS,
+          ...parsedSettings,
+          enableColoredNames: true,
+        });
+        return;
       }
     } catch {
       // Silently fail and use default settings
@@ -45,7 +53,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, [settings]);
 
   const updateSettings = useCallback((newSettings: Partial<Settings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    setSettings((prev) => ({
+      ...prev,
+      ...newSettings,
+      enableColoredNames: true,
+    }));
   }, []);
 
   return (

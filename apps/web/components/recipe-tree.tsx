@@ -5,6 +5,8 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { RecipesData, ForgeRecipe, ForgeSettings } from "@/lib/types";
 import { BASE_MATERIALS } from "@/lib/constants";
 import { getDisplayName } from "@/lib/utils";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { useSettings } from "@/lib/settings-context";
 import { calculateOptimalForgeTime } from "@/lib/forge-time-utils";
 import {
   aggregateIngredients,
@@ -37,6 +39,7 @@ export function RecipeTree({
   onToggleExpanded,
   forgeSettings = { forgeSlots: 2, useMultipleSlots: true, quickForgeLevel: 0 },
 }: RecipeTreeProps): React.ReactElement | null {
+  const { settings } = useSettings();
   const [internalExpandedItems, setInternalExpandedItems] = useState<
     Set<string>
   >(new Set([internalname]));
@@ -94,6 +97,7 @@ export function RecipeTree({
   };
 
   const displayName = getDisplayName(entry, internalname, itemsData);
+  const plainDisplayName = displayName.replace(/§./g, "");
 
   // Detect Forge recipe
   const isForgeRecipe = (recipe as ForgeRecipe)?.type === "forge";
@@ -135,9 +139,8 @@ export function RecipeTree({
     <div className="space-y-1">
       {/* Current item display */}
       <div
-        className={`flex items-center gap-4 p-3 my-2 bg-card rounded-lg border-l-4 ${
-          visited.has(internalname) ? "border-destructive" : "border-primary"
-        } hover:bg-accent transition-all hover:translate-x-1 ${hasIngredients ? "cursor-pointer" : ""}`}
+        className={`flex items-center gap-4 p-3 my-2 bg-card rounded-lg border-l-4 ${visited.has(internalname) ? "border-destructive" : "border-primary"
+          } hover:bg-accent transition-all hover:translate-x-1 ${hasIngredients ? "cursor-pointer" : ""}`}
         style={{ marginLeft: `${depth * 20}px` }}
         onClick={() => {
           if (hasIngredients) {
@@ -158,13 +161,18 @@ export function RecipeTree({
         <ItemImage
           entry={entry} // Use the current item's entry
           internalname={internalname}
-          alt={displayName}
+          alt={plainDisplayName}
           width={32}
           height={32}
           style={{ verticalAlign: "middle" }}
           itemsData={itemsData}
         />
-        <span className="font-medium text-foreground">{displayName}</span>
+        <MinecraftColoredText
+          text={displayName}
+          className="font-medium text-foreground"
+          title={plainDisplayName}
+          enabled={settings.enableColoredNames}
+        />
         {isForgeRecipe && (
           <span className="ml-2 bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
             Forge Recipe
