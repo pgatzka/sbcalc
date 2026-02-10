@@ -10,15 +10,13 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean": "node clean.js",
-    "build:clean": "pnpm run clean && pnpm run build && pnpm run start"
+    "clean": "node dist/clean.js",
+    "build:clean": "pnpm run build && node dist/clean.js && pnpm run start"
   },
   "dependencies": {
-    "fs-extra": "^11.3.3",
     "simple-git": "^3.30.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.2.2",
     "typescript": "^5.9.3"
   },
