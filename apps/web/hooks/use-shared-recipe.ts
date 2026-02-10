@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   getSharedRecipeState,
@@ -15,7 +15,7 @@ export function useSharedRecipe() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasProcessedUrl, setHasProcessedUrl] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const _searchParams = useSearchParams();
 
   useEffect(() => {
     if (hasProcessedUrl) return;

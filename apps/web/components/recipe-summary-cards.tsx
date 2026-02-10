@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect } from "react";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { trackRecipeSummaryView } from "@/lib/analytics";
+import { formatForgeTime } from "@/lib/forge-time-utils";
+import { useSettings } from "@/lib/settings-context";
 import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
-import { MinecraftColoredText } from "@/components/minecraft-colored-text";
-import { useSettings } from "@/lib/settings-context";
-import { formatForgeTime } from "@/lib/forge-time-utils";
-import { trackRecipeSummaryView } from "@/lib/analytics";
 
 interface RecipeSummaryCardsProps {
   selectedItem: string;
@@ -84,10 +85,11 @@ export function RecipeSummaryCards({
 
   return (
     <div
-      className={`grid gap-3 ${totalForgeTime > 0
+      className={`grid gap-3 ${
+        totalForgeTime > 0
           ? "grid-cols-2 md:grid-cols-5"
           : "grid-cols-2 md:grid-cols-4"
-        }`}
+      }`}
     >
       <SummaryCard
         label="Target Item"

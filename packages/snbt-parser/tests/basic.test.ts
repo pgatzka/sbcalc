@@ -1,11 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  parseSNBT,
-  safeParseSNBT,
-  isValidSNBT,
-  SNBTParseError,
-  SNBTParser,
-} from "../src/index.js";
+import { describe, expect, it } from "vitest";
+import { parseSNBT } from "../src/index.js";
 
 describe("Basic SNBT Parsing", () => {
   describe("Simple Values", () => {

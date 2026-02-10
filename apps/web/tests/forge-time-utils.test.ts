@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  formatForgeTime,
-  calculateOptimalForgeTime,
-  getTotalForgeTime,
-  calculateQuickForgeReduction,
   applyQuickForgeReduction,
+  calculateOptimalForgeTime,
+  calculateQuickForgeReduction,
+  formatForgeTime,
+  getTotalForgeTime,
 } from "@/lib/forge-time-utils";
 import type { ForgeSettings, RecipesData } from "@/lib/types";
 

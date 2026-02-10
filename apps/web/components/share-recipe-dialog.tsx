@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Share2, Copy, Check } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -13,10 +11,12 @@ import {
 } from "@workspace/ui/components/dialog";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
+import { Check, Copy, Share2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
-  generateShareableUrl,
   createRecipeDescription,
+  generateShareableUrl,
   type ShareableRecipeState,
 } from "@/lib/share-utils";
 

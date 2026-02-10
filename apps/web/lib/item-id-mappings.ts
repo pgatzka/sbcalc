@@ -319,8 +319,8 @@ export function getMappedItemId(
   // Try to extract damage from NBT if available
   if (nbtTag && mapping.metadataMap) {
     const damageMatch = nbtTag.match(/damage:(\d+)/i);
-    if (damageMatch && damageMatch[1]) {
-      const nbtDamage = parseInt(damageMatch[1]);
+    if (damageMatch?.[1]) {
+      const nbtDamage = parseInt(damageMatch[1], 10);
       if (mapping.metadataMap[nbtDamage]) {
         return mapping.metadataMap[nbtDamage];
       }
@@ -363,8 +363,8 @@ export function getMappingInfo(
     } else if (nbtTag && mapping.metadataMap) {
       // Try to extract damage from NBT if available
       const damageMatch = nbtTag.match(/damage:(\d+)/i);
-      if (damageMatch && damageMatch[1]) {
-        const nbtDamage = parseInt(damageMatch[1]);
+      if (damageMatch?.[1]) {
+        const nbtDamage = parseInt(damageMatch[1], 10);
         if (mapping.metadataMap[nbtDamage]) {
           mappedId = mapping.metadataMap[nbtDamage];
         }

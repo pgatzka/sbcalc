@@ -1,9 +1,9 @@
-import type { RecipesData, ForgeRecipe, ForgeSettings } from "@/lib/types";
 import {
-  getRecipe,
-  getIngredientsFromRecipe,
   aggregateIngredients,
+  getIngredientsFromRecipe,
+  getRecipe,
 } from "@/lib/recipe-utils";
+import type { ForgeRecipe, ForgeSettings, RecipesData } from "@/lib/types";
 
 // Calculate optimal forge time considering multiple slots
 export function calculateOptimalForgeTime(
@@ -88,7 +88,7 @@ export function getTotalForgeTime(
 
 // Format seconds as s/m/h/d
 export function formatForgeTime(seconds?: number): string {
-  if (typeof seconds !== "number" || isNaN(seconds)) return "";
+  if (typeof seconds !== "number" || Number.isNaN(seconds)) return "";
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
   if (seconds < 86400) {

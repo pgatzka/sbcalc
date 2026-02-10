@@ -1,11 +1,10 @@
 import { ImageResponse } from "@vercel/og";
-import { NextRequest } from "next/server";
-import { decodeRecipeState } from "@/lib/share-utils";
-import { getMappingInfo } from "@/lib/item-id-mappings";
-import { extractFromSNBT } from "@/lib/utils";
+import type { NextRequest } from "next/server";
 import itemsRaw from "@/data/items.json";
+import { getMappingInfo } from "@/lib/item-id-mappings";
 import type { ShareableRecipeState } from "@/lib/share-utils";
-import type { RecipesData } from "@/lib/types";
+import { decodeRecipeState } from "@/lib/share-utils";
+import { extractFromSNBT } from "@/lib/utils";
 
 export const runtime = "edge";
 
@@ -58,7 +57,7 @@ function getItemImageUrl(itemId: string): string {
   }
 
   // Try to get the item entry from items data
-  let currentEntry = itemsData[itemId];
+  const currentEntry = itemsData[itemId];
 
   if (!currentEntry) {
     // Fallback to placeholder for unknown items using site's primary color
@@ -143,146 +142,144 @@ export async function GET(request: NextRequest) {
     }
 
     return new ImageResponse(
-      (
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000000", // black background
+          backgroundImage:
+            "radial-gradient(circle at 25px 25px, #1a1a1a 2px, transparent 0), radial-gradient(circle at 75px 75px, #1a1a1a 2px, transparent 0)",
+          backgroundSize: "100px 100px",
+          color: "white",
+          fontFamily: "Inter, system-ui, sans-serif",
+        }}
+      >
         <div
           style={{
-            height: "100%",
-            width: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background:
+              "linear-gradient(135deg, rgba(168, 208, 95, 0.1) 0%, rgba(223, 142, 89, 0.1) 100%)", // primary and accent colors
+          }}
+        />
+
+        <div
+          style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#000000", // black background
-            backgroundImage:
-              "radial-gradient(circle at 25px 25px, #1a1a1a 2px, transparent 0), radial-gradient(circle at 75px 75px, #1a1a1a 2px, transparent 0)",
-            backgroundSize: "100px 100px",
-            color: "white",
-            fontFamily: "Inter, system-ui, sans-serif",
+            textAlign: "center",
+            maxWidth: "900px",
+            padding: "80px 60px",
+            position: "relative",
           }}
         >
           <div
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background:
-                "linear-gradient(135deg, rgba(168, 208, 95, 0.1) 0%, rgba(223, 142, 89, 0.1) 100%)", // primary and accent colors
-            }}
-          />
-
-          <div
-            style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "20px",
+              background: "linear-gradient(135deg, #a8d05f 0%, #df8e59 100%)", // primary to accent gradient
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              textAlign: "center",
-              maxWidth: "900px",
-              padding: "80px 60px",
-              position: "relative",
+              border: "4px solid rgba(255, 255, 255, 0.1)",
+              marginBottom: "40px",
             }}
           >
-            <div
-              style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "20px",
-                background: "linear-gradient(135deg, #a8d05f 0%, #df8e59 100%)", // primary to accent gradient
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "4px solid rgba(255, 255, 255, 0.1)",
-                marginBottom: "40px",
-              }}
-            >
-              {itemId ? (
-                <img
-                  src={getItemImageUrl(itemId)}
-                  alt={formatItemName(itemId)}
-                  width="80"
-                  height="80"
-                  style={{
-                    borderRadius: "8px",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    fontSize: "60px",
-                    fontWeight: "bold",
-                    color: "white",
-                  }}
-                >
-                  🔨
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                fontSize: shared ? "48px" : "56px",
-                fontWeight: "bold",
-                background: "linear-gradient(135deg, #a8d05f 0%, #df8e59 100%)", // primary to accent gradient
-                backgroundClip: "text",
-                color: "transparent",
-                marginBottom: "20px",
-                lineHeight: 1.1,
-              }}
-            >
-              {title}
-            </div>
-
-            <div
-              style={{
-                fontSize: "32px",
-                color: "#94a3b8",
-                marginBottom: description ? "20px" : "0",
-                lineHeight: 1.3,
-              }}
-            >
-              {subtitle}
-            </div>
-
-            {description && (
+            {itemId ? (
+              <img
+                src={getItemImageUrl(itemId)}
+                alt={formatItemName(itemId)}
+                width="80"
+                height="80"
+                style={{
+                  borderRadius: "8px",
+                }}
+              />
+            ) : (
               <div
                 style={{
-                  fontSize: "24px",
-                  color: "#64748b",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  padding: "12px 24px",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  fontSize: "60px",
+                  fontWeight: "bold",
+                  color: "white",
                 }}
               >
-                {description}
+                🔨
               </div>
             )}
           </div>
 
           <div
             style={{
-              position: "absolute",
-              bottom: "40px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontSize: "20px",
-              color: "#64748b",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              width: "auto",
-              whiteSpace: "nowrap",
+              fontSize: shared ? "48px" : "56px",
+              fontWeight: "bold",
+              background: "linear-gradient(135deg, #a8d05f 0%, #df8e59 100%)", // primary to accent gradient
+              backgroundClip: "text",
+              color: "transparent",
+              marginBottom: "20px",
+              lineHeight: 1.1,
             }}
           >
-            <div>sbcalc.net</div>
-            <div style={{ color: "#a8d05f" }}>•</div>
-            <div>by hexeption</div>
+            {title}
           </div>
+
+          <div
+            style={{
+              fontSize: "32px",
+              color: "#94a3b8",
+              marginBottom: description ? "20px" : "0",
+              lineHeight: 1.3,
+            }}
+          >
+            {subtitle}
+          </div>
+
+          {description && (
+            <div
+              style={{
+                fontSize: "24px",
+                color: "#64748b",
+                background: "rgba(255, 255, 255, 0.05)",
+                padding: "12px 24px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              {description}
+            </div>
+          )}
         </div>
-      ),
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "20px",
+            color: "#64748b",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            width: "auto",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <div>sbcalc.net</div>
+          <div style={{ color: "#a8d05f" }}>•</div>
+          <div>by hexeption</div>
+        </div>
+      </div>,
       {
         width: 1200,
         height: 630,
@@ -292,29 +289,25 @@ export async function GET(request: NextRequest) {
     console.error("Error generating OG image:", error);
 
     return new ImageResponse(
-      (
-        <div
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#000000", // black background
-            color: "white",
-            fontSize: "40px",
-            fontWeight: "bold",
-          }}
-        >
-          <div>Skyblock Calculator</div>
-          <div
-            style={{ fontSize: "24px", marginTop: "20px", color: "#b3b3b3" }}
-          >
-            Recipe & Forge Calculator
-          </div>
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000000", // black background
+          color: "white",
+          fontSize: "40px",
+          fontWeight: "bold",
+        }}
+      >
+        <div>Skyblock Calculator</div>
+        <div style={{ fontSize: "24px", marginTop: "20px", color: "#b3b3b3" }}>
+          Recipe & Forge Calculator
         </div>
-      ),
+      </div>,
       {
         width: 1200,
         height: 630,

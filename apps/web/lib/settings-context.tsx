@@ -1,14 +1,15 @@
 "use client";
 
-import React, {
+import type React from "react";
+import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-import type { Settings } from "@/lib/types";
 import { DEFAULT_FORGE_SETTINGS } from "@/lib/constants";
+import type { Settings } from "@/lib/types";
 
 interface SettingsContextType {
   settings: Settings;

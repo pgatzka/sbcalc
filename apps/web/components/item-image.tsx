@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
+import { getMappingInfo } from "@/lib/item-id-mappings";
 import type { RecipeEntry, RecipesData } from "@/lib/types";
 import { extractFromSNBT } from "@/lib/utils";
-import { getMappedItemId, getMappingInfo } from "@/lib/item-id-mappings";
 
 interface ItemImageProps {
   entry: RecipeEntry | undefined;

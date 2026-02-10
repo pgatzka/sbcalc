@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import type { RecipesData } from "@/lib/types";
-import {
-  getRecipe,
-  getIngredientsFromRecipe,
-  aggregateIngredients,
-} from "@/lib/recipe-utils";
+import { useEffect, useState } from "react";
 import { BASE_MATERIALS } from "@/lib/constants";
+import {
+  aggregateIngredients,
+  getIngredientsFromRecipe,
+  getRecipe,
+} from "@/lib/recipe-utils";
+import type { RecipesData } from "@/lib/types";
 
 export function useRecipeTreeExpansion(
   selectedItem: string | null,

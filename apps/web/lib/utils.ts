@@ -1,5 +1,5 @@
-import type { RecipeEntry, RecipesData } from "./types";
 import { parseSNBT } from "@workspace/snbt-parser";
+import type { RecipeEntry, RecipesData } from "./types";
 
 /**
  * Get display name from recipe entry, removing Minecraft formatting codes
@@ -26,8 +26,8 @@ export const getDisplayName = (
   }
 
   // Then try to get from items data
-  if (itemsData && itemsData[internalname]?.displayname) {
-    const entry = itemsData[internalname];
+  const entry = itemsData?.[internalname];
+  if (entry?.displayname) {
     // Check if it's an enchanted book in items data
     if (
       entry.itemid === "minecraft:enchanted_book" &&
@@ -36,7 +36,7 @@ export const getDisplayName = (
     ) {
       return entry.lore[0]?.replace(/{LVL}/g, "100") || "";
     }
-    return entry.displayname!.replace(/{LVL}/g, "100");
+    return entry.displayname.replace(/{LVL}/g, "100");
   }
 
   // Last resort: format the internal name
@@ -78,7 +78,7 @@ export function extractFromSNBT(nbttag: string): {
             // MineSkin can render custom textures from Minecraft URLs
             textureUrl = `https://api.mineskin.org/render/head?url=${encodeURIComponent(minecraftTextureUrl)}`;
           }
-        } catch (e) {
+        } catch (_e) {
           // Silent fail
         }
       }
@@ -94,7 +94,7 @@ export function extractFromSNBT(nbttag: string): {
     }
 
     return { textureUrl, itemModel };
-  } catch (e) {
+  } catch (_e) {
     // If our custom SNBT parser fails, return null values
     return { textureUrl: null, itemModel: null };
   }

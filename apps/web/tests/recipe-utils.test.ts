@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   aggregateIngredients,
-  getRecipe,
-  getIngredientsFromRecipe,
   getBaseRequirements,
+  getIngredientsFromRecipe,
+  getRecipe,
 } from "@/lib/recipe-utils";
-import type { RecipesData, RecipeEntry, ForgeRecipe } from "@/lib/types";
+import type { ForgeRecipe, RecipeEntry, RecipesData } from "@/lib/types";
 
 describe("aggregateIngredients", () => {
   it("should aggregate ingredient counts correctly", () => {

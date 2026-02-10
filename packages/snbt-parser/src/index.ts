@@ -1,13 +1,13 @@
 export { SNBTParser } from "./parser.js";
 export {
-  SNBTParseError,
   NBTTagType,
   type NBTValue,
   type ParseOptions,
+  SNBTParseError,
 } from "./types.js";
 
 import { SNBTParser } from "./parser.js";
-import { SNBTParseError, type NBTValue, type ParseOptions } from "./types.js";
+import { type NBTValue, type ParseOptions, SNBTParseError } from "./types.js";
 
 /**
  * Parse SNBT (Stringified NBT) string into a JavaScript object

@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { SkyblockCalculatorClient } from "@/components/skyblock-calculator-client";
 import { generateMetadata as generateDynamicMetadata } from "@/lib/metadata";
-import { Metadata } from "next";
 
 type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -16,7 +16,7 @@ export async function generateMetadata({
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  const params = await searchParams;
+  const _params = await searchParams;
   return (
     <div>
       <SkyblockCalculatorClient />

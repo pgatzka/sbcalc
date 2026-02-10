@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
-  encodeRecipeState,
-  decodeRecipeState,
-  generateShareableUrl,
   createRecipeDescription,
+  decodeRecipeState,
+  encodeRecipeState,
+  generateShareableUrl,
   type ShareableRecipeState,
 } from "@/lib/share-utils";
 

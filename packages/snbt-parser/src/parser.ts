@@ -1,4 +1,4 @@
-import { NBTValue, ParseOptions, SNBTParseError } from "./types.js";
+import { type NBTValue, type ParseOptions, SNBTParseError } from "./types.js";
 
 export { SNBTParseError } from "./types.js";
 
@@ -281,7 +281,7 @@ export class SNBTParser {
 
   private parseNumber(): number | bigint {
     const start = this.position;
-    let hasDecimal = false;
+    let _hasDecimal = false;
     let suffix = "";
 
     // Handle sign
@@ -296,7 +296,7 @@ export class SNBTParser {
 
     // Handle decimal
     if (this.peek() === ".") {
-      hasDecimal = true;
+      _hasDecimal = true;
       this.advance();
       while (this.position < this.input.length && this.isDigit(this.peek())) {
         this.advance();
@@ -322,7 +322,7 @@ export class SNBTParser {
 
     const num = parseFloat(numStr);
 
-    if (isNaN(num)) {
+    if (Number.isNaN(num)) {
       throw new SNBTParseError(`Invalid number: ${numStr}`, this.position);
     }
 

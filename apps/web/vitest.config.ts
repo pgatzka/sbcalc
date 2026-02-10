@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
+
+import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
-import path from "path";
 
 export default defineConfig({
   test: {
@@ -23,10 +24,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "."),
-      "@workspace/ui": path.resolve(__dirname, "../../packages/ui"),
-      "@workspace/snbt-parser": path.resolve(
-        __dirname,
+      "@": resolve(import.meta.dirname, "."),
+      "@workspace/ui": resolve(import.meta.dirname, "../../packages/ui"),
+      "@workspace/snbt-parser": resolve(
+        import.meta.dirname,
         "../../packages/snbt-parser",
       ),
     },

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+// biome-ignore lint/correctness/noUnusedImports: React must be in scope for JSX in vi.mock
 import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import { ItemImage } from "@/components/item-image";
 import type { RecipeEntry } from "@/lib/types";
 

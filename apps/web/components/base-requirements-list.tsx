@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect } from "react";
 import { Package } from "lucide-react";
+import { useEffect } from "react";
+import { MinecraftColoredText } from "@/components/minecraft-colored-text";
+import { trackBaseRequirementsView } from "@/lib/analytics";
+import { getBaseRequirements } from "@/lib/recipe-utils";
+import { useSettings } from "@/lib/settings-context";
 import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
-import { MinecraftColoredText } from "@/components/minecraft-colored-text";
-import { useSettings } from "@/lib/settings-context";
-import { getBaseRequirements } from "@/lib/recipe-utils";
 import { ItemImage } from "./item-image";
-import { trackBaseRequirementsView } from "@/lib/analytics";
 
 interface BaseRequirementsListProps {
   internalname: string;

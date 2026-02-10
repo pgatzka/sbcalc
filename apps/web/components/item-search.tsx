@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { Input } from "@workspace/ui/components/input";
+import { useMemo, useState } from "react";
 import { ItemImage } from "@/components/item-image";
-import { parseMinecraftColors } from "@/lib/utils";
-import type { RecipesData } from "@/lib/types";
 import { useSettings } from "@/lib/settings-context";
+import type { RecipesData } from "@/lib/types";
+import { parseMinecraftColors } from "@/lib/utils";
 
 export interface ItemSearchProps {
   onSelect?: (itemValue: string) => void;
@@ -13,8 +13,8 @@ export interface ItemSearchProps {
   onSearchChange?: (value: string) => void;
 }
 
-import recipesRaw from "@/data/recipes_items.json";
 import itemsRaw from "@/data/items.json";
+import recipesRaw from "@/data/recipes_items.json";
 
 const recipes: RecipesData = recipesRaw as any;
 const itemsData: RecipesData = itemsRaw as any;
@@ -35,7 +35,9 @@ export function ItemSearch({
     () =>
       Object.entries(recipes).map(([key, value]) => {
         let label =
-          value.displayname?.replace(/{LVL}/g, "100") || value.internalname || key;
+          value.displayname?.replace(/{LVL}/g, "100") ||
+          value.internalname ||
+          key;
         let searchLabel = label.replace(/§./g, ""); // For search matching
 
         // For enchanted books, use the first lore line as the label
@@ -121,10 +123,10 @@ export function ItemSearch({
               <span>
                 {settings.enableColoredNames
                   ? item.displayNode.map((segment, idx) => (
-                    <span key={idx} style={{ color: segment.color }}>
-                      {segment.text}
-                    </span>
-                  ))
+                      <span key={idx} style={{ color: segment.color }}>
+                        {segment.text}
+                      </span>
+                    ))
                   : item.searchLabel}
               </span>
             </div>

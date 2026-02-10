@@ -1,6 +1,6 @@
-import { Metadata } from "next";
-import { decodeRecipeState } from "@/lib/share-utils";
+import type { Metadata } from "next";
 import type { ShareableRecipeState } from "@/lib/share-utils";
+import { decodeRecipeState } from "@/lib/share-utils";
 
 const formatItemName = (itemId: string): string => {
   return itemId

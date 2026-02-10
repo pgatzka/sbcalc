@@ -1,14 +1,14 @@
-import { Metadata } from "next";
-import { Megaphone, History } from "lucide-react";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
+  CardContent,
   CardHeader,
   CardTitle,
-  CardContent,
 } from "@workspace/ui/components/card";
-import { Button } from "@workspace/ui/components/button";
-import CHANGELOG from "@/lib/changelog";
+import { History, Megaphone } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
+import CHANGELOG from "@/lib/changelog";
 
 export const metadata: Metadata = {
   title: "Changelog | Skyblock Calculator",

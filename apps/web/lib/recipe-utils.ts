@@ -1,5 +1,5 @@
-import type { RecipesData, ForgeRecipe } from "./types";
 import { BASE_MATERIALS } from "./constants";
+import type { ForgeRecipe, RecipesData } from "./types";
 
 /**
  * Helper to aggregate ingredient counts from recipe strings
@@ -101,7 +101,7 @@ export const getBaseRequirements = (
     ) {
       // Use the new visited set for each recursive call
       getBaseRequirements(name, recipes, total, acc, newVisited, itemsData);
-    } else if (itemsData && itemsData[name]) {
+    } else if (itemsData?.[name]) {
       // If not in recipes but exists in items.json, treat as base
       acc[name] = (acc[name] || 0) + total;
     } else {

@@ -1,16 +1,16 @@
 "use client";
 
-import { CookieIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { cn } from "@workspace/ui/lib/utils";
 import { Button } from "@workspace/ui/components/button";
+import { cn } from "@workspace/ui/lib/utils";
+import { CookieIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export function CookieConsent({
   variant = "default",
   mode = false,
-  onAcceptCallback = () => { },
-  onDeclineCallback = () => { },
+  onAcceptCallback = () => {},
+  onDeclineCallback = () => {},
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hide, setHide] = useState(false);
@@ -47,7 +47,7 @@ export function CookieConsent({
     } catch (error) {
       console.error("Error checking cookie consent:", error);
     }
-  }, []);
+  }, [mode]);
 
   return variant === "default" ? (
     <div
@@ -56,7 +56,7 @@ export function CookieConsent({
         !isOpen
           ? "transition-[opacity,transform] translate-y-8 opacity-0"
           : "transition-[opacity,transform] translate-y-0 opacity-100",
-        hide && "hidden"
+        hide && "hidden",
       )}
     >
       <div className="dark:bg-card bg-background rounded-lg sm:rounded-md border border-border shadow-lg">
@@ -74,8 +74,10 @@ export function CookieConsent({
               <br />
               <span className="text-xs">
                 By clicking{" "}
-                <span className="font-medium text-black dark:text-white">Accept</span>, you
-                agree to our use of cookies.
+                <span className="font-medium text-black dark:text-white">
+                  Accept
+                </span>
+                , you agree to our use of cookies.
               </span>
               <br />
               <Link href="/cookie-policy" className="text-xs underline">
@@ -101,7 +103,7 @@ export function CookieConsent({
         !isOpen
           ? "transition-[opacity,transform] translate-y-8 opacity-0"
           : "transition-[opacity,transform] translate-y-0 opacity-100",
-        hide && "hidden"
+        hide && "hidden",
       )}
     >
       <div className="m-0 sm:m-3 dark:bg-card bg-background border border-border rounded-lg shadow-lg">
@@ -120,11 +122,7 @@ export function CookieConsent({
           <Button onClick={accept} className="w-full">
             Accept
           </Button>
-          <Button
-            onClick={decline}
-            className="w-full"
-            variant="outline"
-          >
+          <Button onClick={decline} className="w-full" variant="outline">
             Decline
           </Button>
         </div>
@@ -138,14 +136,16 @@ export function CookieConsent({
           !isOpen
             ? "transition-[opacity,transform] translate-y-8 opacity-0"
             : "transition-[opacity,transform] translate-y-0 opacity-100",
-          hide && "hidden"
+          hide && "hidden",
         )}
       >
         <div className="m-0 sm:m-3 dark:bg-card bg-background border border-border rounded-lg shadow-lg">
           <div className="p-3 flex items-center justify-between border-b border-border">
             <div className="flex items-center gap-2">
               <CookieIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm font-medium">Cookie Notice</span>
+              <span className="text-xs sm:text-sm font-medium">
+                Cookie Notice
+              </span>
             </div>
           </div>
           <div className="p-3">
@@ -153,18 +153,10 @@ export function CookieConsent({
               We use cookies to enhance your browsing experience.
             </p>
             <div className="grid grid-cols-2 items-center gap-2 mt-3">
-              <Button
-                onClick={accept}
-                variant="default"
-                className="w-full"
-              >
+              <Button onClick={accept} variant="default" className="w-full">
                 Accept
               </Button>
-              <Button
-                onClick={decline}
-                variant="ghost"
-                className="w-full"
-              >
+              <Button onClick={decline} variant="ghost" className="w-full">
                 Decline
               </Button>
             </div>

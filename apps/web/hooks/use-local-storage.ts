@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Hook to persist state to localStorage
@@ -9,7 +9,7 @@ export function useLocalStorage<T>(
   initialValue: T,
 ): [T, (value: T | ((val: T) => T)) => void] {
   const [storedValue, setStoredValue] = useState<T>(initialValue);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [_isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage only after hydration is complete
   useEffect(() => {

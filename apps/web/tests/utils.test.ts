@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { getDisplayName, extractFromSNBT } from "@/lib/utils";
+import { describe, expect, it } from "vitest";
 import type { RecipeEntry, RecipesData } from "@/lib/types";
+import { extractFromSNBT, getDisplayName } from "@/lib/utils";
 
 describe("getDisplayName", () => {
   it("should return formatted display name from recipe entry", () => {
@@ -10,7 +10,7 @@ describe("getDisplayName", () => {
     };
 
     const result = getDisplayName(entry, "HYPERION");
-    expect(result).toBe("Hyperion");
+    expect(result).toBe("§6Hyperion");
   });
 
   it("should return display name from items data when not in recipe entry", () => {
@@ -26,7 +26,7 @@ describe("getDisplayName", () => {
     };
 
     const result = getDisplayName(entry, "HYPERION", itemsData);
-    expect(result).toBe("Hyperion Sword");
+    expect(result).toBe("§6Hyperion Sword");
   });
 
   it("should format internal name when no display name is available", () => {
@@ -43,14 +43,14 @@ describe("getDisplayName", () => {
     expect(result).toBe("Iron Ingot");
   });
 
-  it("should remove minecraft formatting codes", () => {
+  it("should preserve minecraft formatting codes in display name", () => {
     const entry: RecipeEntry = {
       displayname: "§l§6Super §r§cPowerful §bSword",
       internalname: "SWORD",
     };
 
     const result = getDisplayName(entry, "SWORD");
-    expect(result).toBe("Super Powerful Sword");
+    expect(result).toBe("§l§6Super §r§cPowerful §bSword");
   });
 });
 

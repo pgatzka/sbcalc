@@ -1,10 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  parseSNBT,
-  safeParseSNBT,
-  isValidSNBT,
-  SNBTParseError,
-} from "../src/index.js";
+import { describe, expect, it } from "vitest";
+import { parseSNBT } from "../src/index.js";
 
 // Real SNBT data from the items.json file
 const REAL_SNBT_EXAMPLES = {

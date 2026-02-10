@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
-import { useSettings } from "@/lib/settings-context";
-import { calculateQuickForgeReduction } from "@/lib/forge-time-utils";
-import { parseAndClampNumber } from "@/lib/input-utils";
+import { Checkbox } from "@workspace/ui/components/checkbox";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
-import { Checkbox } from "@workspace/ui/components/checkbox";
 import { trackForgeSettingChange } from "@/lib/analytics";
+import { calculateQuickForgeReduction } from "@/lib/forge-time-utils";
+import { parseAndClampNumber } from "@/lib/input-utils";
+import { useSettings } from "@/lib/settings-context";
 
 export function ForgeSettings() {
   const { settings, updateSettings } = useSettings();

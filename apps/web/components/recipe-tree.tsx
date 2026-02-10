@@ -1,20 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { RecipesData, ForgeRecipe, ForgeSettings } from "@/lib/types";
-import { BASE_MATERIALS } from "@/lib/constants";
-import { getDisplayName } from "@/lib/utils";
+import type React from "react";
+import { useState } from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
-import { useSettings } from "@/lib/settings-context";
+import { trackRecipeTreeItemClick } from "@/lib/analytics";
+import { BASE_MATERIALS } from "@/lib/constants";
 import { calculateOptimalForgeTime } from "@/lib/forge-time-utils";
 import {
   aggregateIngredients,
-  getRecipe,
   getIngredientsFromRecipe,
+  getRecipe,
 } from "@/lib/recipe-utils";
+import { useSettings } from "@/lib/settings-context";
+import type { ForgeRecipe, ForgeSettings, RecipesData } from "@/lib/types";
+import { getDisplayName } from "@/lib/utils";
 import { ItemImage } from "./item-image";
-import { trackRecipeTreeItemClick } from "@/lib/analytics";
 
 interface RecipeTreeProps {
   internalname: string;
@@ -107,7 +108,7 @@ export function RecipeTree({
     : undefined;
 
   function formatForgeTime(seconds?: number): string {
-    if (typeof seconds !== "number" || isNaN(seconds)) return "";
+    if (typeof seconds !== "number" || Number.isNaN(seconds)) return "";
     if (seconds < 60) return `${seconds}s`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
     if (seconds < 86400) {
@@ -139,8 +140,9 @@ export function RecipeTree({
     <div className="space-y-1">
       {/* Current item display */}
       <div
-        className={`flex items-center gap-4 p-3 my-2 bg-card rounded-lg border-l-4 ${visited.has(internalname) ? "border-destructive" : "border-primary"
-          } hover:bg-accent transition-all hover:translate-x-1 ${hasIngredients ? "cursor-pointer" : ""}`}
+        className={`flex items-center gap-4 p-3 my-2 bg-card rounded-lg border-l-4 ${
+          visited.has(internalname) ? "border-destructive" : "border-primary"
+        } hover:bg-accent transition-all hover:translate-x-1 ${hasIngredients ? "cursor-pointer" : ""}`}
         style={{ marginLeft: `${depth * 20}px` }}
         onClick={() => {
           if (hasIngredients) {
