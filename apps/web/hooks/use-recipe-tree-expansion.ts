@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { BASE_MATERIALS } from "@/lib/constants";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import {
   aggregateIngredients,
   getIngredientsFromRecipe,
   getRecipe,
 } from "@/lib/recipe-utils";
-import type { RecipesData } from "@/lib/types";
 
-export function useRecipeTreeExpansion(
-  selectedItem: string | null,
-  recipes: RecipesData,
-) {
+export function useRecipeTreeExpansion(selectedItem: string | null) {
+  const { recipes } = useRecipeData();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   // Helper function to get all expandable items in the recipe tree

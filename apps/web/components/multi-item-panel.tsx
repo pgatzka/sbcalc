@@ -10,14 +10,11 @@ import { List } from "lucide-react";
 import { ForgeSettings } from "@/components/forge-settings";
 import { ItemListManager } from "@/components/item-list-manager";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
-import type { ItemListEntry } from "@/hooks/use-recipe-state";
-import type { RecipesData } from "@/lib/types";
+import type { ItemListEntry } from "@/lib/types";
 
 export function MultiItemPanel(props: {
   itemList: ItemListEntry[];
   onItemsChange: (items: ItemListEntry[]) => void;
-  recipes: RecipesData;
-  itemsData: RecipesData;
   selectedItemId: string | null;
   onItemClick: (id: string | null) => void;
   recipeState: {
@@ -29,15 +26,8 @@ export function MultiItemPanel(props: {
     };
   };
 }) {
-  const {
-    itemList,
-    onItemsChange,
-    recipes,
-    itemsData,
-    selectedItemId,
-    onItemClick,
-    recipeState,
-  } = props;
+  const { itemList, onItemsChange, selectedItemId, onItemClick, recipeState } =
+    props;
 
   return (
     <Card>
@@ -51,8 +41,6 @@ export function MultiItemPanel(props: {
         <ItemListManager
           items={itemList}
           onItemsChange={onItemsChange}
-          recipes={recipes}
-          itemsData={itemsData}
           selectedItemId={selectedItemId}
           onItemClick={onItemClick}
         />

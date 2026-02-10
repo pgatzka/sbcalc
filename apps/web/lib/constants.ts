@@ -17,7 +17,6 @@ export const DEFAULT_FORGE_SETTINGS = {
   forgeSlots: 2,
   useMultipleSlots: true,
   quickForgeLevel: 0,
-  enableColoredNames: false,
 } as const;
 
 // Input validation limits

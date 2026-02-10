@@ -2,7 +2,8 @@
 
 import React from "react";
 import { getMappingInfo } from "@/lib/item-id-mappings";
-import type { RecipeEntry, RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
+import type { RecipeEntry } from "@/lib/types";
 import { extractFromSNBT } from "@/lib/utils";
 
 interface ItemImageProps {
@@ -12,7 +13,6 @@ interface ItemImageProps {
   width?: number;
   height?: number;
   style?: React.CSSProperties;
-  itemsData?: RecipesData;
 }
 
 export function ItemImage({
@@ -22,8 +22,8 @@ export function ItemImage({
   width = 24,
   height = 24,
   style,
-  itemsData,
 }: ItemImageProps) {
+  const { itemsData } = useRecipeData();
   const [src, setSrc] = React.useState<string | null>(null);
 
   React.useEffect(() => {

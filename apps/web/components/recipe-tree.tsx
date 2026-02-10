@@ -2,54 +2,45 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackRecipeTreeItemClick } from "@/lib/analytics";
 import { BASE_MATERIALS } from "@/lib/constants";
-import { calculateOptimalForgeTime } from "@/lib/forge-time-utils";
+import {
+  calculateOptimalForgeTime,
+  formatForgeTime,
+} from "@/lib/forge-time-utils";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import {
   aggregateIngredients,
   getIngredientsFromRecipe,
   getRecipe,
 } from "@/lib/recipe-utils";
-import { useSettings } from "@/lib/settings-context";
-import type { ForgeRecipe, ForgeSettings, RecipesData } from "@/lib/types";
+import type { ForgeRecipe, ForgeSettings } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
 import { ItemImage } from "./item-image";
 
 interface RecipeTreeProps {
   internalname: string;
-  recipes: RecipesData;
   multiplier?: number;
   depth?: number;
   visited?: Set<string>;
-  itemsData?: RecipesData;
-  expandedItems?: Set<string>;
-  onToggleExpanded?: (itemName: string) => void;
+  expandedItems: Set<string>;
+  onToggleExpanded: (itemName: string) => void;
   forgeSettings?: ForgeSettings;
 }
 
 export function RecipeTree({
   internalname,
-  recipes,
   multiplier = 1,
   depth = 0,
   visited = new Set(),
-  itemsData,
   expandedItems: externalExpandedItems,
   onToggleExpanded,
   forgeSettings = { forgeSlots: 2, useMultipleSlots: true, quickForgeLevel: 0 },
 }: RecipeTreeProps): React.ReactElement | null {
-  const { settings } = useSettings();
-  const [internalExpandedItems, setInternalExpandedItems] = useState<
-    Set<string>
-  >(new Set([internalname]));
+  const { recipes, itemsData } = useRecipeData();
 
-  // Use external expanded state if provided, otherwise use internal state
-  const expandedItems = externalExpandedItems || internalExpandedItems;
-  const setExpandedItems = onToggleExpanded
-    ? undefined
-    : setInternalExpandedItems;
+  const expandedItems = externalExpandedItems ?? new Set([internalname]);
 
   // Check for cycle detection
   if (visited.has(internalname)) {
@@ -84,17 +75,7 @@ export function RecipeTree({
   const isExpanded = expandedItems.has(internalname);
 
   const toggleExpanded = (itemName: string) => {
-    if (onToggleExpanded) {
-      onToggleExpanded(itemName);
-    } else if (setExpandedItems) {
-      const newExpanded = new Set(expandedItems);
-      if (newExpanded.has(itemName)) {
-        newExpanded.delete(itemName);
-      } else {
-        newExpanded.add(itemName);
-      }
-      setExpandedItems(newExpanded);
-    }
+    onToggleExpanded(itemName);
   };
 
   const displayName = getDisplayName(entry, internalname, itemsData);
@@ -107,20 +88,6 @@ export function RecipeTree({
     ? (recipe as ForgeRecipe).forge_time
     : undefined;
 
-  function formatForgeTime(seconds?: number): string {
-    if (typeof seconds !== "number" || Number.isNaN(seconds)) return "";
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
-    if (seconds < 86400) {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      return `${h}h ${m}m`;
-    }
-    const d = Math.floor(seconds / 86400);
-    const h = Math.floor((seconds % 86400) / 3600);
-    return `${d}d ${h}h`;
-  }
-
   // Calculate optimized forge time considering multiple slots
   const optimizedForgeTime =
     rawForgeTime !== undefined
@@ -132,7 +99,7 @@ export function RecipeTree({
       ? formatForgeTime(optimizedForgeTime)
       : undefined;
   const recipeCount: number = !isForgeRecipe
-    ? Number((recipe as any)?.count) || 1
+    ? Number((recipe as Record<string, string | number>)?.count) || 1
     : 1;
   const actualMultiplier = Math.ceil(multiplier / recipeCount);
 
@@ -167,13 +134,11 @@ export function RecipeTree({
           width={32}
           height={32}
           style={{ verticalAlign: "middle" }}
-          itemsData={itemsData}
         />
         <MinecraftColoredText
           text={displayName}
           className="font-medium text-foreground"
           title={plainDisplayName}
-          enabled={settings.enableColoredNames}
         />
         {isForgeRecipe && (
           <span className="ml-2 bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
@@ -219,11 +184,9 @@ export function RecipeTree({
             <RecipeTree
               key={name}
               internalname={name}
-              recipes={recipes}
               multiplier={count * actualMultiplier} // Correct multiplier for children
               depth={depth + 1} // Increment depth for children
               visited={nextVisited}
-              itemsData={itemsData}
               expandedItems={externalExpandedItems}
               onToggleExpanded={onToggleExpanded}
               forgeSettings={forgeSettings}

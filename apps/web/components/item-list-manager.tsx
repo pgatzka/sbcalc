@@ -9,20 +9,13 @@ import { useState } from "react";
 import { ItemImage } from "@/components/item-image";
 import { ItemSearch } from "@/components/item-search";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
+import type { ItemListEntry } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
-
-export interface ItemListEntry {
-  itemId: string;
-  quantity: number;
-}
 
 export interface ItemListManagerProps {
   items: ItemListEntry[];
   onItemsChange: (items: ItemListEntry[]) => void;
-  recipes: RecipesData;
-  itemsData: RecipesData;
   selectedItemId?: string | null;
   onItemClick?: (itemId: string) => void;
 }
@@ -30,12 +23,10 @@ export interface ItemListManagerProps {
 export function ItemListManager({
   items,
   onItemsChange,
-  recipes,
-  itemsData,
   selectedItemId,
   onItemClick,
 }: ItemListManagerProps) {
-  const { settings } = useSettings();
+  const { recipes, itemsData } = useRecipeData();
   const [isAdding, setIsAdding] = useState(false);
   const [tempSearch, setTempSearch] = useState("");
   const [tempQuantity, setTempQuantity] = useState(1);
@@ -159,7 +150,6 @@ export function ItemListManager({
                       alt={plainDisplayName}
                       width={32}
                       height={32}
-                      itemsData={itemsData}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -167,7 +157,6 @@ export function ItemListManager({
                       text={displayName}
                       className="text-sm font-medium truncate block"
                       title={plainDisplayName}
-                      enabled={settings.enableColoredNames}
                     />
                   </div>
                   <div

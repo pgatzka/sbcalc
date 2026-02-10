@@ -9,7 +9,6 @@ import {
 } from "@workspace/ui/components/card";
 import { ChevronDown, ChevronUp, Wrench } from "lucide-react";
 import { RecipeTree } from "@/components/recipe-tree";
-import type { RecipesData } from "@/lib/types";
 
 export function CraftingTreeSingle(props: {
   selectedItem: string;
@@ -18,8 +17,6 @@ export function CraftingTreeSingle(props: {
   onCollapseAll: () => void;
   onToggleExpanded: (id: string) => void;
   multiplier: number;
-  recipes: RecipesData;
-  itemsData: RecipesData;
   forgeSettings: {
     forgeSlots: number;
     useMultipleSlots: boolean;
@@ -33,8 +30,6 @@ export function CraftingTreeSingle(props: {
     onCollapseAll,
     onToggleExpanded,
     multiplier,
-    recipes,
-    itemsData,
     forgeSettings,
   } = props;
 
@@ -64,9 +59,7 @@ export function CraftingTreeSingle(props: {
         <div className="bg-muted/80 rounded-xl p-6 border border-border/50 flex-1 overflow-auto">
           <RecipeTree
             internalname={selectedItem}
-            recipes={recipes}
             multiplier={multiplier}
-            itemsData={itemsData}
             expandedItems={expandedItems}
             onToggleExpanded={onToggleExpanded}
             forgeSettings={forgeSettings}

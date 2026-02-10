@@ -1,15 +1,12 @@
 import { ImageResponse } from "@vercel/og";
 import type { NextRequest } from "next/server";
-import itemsRaw from "@/data/items.json";
+import { itemsData } from "@/lib/data";
 import { getMappingInfo } from "@/lib/item-id-mappings";
 import type { ShareableRecipeState } from "@/lib/share-utils";
 import { decodeRecipeState } from "@/lib/share-utils";
 import { extractFromSNBT } from "@/lib/utils";
 
 export const runtime = "edge";
-
-// Cast the imported data to any to avoid type issues since items.json has a different structure
-const itemsData = itemsRaw as any;
 
 // Helper function to format item names for display
 function formatItemName(itemId: string): string {

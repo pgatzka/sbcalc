@@ -17,6 +17,31 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: "February 2026",
     items: [
       {
+        title: "Full app architecture rebuild",
+        description:
+          "Rewrote the web app with a new data layer, centralized context providers, and proper TypeScript types throughout. Eliminated all prop drilling and removed every 'as any' cast.",
+      },
+      {
+        title: "Fixed forge time calculations",
+        description:
+          "Forge time is now calculated correctly for items that appear in multiple crafting branches. Previously, shared sub-ingredients were only counted once.",
+      },
+      {
+        title: "Removed dead code and unused features",
+        description:
+          "Cleaned up unused files, duplicate functions, and the never-togglable colored names setting. The analytics module was trimmed from 12 functions to 4.",
+      },
+      {
+        title: "Decomposed main calculator component",
+        description:
+          "Split the monolithic calculator into focused hooks for shared recipe loading, result computation, and multi-tree selection. The main component dropped from 377 to 259 lines.",
+      },
+      {
+        title: "Fixed theme toggle hydration mismatch",
+        description:
+          "The dark/light mode toggle no longer causes a hydration warning on page load.",
+      },
+      {
         title: "Migrated to Biome",
         description:
           "Replaced ESLint and Prettier with Biome for faster linting and formatting. The entire codebase now uses a single tool for code quality.",

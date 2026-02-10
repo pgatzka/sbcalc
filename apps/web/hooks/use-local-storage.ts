@@ -9,7 +9,6 @@ export function useLocalStorage<T>(
   initialValue: T,
 ): [T, (value: T | ((val: T) => T)) => void] {
   const [storedValue, setStoredValue] = useState<T>(initialValue);
-  const [_isHydrated, setIsHydrated] = useState(false);
 
   // Load from localStorage only after hydration is complete
   useEffect(() => {
@@ -21,7 +20,6 @@ export function useLocalStorage<T>(
     } catch (error) {
       console.error(`Error loading ${key} from localStorage:`, error);
     }
-    setIsHydrated(true);
   }, [key]);
 
   // Save to localStorage whenever value changes

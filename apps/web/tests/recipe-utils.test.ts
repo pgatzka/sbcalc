@@ -65,11 +65,11 @@ describe("getRecipe", () => {
   });
 
   it("should return forge recipe when present in recipes array", () => {
-    const entry = {
+    const entry: RecipeEntry = {
       internalname: "TEST_ITEM",
       recipes: [
         {
-          type: "forge",
+          type: "forge" as const,
           duration: 300,
           inputs: ["IRON_INGOT:10", "DIAMOND:5"],
         },

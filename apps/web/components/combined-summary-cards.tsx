@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import { formatForgeTime } from "@/lib/forge-time-utils";
 
 export function CombinedSummaryCards(props: {
   itemListCount: number;
@@ -22,13 +23,7 @@ export function CombinedSummaryCards(props: {
     forgeSlots,
   } = props;
 
-  const formattedTime = (() => {
-    const seconds = totalForgeTimeSeconds;
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
-    return `${Math.floor(seconds / 86400)}d`;
-  })();
+  const formattedTime = formatForgeTime(totalForgeTimeSeconds);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

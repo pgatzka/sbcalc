@@ -58,7 +58,8 @@ export function getTotalForgeTime(
   },
 ): number {
   if (visited.has(internalname)) return 0;
-  visited.add(internalname);
+  const newVisited = new Set(visited);
+  newVisited.add(internalname);
 
   const entry = recipes[internalname];
   if (!entry) return 0;
@@ -79,7 +80,7 @@ export function getTotalForgeTime(
       name,
       recipes,
       count * multiplier,
-      visited,
+      newVisited,
       options,
     );
   }

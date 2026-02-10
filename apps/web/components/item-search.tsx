@@ -3,8 +3,7 @@
 import { Input } from "@workspace/ui/components/input";
 import { useMemo, useState } from "react";
 import { ItemImage } from "@/components/item-image";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import { parseMinecraftColors } from "@/lib/utils";
 
 export interface ItemSearchProps {
@@ -13,18 +12,12 @@ export interface ItemSearchProps {
   onSearchChange?: (value: string) => void;
 }
 
-import itemsRaw from "@/data/items.json";
-import recipesRaw from "@/data/recipes_items.json";
-
-const recipes: RecipesData = recipesRaw as any;
-const itemsData: RecipesData = itemsRaw as any;
-
 export function ItemSearch({
   onSelect,
   searchValue,
   onSearchChange,
 }: ItemSearchProps) {
-  const { settings } = useSettings();
+  const { recipes } = useRecipeData();
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,7 +49,7 @@ export function ItemSearch({
           value: value.internalname || key,
         };
       }),
-    [],
+    [recipes],
   );
 
   // Filter items by search
@@ -118,16 +111,13 @@ export function ItemSearch({
                 alt={item.label}
                 width={24}
                 height={24}
-                itemsData={itemsData}
               />
               <span>
-                {settings.enableColoredNames
-                  ? item.displayNode.map((segment, idx) => (
-                      <span key={idx} style={{ color: segment.color }}>
-                        {segment.text}
-                      </span>
-                    ))
-                  : item.searchLabel}
+                {item.displayNode.map((segment, idx) => (
+                  <span key={idx} style={{ color: segment.color }}>
+                    {segment.text}
+                  </span>
+                ))}
               </span>
             </div>
           ))}

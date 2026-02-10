@@ -10,8 +10,7 @@ import {
 import { ChevronDown, ChevronUp, Wrench, X } from "lucide-react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { RecipeTree } from "@/components/recipe-tree";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import { getDisplayName } from "@/lib/utils";
 
 export function CraftingTreeMulti(props: {
@@ -22,8 +21,6 @@ export function CraftingTreeMulti(props: {
   onCollapseAll: () => void;
   onToggleExpanded: (id: string) => void;
   onClose: () => void;
-  recipes: RecipesData;
-  itemsData: RecipesData;
   forgeSettings: {
     forgeSlots: number;
     useMultipleSlots: boolean;
@@ -38,12 +35,10 @@ export function CraftingTreeMulti(props: {
     onCollapseAll,
     onToggleExpanded,
     onClose,
-    recipes,
-    itemsData,
     forgeSettings,
   } = props;
 
-  const { settings } = useSettings();
+  const { recipes, itemsData } = useRecipeData();
 
   const multiplier =
     itemList.find((i) => i.itemId === selectedItemId)?.quantity || 1;
@@ -61,11 +56,7 @@ export function CraftingTreeMulti(props: {
           <CardTitle className="flex items-center gap-3">
             <Wrench className="w-5 h-5" />
             <span>Crafting Tree - </span>
-            <MinecraftColoredText
-              text={displayName}
-              title={plainDisplayName}
-              enabled={settings.enableColoredNames}
-            />
+            <MinecraftColoredText text={displayName} title={plainDisplayName} />
           </CardTitle>
           <div className="flex gap-2">
             <Button
@@ -93,9 +84,7 @@ export function CraftingTreeMulti(props: {
         <div className="bg-muted/80 rounded-xl p-6 border border-border/50 flex-1 overflow-auto">
           <RecipeTree
             internalname={selectedItemId}
-            recipes={recipes}
             multiplier={multiplier}
-            itemsData={itemsData}
             expandedItems={expandedItems}
             onToggleExpanded={onToggleExpanded}
             forgeSettings={forgeSettings}

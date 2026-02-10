@@ -4,30 +4,28 @@ import { Package } from "lucide-react";
 import { useEffect } from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackBaseRequirementsView } from "@/lib/analytics";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import { getBaseRequirements } from "@/lib/recipe-utils";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
 import { ItemImage } from "./item-image";
 
 interface BaseRequirementsListProps {
   internalname: string;
-  recipes: RecipesData;
   multiplier: number;
-  itemsData?: RecipesData;
 }
 
 export function BaseRequirementsList({
   internalname,
-  recipes,
   multiplier,
-  itemsData,
 }: BaseRequirementsListProps) {
-  const { settings } = useSettings();
+  const { recipes, itemsData } = useRecipeData();
   const baseRequirements = getBaseRequirements(
     internalname,
     recipes,
     multiplier,
+    {},
+    new Set(),
+    itemsData,
   );
 
   // Sort by quantity descending
@@ -75,14 +73,12 @@ export function BaseRequirementsList({
                 width={32}
                 height={32}
                 style={{ verticalAlign: "middle" }}
-                itemsData={itemsData}
               />
               <div>
                 <MinecraftColoredText
                   text={displayName}
                   className="font-medium text-foreground block"
                   title={plainDisplayName}
-                  enabled={settings.enableColoredNames}
                 />
                 <div className="text-xs text-muted-foreground">{name}</div>
               </div>

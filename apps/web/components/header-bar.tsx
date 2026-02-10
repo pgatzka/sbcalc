@@ -4,9 +4,14 @@ import { Button } from "@workspace/ui/components/button";
 import { Github, History, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function HeaderBar() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
   return (
     <div className="text-center py-8 px-4 relative">
       <div className="absolute top-4 right-4 md:top-8 md:right-8">
@@ -15,9 +20,15 @@ export function HeaderBar() {
             variant="outline"
             size="sm"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            title={
+              mounted
+                ? `Switch to ${theme === "dark" ? "light" : "dark"} mode`
+                : "Toggle theme"
+            }
           >
-            {theme === "dark" || theme === "system" ? (
+            {!mounted ? (
+              <Sun className="w-4 h-4 md:w-5 md:h-5" />
+            ) : theme === "dark" || theme === "system" ? (
               <Sun className="w-4 h-4 md:w-5 md:h-5" />
             ) : (
               <Moon className="w-4 h-4 md:w-5 md:h-5" />

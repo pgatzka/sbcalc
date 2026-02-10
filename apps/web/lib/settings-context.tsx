@@ -23,7 +23,6 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>({
     ...DEFAULT_FORGE_SETTINGS,
-    enableColoredNames: true,
   });
 
   // Load settings from localStorage on mount
@@ -35,7 +34,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setSettings({
           ...DEFAULT_FORGE_SETTINGS,
           ...parsedSettings,
-          enableColoredNames: true,
         });
         return;
       }
@@ -57,7 +55,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     setSettings((prev) => ({
       ...prev,
       ...newSettings,
-      enableColoredNames: true,
     }));
   }, []);
 

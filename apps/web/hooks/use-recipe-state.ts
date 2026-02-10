@@ -1,9 +1,5 @@
 import { useLocalStorage } from "@/hooks/use-local-storage";
-
-export interface ItemListEntry {
-  itemId: string;
-  quantity: number;
-}
+import type { ItemListEntry } from "@/lib/types";
 
 /**
  * Hook to manage recipe selection state (mode, selected item, multiplier, item list).
@@ -26,9 +22,6 @@ export function useRecipeState() {
     "sbcalc_itemList",
     [],
   );
-  const [lastMultiSelectedItem, setLastMultiSelectedItem] = useLocalStorage<
-    string | null
-  >("sbcalc_lastMultiSelectedItem", null);
 
   const handleModeSwitch = (newMode: "single" | "multi") => {
     setMode(newMode);
@@ -43,7 +36,8 @@ export function useRecipeState() {
   const getRecipeState = () => {
     if (mode === "single" && selectedItem) {
       return { [selectedItem]: multiplier };
-    } else if (mode === "multi") {
+    }
+    if (mode === "multi") {
       return Object.fromEntries(
         itemList.map((item) => [item.itemId, item.quantity]),
       );
@@ -60,8 +54,6 @@ export function useRecipeState() {
     setMultiplier,
     itemList,
     setItemList,
-    lastMultiSelectedItem,
-    setLastMultiSelectedItem,
     handleModeSwitch,
     getRecipeState,
   };

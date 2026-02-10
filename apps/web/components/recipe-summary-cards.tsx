@@ -5,8 +5,7 @@ import { useEffect } from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackRecipeSummaryView } from "@/lib/analytics";
 import { formatForgeTime } from "@/lib/forge-time-utils";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import { getDisplayName } from "@/lib/utils";
 
 interface RecipeSummaryCardsProps {
@@ -16,8 +15,6 @@ interface RecipeSummaryCardsProps {
   totalForgeTime: number;
   forgeSlots: number;
   useMultipleSlots: boolean;
-  recipes: RecipesData;
-  items: RecipesData;
 }
 
 interface SummaryCardProps {
@@ -47,14 +44,12 @@ export function RecipeSummaryCards({
   totalForgeTime,
   forgeSlots,
   useMultipleSlots,
-  recipes,
-  items,
 }: RecipeSummaryCardsProps) {
-  const { settings } = useSettings();
+  const { recipes, itemsData } = useRecipeData();
   const displayName = getDisplayName(
     recipes[selectedItem],
     selectedItem,
-    items,
+    itemsData,
   );
   const plainDisplayName = displayName.replace(/§./g, "");
   const forgeSlotText = useMultipleSlots ? "(parallel)" : "";
@@ -94,11 +89,7 @@ export function RecipeSummaryCards({
       <SummaryCard
         label="Target Item"
         value={
-          <MinecraftColoredText
-            text={displayName}
-            title={plainDisplayName}
-            enabled={settings.enableColoredNames}
-          />
+          <MinecraftColoredText text={displayName} title={plainDisplayName} />
         }
       />
       <SummaryCard label="Quantity" value={multiplier.toString()} />

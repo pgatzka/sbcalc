@@ -9,17 +9,14 @@ import {
 import { Clipboard } from "lucide-react";
 import { ItemImage } from "@/components/item-image";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
-import { useSettings } from "@/lib/settings-context";
-import type { RecipesData } from "@/lib/types";
+import { useRecipeData } from "@/lib/recipe-data-context";
 import { getDisplayName } from "@/lib/utils";
 
 export function CombinedMaterialsList(props: {
   baseRequirements: Record<string, number>;
-  recipes: RecipesData;
-  itemsData: RecipesData;
 }) {
-  const { baseRequirements, recipes, itemsData } = props;
-  const { settings } = useSettings();
+  const { baseRequirements } = props;
+  const { recipes, itemsData } = useRecipeData();
 
   return (
     <Card className="flex-1 flex flex-col mb-20">
@@ -50,14 +47,12 @@ export function CombinedMaterialsList(props: {
                     alt={plainDisplayName}
                     width={32}
                     height={32}
-                    itemsData={itemsData}
                   />
                   <div className="flex-1 min-w-0">
                     <MinecraftColoredText
                       text={displayName}
                       className="text-sm font-medium truncate block"
                       title={plainDisplayName}
-                      enabled={settings.enableColoredNames}
                     />
                     <p className="text-xs text-muted-foreground">
                       {count.toLocaleString()}x

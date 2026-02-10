@@ -1,5 +1,10 @@
 import { BASE_MATERIALS } from "./constants";
-import type { ForgeRecipe, RecipesData } from "./types";
+import type {
+  CraftingRecipe,
+  ForgeRecipe,
+  RecipeEntry,
+  RecipesData,
+} from "./types";
 
 /**
  * Helper to aggregate ingredient counts from recipe strings
@@ -18,23 +23,24 @@ export const aggregateIngredients = (
 };
 
 /**
- * Get the recipe from a recipe entry, prioritizing single recipe over recipes array
+ * Get the recipe from a recipe entry, prioritizing forge recipes over crafting recipes
  */
-// Returns a recipe object or forge recipe if present
 export const getRecipe = (
-  entry: any,
-): Record<string, string> | ForgeRecipe | undefined => {
+  entry: RecipeEntry,
+): CraftingRecipe | ForgeRecipe | undefined => {
   // Support forge recipes in the 'recipes' array
   if (Array.isArray(entry.recipes)) {
-    const forgeRecipe = entry.recipes.find((r: any) => r.type === "forge");
+    const forgeRecipe = entry.recipes.find(
+      (r): r is { type: "forge"; duration: number; inputs: string[] } =>
+        "type" in r && r.type === "forge",
+    );
     if (forgeRecipe) {
-      // Map the data structure to our ForgeRecipe type
       return {
         type: "forge",
         forge_time: forgeRecipe.duration || 0,
         forge_ingredients: (forgeRecipe.inputs || []).map((input: string) => {
           const [item, count] = input.split(":");
-          return { item, count: Number(count) || 1 };
+          return { item: item || "", count: Number(count) || 1 };
         }),
       };
     }
@@ -44,7 +50,9 @@ export const getRecipe = (
   }
   return (
     entry.recipe ||
-    (Array.isArray(entry.recipes) ? entry.recipes[0] : undefined)
+    (Array.isArray(entry.recipes)
+      ? (entry.recipes[0] as CraftingRecipe)
+      : undefined)
   );
 };
 
@@ -52,7 +60,7 @@ export const getRecipe = (
  * Extract ingredients from a recipe object
  */
 export const getIngredientsFromRecipe = (
-  recipe: Record<string, string> | ForgeRecipe,
+  recipe: CraftingRecipe | ForgeRecipe,
 ): string[] => {
   if ((recipe as ForgeRecipe).type === "forge") {
     // Forge recipe: return as "item:count" strings
@@ -60,7 +68,7 @@ export const getIngredientsFromRecipe = (
       (ing: { item: string; count: number }) => `${ing.item}:${ing.count}`,
     );
   }
-  return Object.values(recipe as Record<string, string>)
+  return Object.values(recipe as CraftingRecipe)
     .filter((v) => typeof v === "string" && v && v.includes(":"))
     .map((v) => v as string);
 };
