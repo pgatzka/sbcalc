@@ -4,12 +4,13 @@ import { Checkbox } from "@workspace/ui/components/checkbox";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { trackForgeSettingChange } from "@/lib/analytics";
+import { useCalculatorStore } from "@/lib/calculator-store";
 import { calculateQuickForgeReduction } from "@/lib/forge-time-utils";
 import { parseAndClampNumber } from "@/lib/input-utils";
-import { useSettings } from "@/lib/settings-context";
 
 export function ForgeSettings() {
-  const { settings, updateSettings } = useSettings();
+  const settings = useCalculatorStore((s) => s.settings);
+  const updateSettings = useCalculatorStore((s) => s.updateSettings);
 
   const quickForgeReduction = calculateQuickForgeReduction(
     settings.quickForgeLevel,

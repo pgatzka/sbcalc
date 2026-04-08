@@ -26,6 +26,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         description:
           "The Total Forge Time summary card no longer appears when there is no forge time. The grid adjusts from three columns to two.",
       },
+      {
+        title: "Consolidated state management with Zustand",
+        description:
+          "Replaced four separate React hooks and a context provider with a single Zustand store. Removed use-recipe-state, use-multi-tree-selection, use-local-storage, and settings-context. All calculator state now lives in one place.",
+      },
     ],
   },
   {

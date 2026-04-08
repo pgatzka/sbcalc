@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Clipboard, Heart, List, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { CombinedMaterialsList } from "@/components/combined-materials-list";
 import { CombinedSummaryCards } from "@/components/combined-summary-cards";
@@ -19,13 +19,11 @@ import { MultiItemPanel } from "@/components/multi-item-panel";
 import { RecipeSummaryCards } from "@/components/recipe-summary-cards";
 import { SingleItemPanel } from "@/components/single-item-panel";
 import { useCalculatorResults } from "@/hooks/use-calculator-results";
-import { useMultiTreeSelection } from "@/hooks/use-multi-tree-selection";
-import { useRecipeState } from "@/hooks/use-recipe-state";
 import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
 import { useSharedRecipeLoader } from "@/hooks/use-shared-recipe-loader";
+import { useCalculatorStore } from "@/lib/calculator-store";
 import { useRecipeData } from "@/lib/recipe-data-context";
-import { useSettings } from "@/lib/settings-context";
 import { getDisplayName } from "@/lib/utils";
 
 export function SkyblockCalculatorClient() {
@@ -36,20 +34,28 @@ export function SkyblockCalculatorClient() {
     setSelectedItem,
     multiplier,
     setMultiplier,
+    searchValue,
+    setSearchValue,
     itemList,
     setItemList,
+    multiTreeSelectedItem,
+    setMultiTreeSelectedItem,
+    materialDepth,
+    setMaterialDepth,
+    settings,
+    updateSettings,
     handleModeSwitch,
     getRecipeState,
-  } = useRecipeState();
+    hydrate,
+  } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
-  const { settings, updateSettings } = useSettings();
   const { sharedState } = useSharedRecipe();
 
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [materialDepth, setMaterialDepth] = useState<number>(
-    Number.POSITIVE_INFINITY,
-  );
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   // Load shared recipe
   const loaderActions = useMemo(
@@ -77,11 +83,7 @@ export function SkyblockCalculatorClient() {
         setSearchValue(displayNameColored.replace(/§./g, ""));
       }
     }
-  }, [selectedItem, mode, recipes, itemsData]);
-
-  // Multi-tree selection management
-  const { multiTreeSelectedItem, setMultiTreeSelectedItem } =
-    useMultiTreeSelection(mode, itemList);
+  }, [selectedItem, mode, recipes, itemsData, setSearchValue]);
 
   // Tree expansion
   const {

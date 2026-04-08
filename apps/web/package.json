@@ -24,19 +24,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@icons-pack/react-simple-icons": "13.13.0",
     "@next/third-parties": "16.1.6",
     "@vercel/og": "^0.8.6",
     "@workspace/neu-recipe-processor": "workspace:*",
     "@workspace/snbt-parser": "workspace:*",
     "@workspace/ui": "workspace:*",
     "lucide-react": "1.7.0",
-    "@icons-pack/react-simple-icons": "13.13.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.7",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
