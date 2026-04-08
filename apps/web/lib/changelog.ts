@@ -21,6 +21,11 @@ export const CHANGELOG: ChangelogEntry[] = [
         description:
           "In Multi Item mode, the Combined Materials list now has Crafting and Raw buttons. Crafting shows the first-level ingredients you'd buy from the Bazaar (Enchanted Melon, Polished Pumpkin, etc.). Raw shows fully flattened base materials like before.",
       },
+      {
+        title: "Forge time card hidden when not needed",
+        description:
+          "The Total Forge Time summary card no longer appears when there is no forge time. The grid adjusts from three columns to two.",
+      },
     ],
   },
   {
