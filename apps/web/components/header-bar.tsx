@@ -1,10 +1,11 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/button";
-import { Github, History, Moon, Sun } from "lucide-react";
+import {History, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 
 export function HeaderBar() {
   const { theme, setTheme } = useTheme();
@@ -52,7 +53,7 @@ export function HeaderBar() {
               title="View on GitHub"
               className="flex items-center gap-2"
             >
-              <Github className="w-4 h-4 md:w-5 md:h-5" />
+              <SiGithub className="w-4 h-4 md:w-5 md:h-5" />
               <span className="hidden sm:inline">GitHub</span>
             </Link>
           </Button>

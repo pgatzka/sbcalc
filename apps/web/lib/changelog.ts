@@ -13,6 +13,17 @@ export interface ChangelogEntry {
 // Keep the newest entries first for easy visibility.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-04-08",
+    title: "April 2026",
+    items: [
+      {
+        title: "Crafting vs Raw material view toggle",
+        description:
+          "In Multi Item mode, the Combined Materials list now has Crafting and Raw buttons. Crafting shows the first-level ingredients you'd buy from the Bazaar (Enchanted Melon, Polished Pumpkin, etc.). Raw shows fully flattened base materials like before.",
+      },
+    ],
+  },
+  {
     date: "2026-02-10",
     title: "February 2026",
     items: [

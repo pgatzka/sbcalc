@@ -1,12 +1,13 @@
 "use client";
 
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { Clipboard } from "lucide-react";
+import { Clipboard, Layers, Pickaxe } from "lucide-react";
 import { ItemImage } from "@/components/item-image";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { useRecipeData } from "@/lib/recipe-data-context";
@@ -14,17 +15,43 @@ import { getDisplayName } from "@/lib/utils";
 
 export function CombinedMaterialsList(props: {
   baseRequirements: Record<string, number>;
+  materialDepth: number;
+  onMaterialDepthChange: (depth: number) => void;
 }) {
-  const { baseRequirements } = props;
+  const { baseRequirements, materialDepth, onMaterialDepthChange } = props;
   const { recipes, itemsData } = useRecipeData();
+
+  const isBase = !Number.isFinite(materialDepth);
 
   return (
     <Card className="flex-1 flex flex-col mb-20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3">
-          <Clipboard className="w-5 h-5" />
-          Combined Materials Needed
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3">
+            <Clipboard className="w-5 h-5" />
+            Combined Materials Needed
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant={!isBase ? "default" : "outline"}
+              size="sm"
+              onClick={() => onMaterialDepthChange(1)}
+            >
+              <Layers className="w-4 h-4 mr-2" />
+              Crafting
+            </Button>
+            <Button
+              variant={isBase ? "default" : "outline"}
+              size="sm"
+              onClick={() =>
+                onMaterialDepthChange(Number.POSITIVE_INFINITY)
+              }
+            >
+              <Pickaxe className="w-4 h-4 mr-2" />
+              Raw
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

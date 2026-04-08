@@ -7,6 +7,7 @@ import { useRecipeData } from "@/lib/recipe-data-context";
 import {
   getBaseRequirements,
   getCombinedBaseRequirements,
+  getCombinedRequirementsAtDepth,
 } from "@/lib/recipe-utils";
 import type { ForgeSettings } from "@/lib/types";
 
@@ -20,6 +21,7 @@ export function useCalculatorResults(
   multiplier: number,
   itemList: Array<{ itemId: string; quantity: number }>,
   settings: ForgeSettings,
+  materialDepth: number = Number.POSITIVE_INFINITY,
 ) {
   const { recipes, itemsData } = useRecipeData();
 
@@ -28,10 +30,26 @@ export function useCalculatorResults(
       return getBaseRequirements(selectedItem, recipes, multiplier);
     }
     if (mode === "multi") {
+      if (Number.isFinite(materialDepth)) {
+        return getCombinedRequirementsAtDepth(
+          itemList,
+          recipes,
+          materialDepth,
+          itemsData,
+        );
+      }
       return getCombinedBaseRequirements(itemList, recipes, itemsData);
     }
     return {};
-  }, [mode, selectedItem, multiplier, itemList, recipes, itemsData]);
+  }, [
+    mode,
+    selectedItem,
+    multiplier,
+    itemList,
+    recipes,
+    itemsData,
+    materialDepth,
+  ]);
 
   const totalMaterials = Object.keys(baseRequirements).length;
 

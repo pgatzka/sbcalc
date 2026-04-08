@@ -148,3 +148,87 @@ export const getCombinedBaseRequirements = (
 
   return combined;
 };
+
+/**
+ * Collect requirements stopping at a given recursion depth.
+ * depth=1 returns direct ingredients (what you'd buy from Bazaar).
+ * depth=Infinity behaves like getBaseRequirements.
+ */
+export const getRequirementsAtDepth = (
+  internalname: string,
+  recipes: RecipesData,
+  multiplier = 1,
+  maxDepth: number,
+  acc: Record<string, number> = {},
+  visited: Set<string> = new Set(),
+  currentDepth = 0,
+  itemsData?: RecipesData,
+): Record<string, number> => {
+  if (visited.has(internalname)) return acc;
+
+  const newVisited = new Set(visited);
+  newVisited.add(internalname);
+
+  const entry = recipes[internalname];
+  if (!entry) return acc;
+
+  const recipe = getRecipe(entry);
+  if (!recipe) return acc;
+
+  const ingredients = getIngredientsFromRecipe(recipe);
+  const counts = aggregateIngredients(ingredients);
+
+  for (const [name, count] of Object.entries(counts)) {
+    const total = count * multiplier;
+    const hasCraftableRecipe =
+      !BASE_MATERIALS.has(name) && recipes[name] && getRecipe(recipes[name]);
+
+    if (hasCraftableRecipe && currentDepth + 1 < maxDepth) {
+      getRequirementsAtDepth(
+        name,
+        recipes,
+        total,
+        maxDepth,
+        acc,
+        newVisited,
+        currentDepth + 1,
+        itemsData,
+      );
+    } else {
+      acc[name] = (acc[name] || 0) + total;
+    }
+  }
+
+  return acc;
+};
+
+/**
+ * Get combined requirements for multiple items at a given depth.
+ */
+export const getCombinedRequirementsAtDepth = (
+  itemList: Array<{ itemId: string; quantity: number }>,
+  recipes: RecipesData,
+  maxDepth: number,
+  itemsData?: RecipesData,
+): Record<string, number> => {
+  const combined: Record<string, number> = {};
+
+  for (const { itemId, quantity } of itemList) {
+    const requirements = getRequirementsAtDepth(
+      itemId,
+      recipes,
+      quantity,
+      maxDepth,
+      {},
+      new Set(),
+      0,
+      itemsData,
+    );
+
+    for (const [material, count] of Object.entries(requirements)) {
+      combined[material] = (combined[material] || 0) + count;
+    }
+  }
+
+  return combined;
+};

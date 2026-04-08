@@ -47,6 +47,9 @@ export function SkyblockCalculatorClient() {
   const { sharedState } = useSharedRecipe();
 
   const [searchValue, setSearchValue] = useState<string>("");
+  const [materialDepth, setMaterialDepth] = useState<number>(
+    Number.POSITIVE_INFINITY,
+  );
 
   // Load shared recipe
   const loaderActions = useMemo(
@@ -112,6 +115,7 @@ export function SkyblockCalculatorClient() {
       multiplier,
       itemList,
       forgeSettings,
+      materialDepth,
     );
 
   return (
@@ -225,7 +229,11 @@ export function SkyblockCalculatorClient() {
                   </CardContent>
                 </Card>
               ) : (
-                <CombinedMaterialsList baseRequirements={baseRequirements} />
+                <CombinedMaterialsList
+                  baseRequirements={baseRequirements}
+                  materialDepth={materialDepth}
+                  onMaterialDepthChange={setMaterialDepth}
+                />
               )}
             </div>
           ) : (
