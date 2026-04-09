@@ -13,9 +13,24 @@ export interface ChangelogEntry {
 // Keep the newest entries first for easy visibility.
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    date: "2026-04-08",
+    date: "2026-04-09",
     title: "April 2026",
     items: [
+      {
+        title: "Texture pack support",
+        description:
+          "Item icons can now use custom texture packs. Ships with FurfSky Reborn and PacksHQ. Select a pack in the sidebar under Texture Packs, or choose None to use vanilla textures.",
+      },
+      {
+        title: "Server-side head rendering",
+        description:
+          "Player skull items are now rendered as 3D isometric heads on the server instead of relying on external APIs. Faster, more reliable, and no third-party requests.",
+      },
+      {
+        title: "Item gallery demo page",
+        description:
+          "New /demo page showing all 8000+ Skyblock items in a searchable grid with infinite scroll.",
+      },
       {
         title: "Crafting vs Raw material view toggle",
         description:

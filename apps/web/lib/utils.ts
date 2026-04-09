@@ -69,14 +69,14 @@ export function extractFromSNBT(nbttag: string): {
             atob(skullOwner.Properties.textures[0].Value),
           );
           if (decodedTexture.textures?.SKIN?.url) {
-            let minecraftTextureUrl = decodedTexture.textures.SKIN.url;
-            // Ensure https instead of http
-            minecraftTextureUrl = minecraftTextureUrl.replace(
-              /^http:\/\//,
-              "https://",
+            const skinUrl: string = decodedTexture.textures.SKIN.url;
+            // Extract texture hash from the URL
+            const hashMatch = skinUrl.match(
+              /textures\.minecraft\.net\/texture\/([a-f0-9]+)/i,
             );
-            // MineSkin can render custom textures from Minecraft URLs
-            textureUrl = `https://api.mineskin.org/render/head?url=${encodeURIComponent(minecraftTextureUrl)}`;
+            if (hashMatch?.[1]) {
+              textureUrl = `/api/head/${hashMatch[1]}`;
+            }
           }
         } catch (_e) {
           // Silent fail

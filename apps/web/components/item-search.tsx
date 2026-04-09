@@ -109,8 +109,8 @@ export function ItemSearch({
                 entry={recipes[item.value]}
                 internalname={item.value}
                 alt={item.label}
-                width={24}
-                height={24}
+                width={32}
+                height={32}
               />
               <span>
                 {item.displayNode.map((segment, idx) => (

@@ -13,6 +13,7 @@ import { Search, Settings, X } from "lucide-react";
 import { ForgeSettings } from "@/components/forge-settings";
 import { ItemSearch } from "@/components/item-search";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
+import { TexturePackSettings } from "@/components/texture-pack-settings";
 
 export function SingleItemPanel(props: {
   selectedItem: string | null;
@@ -112,6 +113,14 @@ export function SingleItemPanel(props: {
                   Forge Settings
                 </h4>
                 <ForgeSettings />
+              </div>
+
+              {/* Texture Packs */}
+              <div className="border-t border-border pt-4">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                  Texture Packs
+                </h4>
+                <TexturePackSettings />
               </div>
 
               {/* Share Recipe */}

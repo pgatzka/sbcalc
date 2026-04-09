@@ -10,6 +10,7 @@ import { List } from "lucide-react";
 import { ForgeSettings } from "@/components/forge-settings";
 import { ItemListManager } from "@/components/item-list-manager";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
+import { TexturePackSettings } from "@/components/texture-pack-settings";
 import type { ItemListEntry } from "@/lib/types";
 
 export function MultiItemPanel(props: {
@@ -53,6 +54,14 @@ export function MultiItemPanel(props: {
                 Forge Settings
               </h4>
               <ForgeSettings />
+            </div>
+
+            {/* Texture Packs */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                Texture Packs
+              </h4>
+              <TexturePackSettings />
             </div>
 
             {/* Share Recipe */}
