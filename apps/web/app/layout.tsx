@@ -1,25 +1,24 @@
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
-import { Cinzel, Outfit } from "next/font/google";
-import { Geist_Mono } from "next/font/google";
+import { Exo_2, Inter, JetBrains_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { Providers } from "@/components/providers";
 
-const fontDisplay = Cinzel({
+const fontDisplay = Exo_2({
   subsets: ["latin"],
-  variable: "--font-cinzel",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const fontSans = Outfit({
+const fontSans = Inter({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-sans",
 });
 
-const fontMono = Geist_Mono({
+const fontMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
 });
 
 export default function RootLayout({
