@@ -1,11 +1,12 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/button";
-import {History, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
+import { ChangelogDialog } from "@/components/changelog-dialog";
 
 export function HeaderBar() {
   const { theme, setTheme } = useTheme();
@@ -14,12 +15,21 @@ export function HeaderBar() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <div className="text-center py-8 px-4 relative">
-      <div className="absolute top-4 right-4 md:top-8 md:right-8">
-        <div className="flex items-center gap-2">
+    <header className="border-b border-border/60 bg-card/40 backdrop-blur-md sticky top-0 z-50">
+      <div className="flex items-center justify-between px-4 md:px-6 h-14">
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="font-display text-lg font-semibold tracking-wide text-foreground">
+              Skyblock Calculator
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5">
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={
               mounted
@@ -28,44 +38,26 @@ export function HeaderBar() {
             }
           >
             {!mounted ? (
-              <Sun className="w-4 h-4 md:w-5 md:h-5" />
+              <Sun className="w-4 h-4" />
             ) : theme === "dark" || theme === "system" ? (
-              <Sun className="w-4 h-4 md:w-5 md:h-5" />
+              <Sun className="w-4 h-4" />
             ) : (
-              <Moon className="w-4 h-4 md:w-5 md:h-5" />
+              <Moon className="w-4 h-4" />
             )}
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link
-              href="/changelog"
-              title="View Changelog"
-              className="flex items-center gap-2"
-            >
-              <History className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Changelog</span>
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
+          <ChangelogDialog />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
             <Link
               href="https://github.com/Hexeption/sbcalc"
               target="_blank"
               rel="noopener noreferrer"
-              title="View on GitHub"
-              className="flex items-center gap-2"
+              title="GitHub"
             >
-              <SiGithub className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">GitHub</span>
+              <SiGithub className="w-4 h-4" />
             </Link>
           </Button>
         </div>
       </div>
-      <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-2">
-        Skyblock Calculator
-      </h1>
-      <p className="text-muted-foreground text-lg">
-        Calculate crafting recipes, forge times, and base material requirements
-        for any Hypixel Skyblock item.
-      </p>
-    </div>
+    </header>
   );
 }

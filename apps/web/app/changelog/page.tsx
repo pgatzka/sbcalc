@@ -1,11 +1,5 @@
 import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { History, Megaphone } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import CHANGELOG from "@/lib/changelog";
@@ -18,53 +12,55 @@ export const metadata: Metadata = {
 export default function ChangelogPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Banner */}
-      <div className="relative overflow-hidden border-b border-border">
-        <div className="px-4 md:px-8 py-10 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Megaphone className="w-6 h-6 text-primary" />
-              <h1 className="text-3xl md:text-4xl font-bold">Changelog</h1>
-            </div>
-            <Button variant="outline" asChild>
+      <header className="border-b border-border/60 bg-card/40 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center justify-between px-4 md:px-6 h-14">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
               <Link href="/" title="Back to Calculator">
-                Return Home
+                <ArrowLeft className="w-4 h-4" />
               </Link>
             </Button>
+            <h1 className="font-display text-lg font-semibold tracking-wide">
+              Changelog
+            </h1>
           </div>
-          <p className="text-muted-foreground mt-2">
-            Release notes and recent improvements.
-          </p>
         </div>
-      </div>
+      </header>
 
-      {/* Content */}
-      <div className="px-4 md:px-8 py-8 space-y-6">
-        {CHANGELOG.map((entry) => (
-          <Card key={entry.date}>
-            <CardHeader className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <History className="w-5 h-5" />
-                <CardTitle>{entry.title ?? entry.date}</CardTitle>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {entry.date}
-              </span>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {entry.items.map((item, idx) => (
-                <div key={idx} className="space-y-1">
-                  <p className="font-medium">{item.title}</p>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground">
-                      {item.description}
-                    </p>
-                  )}
+      <div className="max-w-2xl mx-auto px-4 md:px-6 py-8">
+        <div className="relative border-l border-border/60 ml-3 space-y-8">
+          {CHANGELOG.map((entry) => (
+            <div key={entry.date} className="relative pl-8">
+              <div className="absolute left-0 top-1 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-3">
+                  <h2 className="font-display font-semibold text-base">
+                    {entry.title ?? entry.date}
+                  </h2>
+                  <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {entry.date}
+                  </span>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+                <div className="space-y-2">
+                  {entry.items.map((item, idx) => (
+                    <div
+                      key={`${entry.date}-${idx}`}
+                      className="rounded-lg bg-card/60 border border-border/40 px-4 py-3"
+                    >
+                      <p className="text-sm font-medium">{item.title}</p>
+                      {item.description && (
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

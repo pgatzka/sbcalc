@@ -1,18 +1,25 @@
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Outfit } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { Providers } from "@/components/providers";
 
-const fontSans = Geist({
+const fontDisplay = Cinzel({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-cinzel",
+  weight: ["400", "500", "600", "700"],
+});
+
+const fontSans = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
 });
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-geist-mono",
 });
 
 export default function RootLayout({
@@ -23,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+        className={`${fontDisplay.variable} ${fontSans.variable} ${fontMono.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
         <Toaster />

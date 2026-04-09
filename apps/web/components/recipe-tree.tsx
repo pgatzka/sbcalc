@@ -27,6 +27,8 @@ interface RecipeTreeProps {
   expandedItems: Set<string>;
   onToggleExpanded: (itemName: string) => void;
   forgeSettings?: ForgeSettings;
+  isLastChild?: boolean;
+  ancestorLines?: boolean[];
 }
 
 export function RecipeTree({
@@ -37,24 +39,17 @@ export function RecipeTree({
   expandedItems: externalExpandedItems,
   onToggleExpanded,
   forgeSettings = { forgeSlots: 2, useMultipleSlots: true, quickForgeLevel: 0 },
+  isLastChild = true,
+  ancestorLines = [],
 }: RecipeTreeProps): React.ReactElement | null {
   const { recipes, itemsData } = useRecipeData();
 
   const expandedItems = externalExpandedItems ?? new Set([internalname]);
 
-  // Check for cycle detection
   if (visited.has(internalname)) {
-    return (
-      <div
-        className={`flex items-center gap-3 p-3 my-2 bg-card rounded-lg border-l-4 border-destructive`}
-        style={{ marginLeft: `${depth * 20}px` }}
-      >
-        <span className="text-destructive">(cycle detected)</span>
-      </div>
-    );
+    return null;
   }
 
-  // Try to get entry from recipes, fallback to itemsData
   let entry = recipes[internalname];
   let isLeafFromItems = false;
   if (!entry && itemsData && itemsData[internalname]) {
@@ -74,21 +69,14 @@ export function RecipeTree({
 
   const isExpanded = expandedItems.has(internalname);
 
-  const toggleExpanded = (itemName: string) => {
-    onToggleExpanded(itemName);
-  };
-
   const displayName = getDisplayName(entry, internalname, itemsData);
   const plainDisplayName = displayName.replace(/§./g, "");
 
-  // Detect Forge recipe
   const isForgeRecipe = (recipe as ForgeRecipe)?.type === "forge";
-  // Format forge time for display
   const rawForgeTime = isForgeRecipe
     ? (recipe as ForgeRecipe).forge_time
     : undefined;
 
-  // Calculate optimized forge time considering multiple slots
   const optimizedForgeTime =
     rawForgeTime !== undefined
       ? calculateOptimalForgeTime(rawForgeTime, multiplier, forgeSettings)
@@ -104,92 +92,112 @@ export function RecipeTree({
   const actualMultiplier = Math.ceil(multiplier / recipeCount);
 
   return (
-    <div className="space-y-1">
-      {/* Current item display */}
-      <div
-        className={`flex items-center gap-4 p-3 my-2 bg-card rounded-lg border-l-4 ${
-          visited.has(internalname) ? "border-destructive" : "border-primary"
-        } hover:bg-accent transition-all hover:translate-x-1 ${hasIngredients ? "cursor-pointer" : ""}`}
-        style={{ marginLeft: `${depth * 20}px` }}
-        onClick={() => {
-          if (hasIngredients) {
-            toggleExpanded(internalname);
-
-            // Track recipe tree item click
-            trackRecipeTreeItemClick(
-              internalname,
-              displayName,
-              depth,
-              multiplier,
-              isForgeRecipe,
-              isExpanded,
-            );
-          }
-        }}
-      >
-        <ItemImage
-          entry={entry} // Use the current item's entry
-          internalname={internalname}
-          alt={plainDisplayName}
-          width={32}
-          height={32}
-          style={{ verticalAlign: "middle" }}
-        />
-        <MinecraftColoredText
-          text={displayName}
-          className="font-medium text-foreground"
-          title={plainDisplayName}
-        />
-        {isForgeRecipe && (
-          <span className="ml-2 bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
-            Forge Recipe
-          </span>
-        )}
-        <span className="ml-auto font-semibold text-primary bg-primary/10 px-3 py-1 rounded-md">
-          {multiplier}x
-        </span>
-        {isForgeRecipe && forgeTime && (
-          <div className="ml-2 bg-blue-500/20 text-blue-700 dark:text-blue-400 px-2 py-1 rounded text-xs font-medium">
-            <span>Forge Time: {forgeTime}</span>
-            {forgeSettings.useMultipleSlots && multiplier > 1 && (
-              <span className="ml-1 text-blue-600 dark:text-blue-300">
-                (
-                {multiplier > forgeSettings.forgeSlots
-                  ? `${Math.min(multiplier, forgeSettings.forgeSlots)} slots`
-                  : `${multiplier} slot${multiplier > 1 ? "s" : ""}`}
-                )
-              </span>
-            )}
+    <div>
+      <div className="flex items-stretch">
+        {depth > 0 &&
+          ancestorLines.map((hasLine, i) => (
+            <div key={`line-${i}`} className="w-6 shrink-0 relative">
+              {hasLine && (
+                <div className="absolute left-3 top-0 bottom-0 w-px bg-border/40" />
+              )}
+            </div>
+          ))}
+        {depth > 0 && (
+          <div className="w-6 shrink-0 relative">
+            <div
+              className={`absolute left-3 top-0 w-px bg-border/40 ${isLastChild ? "h-1/2" : "h-full"}`}
+            />
+            <div className="absolute left-3 top-1/2 w-3 h-px bg-border/40" />
           </div>
         )}
-        {isBaseMaterial && (
-          <span className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded text-sm font-medium">
-            Base Material
-          </span>
-        )}
+        <div
+          className={`group flex items-center gap-3 px-3 py-2 my-0.5 rounded-lg transition-all flex-1 min-w-0 ${
+            hasIngredients ? "cursor-pointer hover:bg-accent/30" : ""
+          } ${isBaseMaterial ? "bg-emerald-500/5 border border-emerald-500/15" : "hover:bg-muted/50"}`}
+          onClick={() => {
+            if (hasIngredients) {
+              onToggleExpanded(internalname);
+              trackRecipeTreeItemClick(
+                internalname,
+                displayName,
+                depth,
+                multiplier,
+                isForgeRecipe,
+                isExpanded,
+              );
+            }
+          }}
+        >
         {hasIngredients && (
-          <span className="text-muted-foreground text-sm ml-2">
+          <span className="text-muted-foreground flex-shrink-0">
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-3.5 h-3.5" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             )}
           </span>
         )}
+        {!hasIngredients && <span className="w-3.5 flex-shrink-0" />}
+
+        <ItemImage
+          entry={entry}
+          internalname={internalname}
+          alt={plainDisplayName}
+          width={24}
+          height={24}
+          style={{ verticalAlign: "middle", flexShrink: 0 }}
+        />
+
+        <MinecraftColoredText
+          text={displayName}
+          className="text-sm font-medium text-foreground truncate"
+          title={plainDisplayName}
+        />
+
+        <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+          {isForgeRecipe && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              FORGE
+            </span>
+          )}
+          {isForgeRecipe && forgeTime && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/15 font-mono">
+              {forgeTime}
+              {forgeSettings.useMultipleSlots && multiplier > 1 && (
+                <span className="ml-1 opacity-70">
+                  ({Math.min(multiplier, forgeSettings.forgeSlots)}s)
+                </span>
+              )}
+            </span>
+          )}
+          {isBaseMaterial && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              BASE
+            </span>
+          )}
+          <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+            {multiplier}x
+          </span>
+        </div>
+        </div>
       </div>
-      {/* Render children if expanded and has ingredients */}{" "}
+
       {isExpanded && hasIngredients && (
-        <div className="space-y-1">
-          {Object.entries(counts).map(([name, count]) => (
+        <div>
+          {Object.entries(counts).map(([name, count], index, arr) => (
             <RecipeTree
               key={name}
               internalname={name}
-              multiplier={count * actualMultiplier} // Correct multiplier for children
-              depth={depth + 1} // Increment depth for children
+              multiplier={count * actualMultiplier}
+              depth={depth + 1}
               visited={nextVisited}
               expandedItems={externalExpandedItems}
               onToggleExpanded={onToggleExpanded}
               forgeSettings={forgeSettings}
+              isLastChild={index === arr.length - 1}
+              ancestorLines={
+                depth === 0 ? [] : [...ancestorLines, !isLastChild]
+              }
             />
           ))}
         </div>

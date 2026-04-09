@@ -1,11 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
 import { formatForgeTime } from "@/lib/forge-time-utils";
 
 export function CombinedSummaryCards(props: {
@@ -26,51 +20,25 @@ export function CombinedSummaryCards(props: {
   const formattedTime = formatForgeTime(totalForgeTimeSeconds);
 
   return (
-    <div
-      className={`grid grid-cols-1 gap-4 ${totalForgeTimeSeconds > 0 ? "md:grid-cols-3" : "md:grid-cols-2"}`}
-    >
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Total Items
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalItemQuantity}</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Across {itemListCount} types
-          </p>
-        </CardContent>
-      </Card>
+    <div className={`grid grid-cols-2 gap-2 ${totalForgeTimeSeconds > 0 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+      <div className="px-4 py-3 rounded-lg bg-card/60 border border-border/40">
+        <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground mb-1">Total Items</div>
+        <div className="text-lg font-bold font-mono text-foreground">{totalItemQuantity}</div>
+        <div className="text-xs text-muted-foreground">{itemListCount} types</div>
+      </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Base Materials
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalMaterials}</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Unique materials needed
-          </p>
-        </CardContent>
-      </Card>
+      <div className="px-4 py-3 rounded-lg bg-card/60 border border-border/40">
+        <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground mb-1">Materials</div>
+        <div className="text-lg font-bold font-mono text-foreground">{totalMaterials}</div>
+        <div className="text-xs text-muted-foreground">unique needed</div>
+      </div>
 
       {totalForgeTimeSeconds > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Forge Time
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formattedTime}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              With {forgeSlots} slot{forgeSlots > 1 ? "s" : ""}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="px-4 py-3 rounded-lg bg-card/60 border border-border/40">
+          <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground mb-1">Forge Time</div>
+          <div className="text-lg font-bold font-mono text-amber-600 dark:text-amber-500">{formattedTime}</div>
+          <div className="text-xs text-muted-foreground">{forgeSlots} slot{forgeSlots > 1 ? "s" : ""}</div>
+        </div>
       )}
     </div>
   );

@@ -1,12 +1,5 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
 import { List, Search } from "lucide-react";
 
 export function ModeSwitcher({
@@ -17,32 +10,31 @@ export function ModeSwitcher({
   onSwitch: (m: "single" | "multi") => void;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">Mode</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2">
-          <Button
-            variant={mode === "single" ? "default" : "outline"}
-            size="sm"
-            onClick={() => onSwitch("single")}
-            className="flex-1"
-          >
-            <Search className="w-4 h-4 mr-2" />
-            Single Item
-          </Button>
-          <Button
-            variant={mode === "multi" ? "default" : "outline"}
-            size="sm"
-            onClick={() => onSwitch("multi")}
-            className="flex-1"
-          >
-            <List className="w-4 h-4 mr-2" />
-            Multi Item
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex rounded-lg bg-muted/60 p-1 border border-border/50">
+      <button
+        type="button"
+        onClick={() => onSwitch("single")}
+        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+          mode === "single"
+            ? "bg-card text-foreground shadow-sm border border-border/50"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <Search className="w-3.5 h-3.5" />
+        Single
+      </button>
+      <button
+        type="button"
+        onClick={() => onSwitch("multi")}
+        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+          mode === "multi"
+            ? "bg-card text-foreground shadow-sm border border-border/50"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <List className="w-3.5 h-3.5" />
+        Multi
+      </button>
+    </div>
   );
 }

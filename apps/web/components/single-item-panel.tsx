@@ -1,15 +1,9 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
-import { Search, Settings, X } from "lucide-react";
+import { X } from "lucide-react";
 import { ForgeSettings } from "@/components/forge-settings";
 import { ItemSearch } from "@/components/item-search";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
@@ -44,96 +38,68 @@ export function SingleItemPanel(props: {
   } = props;
 
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-3">
-              <Search className="w-5 h-5" />
-              Search Items
-            </CardTitle>
-            {selectedItem && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClear}
-                className="hover:bg-destructive hover:text-destructive-foreground"
-                title="Clear selection"
-              >
-                <X className="w-4 h-4" />
-                <span className="hidden sm:inline">Clear</span>
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ItemSearch
-            searchValue={searchValue}
-            onSearchChange={onSearchChange}
-            onSelect={(item) => {
-              onSelectItem(item);
-              onMultiplierChange(1);
-            }}
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Search</label>
+          {selectedItem && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClear}
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-destructive"
+            >
+              <X className="w-3 h-3 mr-1" />
+              Clear
+            </Button>
+          )}
+        </div>
+        <ItemSearch
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          onSelect={(item) => {
+            onSelectItem(item);
+            onMultiplierChange(1);
+          }}
+        />
+      </div>
 
-      {/* Amount Controls */}
       {selectedItem && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <Settings className="w-5 h-5" />
-              Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label
-                  htmlFor="quantity"
-                  className="text-muted-foreground mb-2 block"
-                >
-                  Quantity
-                </Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min={1}
-                  value={multiplier}
-                  onChange={(e) =>
-                    onMultiplierChange(Math.max(1, Number(e.target.value)))
-                  }
-                />
-              </div>
+        <div className="space-y-4 pt-2">
+          <div>
+            <Label
+              htmlFor="quantity"
+              className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 block"
+            >
+              Quantity
+            </Label>
+            <Input
+              id="quantity"
+              type="number"
+              min={1}
+              value={multiplier}
+              onChange={(e) =>
+                onMultiplierChange(Math.max(1, Number(e.target.value)))
+              }
+              className="h-9"
+            />
+          </div>
 
-              {/* Forge Settings */}
-              <div className="border-t border-border pt-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                  Forge Settings
-                </h4>
-                <ForgeSettings />
-              </div>
+          <div className="border-t border-border/40 pt-4">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Forge</h4>
+            <ForgeSettings />
+          </div>
 
-              {/* Texture Packs */}
-              <div className="border-t border-border pt-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                  Texture Packs
-                </h4>
-                <TexturePackSettings />
-              </div>
+          <div className="border-t border-border/40 pt-4">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Texture Pack</h4>
+            <TexturePackSettings />
+          </div>
 
-              {/* Share Recipe */}
-              <div className="border-t border-border pt-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                  Share Recipe
-                </h4>
-                <ShareRecipeDialog recipeState={recipeState} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="border-t border-border/40 pt-4">
+            <ShareRecipeDialog recipeState={recipeState} />
+          </div>
+        </div>
       )}
-    </>
+    </div>
   );
 }

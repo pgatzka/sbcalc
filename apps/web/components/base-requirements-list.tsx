@@ -28,12 +28,10 @@ export function BaseRequirementsList({
     itemsData,
   );
 
-  // Sort by quantity descending
   const sortedRequirements = Object.entries(baseRequirements).sort(
     ([, a], [, b]) => b - a,
   );
 
-  // Track base requirements view
   useEffect(() => {
     if (sortedRequirements.length > 0) {
       trackBaseRequirementsView(
@@ -46,15 +44,15 @@ export function BaseRequirementsList({
 
   if (sortedRequirements.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-        <p>No base materials required</p>
+      <div className="text-center py-10 text-muted-foreground">
+        <Package className="w-10 h-10 mx-auto mb-3 opacity-40" />
+        <p className="text-sm">No base materials required</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {sortedRequirements.map(([name, count]) => {
         const entry = recipes[name];
         const displayName = getDisplayName(entry, name, itemsData);
@@ -63,45 +61,34 @@ export function BaseRequirementsList({
         return (
           <div
             key={name}
-            className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:border-border/80 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/40 transition-colors group"
           >
-            <div className="flex items-center gap-3">
-              <ItemImage
-                entry={entry}
-                internalname={name}
-                alt={plainDisplayName}
-                width={32}
-                height={32}
-                style={{ verticalAlign: "middle" }}
+            <ItemImage
+              entry={entry}
+              internalname={name}
+              alt={plainDisplayName}
+              width={24}
+              height={24}
+              style={{ verticalAlign: "middle" }}
+            />
+            <div className="flex-1 min-w-0">
+              <MinecraftColoredText
+                text={displayName}
+                className="text-sm font-medium text-foreground block truncate"
+                title={plainDisplayName}
               />
-              <div>
-                <MinecraftColoredText
-                  text={displayName}
-                  className="font-medium text-foreground block"
-                  title={plainDisplayName}
-                />
-                <div className="text-xs text-muted-foreground">{name}</div>
-              </div>
+              <div className="text-[10px] text-muted-foreground font-mono">{name}</div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-primary">
-                ×{count.toLocaleString()}
-              </div>
-              <div className="text-xs text-muted-foreground">needed</div>
-            </div>
+            <span className="font-mono text-sm font-semibold text-primary">
+              {count.toLocaleString()}
+            </span>
           </div>
         );
       })}
 
-      <div className="mt-6 p-4 bg-muted rounded-lg border border-border">
-        <div className="text-center">
-          <div className="text-sm text-muted-foreground mb-1">
-            Total Materials
-          </div>
-          <div className="text-2xl font-bold text-primary">
-            {sortedRequirements.length} types
-          </div>
-        </div>
+      <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between px-3">
+        <span className="text-xs text-muted-foreground">Total types</span>
+        <span className="font-mono text-sm font-bold text-primary">{sortedRequirements.length}</span>
       </div>
     </div>
   );

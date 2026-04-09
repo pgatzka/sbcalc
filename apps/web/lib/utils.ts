@@ -122,6 +122,26 @@ const MINECRAFT_COLORS: Record<string, string> = {
   f: "#FFFFFF", // White
 };
 
+// Darkened variants for light backgrounds
+const MINECRAFT_COLORS_LIGHT: Record<string, string> = {
+  "0": "#000000",
+  "1": "#00008B",
+  "2": "#006600",
+  "3": "#007777",
+  "4": "#AA0000",
+  "5": "#880088",
+  "6": "#B87700",
+  "7": "#666666",
+  "8": "#444444",
+  "9": "#3333CC",
+  a: "#118811",
+  b: "#008888",
+  c: "#CC3333",
+  d: "#AA22AA",
+  e: "#998800",
+  f: "#1c1917",
+};
+
 /**
  * Parse Minecraft color codes and return array of colored text segments
  */
@@ -130,15 +150,15 @@ export interface ColorSegment {
   color: string;
 }
 
-export const parseMinecraftColors = (text: string): ColorSegment[] => {
+export const parseMinecraftColors = (text: string, isDark = true): ColorSegment[] => {
+  const colors = isDark ? MINECRAFT_COLORS : MINECRAFT_COLORS_LIGHT;
   const result: ColorSegment[] = [];
-  let currentColor = "#FFFFFF"; // Default to white
+  let currentColor = isDark ? "#FFFFFF" : "#1c1917";
   let currentText = "";
   let index = 0;
 
   while (index < text.length) {
     if (text[index] === "§" && index + 1 < text.length) {
-      // Save current text if any
       if (currentText) {
         result.push({
           text: currentText,
@@ -148,8 +168,8 @@ export const parseMinecraftColors = (text: string): ColorSegment[] => {
       }
 
       const colorCode = text[index + 1] as keyof typeof MINECRAFT_COLORS;
-      if (colorCode && MINECRAFT_COLORS[colorCode]) {
-        currentColor = MINECRAFT_COLORS[colorCode];
+      if (colorCode && colors[colorCode]) {
+        currentColor = colors[colorCode];
       }
       index += 2;
     } else {
@@ -158,7 +178,6 @@ export const parseMinecraftColors = (text: string): ColorSegment[] => {
     }
   }
 
-  // Don't forget remaining text
   if (currentText) {
     result.push({
       text: currentText,

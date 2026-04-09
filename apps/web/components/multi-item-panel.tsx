@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { List } from "lucide-react";
 import { ForgeSettings } from "@/components/forge-settings";
 import { ItemListManager } from "@/components/item-list-manager";
 import { ShareRecipeDialog } from "@/components/share-recipe-dialog";
@@ -31,49 +24,31 @@ export function MultiItemPanel(props: {
     props;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3">
-          <List className="w-5 h-5" />
-          Item List
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ItemListManager
-          items={itemList}
-          onItemsChange={onItemsChange}
-          selectedItemId={selectedItemId}
-          onItemClick={onItemClick}
-        />
+    <div className="space-y-4">
+      <ItemListManager
+        items={itemList}
+        onItemsChange={onItemsChange}
+        selectedItemId={selectedItemId}
+        onItemClick={onItemClick}
+      />
 
-        {/* Forge Settings for Multi Mode */}
-        {itemList.length > 0 && (
-          <>
-            <div className="border-t border-border pt-4 mt-4">
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                Forge Settings
-              </h4>
-              <ForgeSettings />
-            </div>
+      {itemList.length > 0 && (
+        <div className="space-y-4">
+          <div className="border-t border-border/40 pt-4">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Forge</h4>
+            <ForgeSettings />
+          </div>
 
-            {/* Texture Packs */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                Texture Packs
-              </h4>
-              <TexturePackSettings />
-            </div>
+          <div className="border-t border-border/40 pt-4">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Texture Pack</h4>
+            <TexturePackSettings />
+          </div>
 
-            {/* Share Recipe */}
-            <div className="border-t border-border pt-4 mt-4">
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                Share Recipe
-              </h4>
-              <ShareRecipeDialog recipeState={recipeState} />
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          <div className="border-t border-border/40 pt-4">
+            <ShareRecipeDialog recipeState={recipeState} />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

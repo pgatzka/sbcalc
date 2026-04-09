@@ -33,13 +33,13 @@ export function ForgeSettings() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div>
         <Label
           htmlFor="forge-slots"
-          className="text-muted-foreground mb-2 block"
+          className="text-xs text-muted-foreground mb-1.5 block"
         >
-          Number of Forge Slots
+          Forge Slots (2-7)
         </Label>
         <Input
           id="forge-slots"
@@ -48,18 +48,16 @@ export function ForgeSettings() {
           max={7}
           value={settings.forgeSlots}
           onChange={(e) => handleForgeSlotChange(e.target.value)}
+          className="h-8 text-sm"
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          How many forge slots you have available (2-7)
-        </p>
       </div>
 
       <div>
         <Label
           htmlFor="quick-forge-level"
-          className="text-muted-foreground mb-2 block"
+          className="text-xs text-muted-foreground mb-1.5 block"
         >
-          Quick Forge Level
+          Quick Forge (0-20) &mdash; {quickForgeReduction}% reduction
         </Label>
         <Input
           id="quick-forge-level"
@@ -68,34 +66,30 @@ export function ForgeSettings() {
           max={20}
           value={settings.quickForgeLevel}
           onChange={(e) => handleQuickForgeLevelChange(e.target.value)}
+          className="h-8 text-sm"
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          Level 0-20, reduces forge time by {quickForgeReduction}%
-        </p>
       </div>
 
-      <div className="flex items-start space-x-3">
+      <div className="flex items-start space-x-2.5">
         <Checkbox
           id="use-multiple-slots"
           checked={settings.useMultipleSlots}
           onCheckedChange={(checked) => {
             const newValue = checked === true;
             updateSettings({ useMultipleSlots: newValue });
-
-            // Track multiple slots setting change
             trackForgeSettingChange("use_multiple_slots", newValue);
           }}
+          className="mt-0.5"
         />
-        <div className="grid gap-1.5 leading-none">
+        <div className="grid gap-1 leading-none">
           <Label
             htmlFor="use-multiple-slots"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            className="text-sm font-medium leading-none cursor-pointer"
           >
-            Use Multiple Slots for Parallel Forging
+            Parallel Forging
           </Label>
-          <p className="text-xs text-muted-foreground">
-            When enabled, multiple items of the same recipe can be forged
-            simultaneously to reduce total time
+          <p className="text-[11px] text-muted-foreground">
+            Forge duplicates simultaneously across slots
           </p>
         </div>
       </div>

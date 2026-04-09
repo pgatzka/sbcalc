@@ -8,38 +8,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1.0000 0 0);
-  --foreground: oklch(0.2686 0 0);
-  --card: oklch(1.0000 0 0);
-  --card-foreground: oklch(0.2686 0 0);
-  --popover: oklch(1.0000 0 0);
-  --popover-foreground: oklch(0.2686 0 0);
-  --primary: oklch(0.7686 0.1647 70.0804);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.9670 0.0029 264.5419);
-  --secondary-foreground: oklch(0.4461 0.0263 256.8018);
-  --muted: oklch(0.9846 0.0017 247.8389);
-  --muted-foreground: oklch(0.5510 0.0234 264.3637);
-  --accent: oklch(0.9869 0.0214 95.2774);
-  --accent-foreground: oklch(0.4732 0.1247 46.2007);
-  --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.9276 0.0058 264.5313);
-  --input: oklch(0.9276 0.0058 264.5313);
-  --ring: oklch(0.7686 0.1647 70.0804);
-  --chart-1: oklch(0.7686 0.1647 70.0804);
-  --chart-2: oklch(0.6658 0.1574 58.3183);
-  --chart-3: oklch(0.5553 0.1455 48.9975);
-  --chart-4: oklch(0.4732 0.1247 46.2007);
-  --chart-5: oklch(0.4137 0.1054 45.9038);
-  --sidebar: oklch(0.9846 0.0017 247.8389);
-  --sidebar-foreground: oklch(0.2686 0 0);
-  --sidebar-primary: oklch(0.7686 0.1647 70.0804);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.9869 0.0214 95.2774);
-  --sidebar-accent-foreground: oklch(0.4732 0.1247 46.2007);
-  --sidebar-border: oklch(0.9276 0.0058 264.5313);
-  --sidebar-ring: oklch(0.7686 0.1647 70.0804);
+  --background: oklch(0.975 0.005 70);
+  --foreground: oklch(0.205 0.014 46);
+  --card: oklch(1.0 0 0);
+  --card-foreground: oklch(0.205 0.014 46);
+  --popover: oklch(1.0 0 0);
+  --popover-foreground: oklch(0.205 0.014 46);
+  --primary: oklch(0.47 0.125 46);
+  --primary-foreground: oklch(1.0 0 0);
+  --secondary: oklch(0.94 0.01 70);
+  --secondary-foreground: oklch(0.37 0.014 46);
+  --muted: oklch(0.94 0.01 70);
+  --muted-foreground: oklch(0.45 0.012 46);
+  --accent: oklch(0.96 0.04 90);
+  --accent-foreground: oklch(0.37 0.1 46);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1.0 0 0);
+  --border: oklch(0.87 0.015 70);
+  --input: oklch(0.87 0.015 70);
+  --ring: oklch(0.47 0.125 46);
+  --chart-1: oklch(0.55 0.14 50);
+  --chart-2: oklch(0.47 0.125 46);
+  --chart-3: oklch(0.40 0.105 46);
+  --chart-4: oklch(0.52 0.12 52);
+  --chart-5: oklch(0.44 0.11 48);
+  --sidebar: oklch(0.94 0.01 70);
+  --sidebar-foreground: oklch(0.205 0.014 46);
+  --sidebar-primary: oklch(0.47 0.125 46);
+  --sidebar-primary-foreground: oklch(1.0 0 0);
+  --sidebar-accent: oklch(0.96 0.04 90);
+  --sidebar-accent-foreground: oklch(0.37 0.1 46);
+  --sidebar-border: oklch(0.87 0.015 70);
+  --sidebar-ring: oklch(0.47 0.125 46);
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -141,6 +141,25 @@
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-purple-400: #a78bfa;
+  --color-purple-500: #8b5cf6;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-yellow-400: #facc15;
+  --color-yellow-500: #eab308;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -163,5 +182,31 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glow-amber {
+    box-shadow: 0 0 20px -5px rgb(245 158 11 / 0.15), 0 0 40px -10px rgb(245 158 11 / 0.1);
+  }
+
+  .dark .glow-amber {
+    box-shadow: 0 0 20px -5px rgb(245 158 11 / 0.25), 0 0 40px -10px rgb(245 158 11 / 0.15);
+  }
+
+  .glow-amber-strong {
+    box-shadow: 0 0 20px -2px rgb(245 158 11 / 0.3), 0 0 50px -5px rgb(245 158 11 / 0.2);
+  }
+
+  .dark .glow-amber-strong {
+    box-shadow: 0 0 20px -2px rgb(245 158 11 / 0.4), 0 0 50px -5px rgb(245 158 11 / 0.25);
+  }
+
+  .text-glow-amber {
+    text-shadow: 0 0 20px rgb(245 158 11 / 0.5);
+  }
+
+  .font-display {
+    font-family: var(--font-serif);
   }
 }

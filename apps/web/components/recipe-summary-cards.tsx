@@ -17,22 +17,11 @@ interface RecipeSummaryCardsProps {
   useMultipleSlots: boolean;
 }
 
-interface SummaryCardProps {
-  label: string;
-  value: React.ReactNode;
-  subtitle?: React.ReactNode;
-}
-
-function SummaryCard({ label, value, subtitle }: SummaryCardProps) {
+function StatBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="bg-muted/80 rounded-lg p-3 border border-border/50">
-      <div className="text-muted-foreground text-xs mb-1">{label}</div>
-      <div className="text-sm font-bold text-primary truncate">
-        {value}
-        {subtitle && (
-          <span className="text-xs text-muted-foreground ml-1">{subtitle}</span>
-        )}
-      </div>
+    <div className="px-4 py-3 rounded-lg bg-card/60 border border-border/40">
+      <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground mb-1">{label}</div>
+      <div className="text-sm font-semibold text-foreground truncate">{children}</div>
     </div>
   );
 }
@@ -52,12 +41,11 @@ export function RecipeSummaryCards({
     itemsData,
   );
   const plainDisplayName = displayName.replace(/§./g, "");
-  const forgeSlotText = useMultipleSlots ? "(parallel)" : "";
+  const forgeSlotText = useMultipleSlots ? "parallel" : "";
   const forgeTimeSubtitle = useMultipleSlots
-    ? `(optimized for ${forgeSlots} slots)`
+    ? `${forgeSlots} slots`
     : "";
 
-  // Track recipe summary view
   useEffect(() => {
     trackRecipeSummaryView(
       selectedItem,
@@ -79,31 +67,24 @@ export function RecipeSummaryCards({
   ]);
 
   return (
-    <div
-      className={`grid gap-3 ${
-        totalForgeTime > 0
-          ? "grid-cols-2 md:grid-cols-5"
-          : "grid-cols-2 md:grid-cols-4"
-      }`}
-    >
-      <SummaryCard
-        label="Target Item"
-        value={
-          <MinecraftColoredText text={displayName} title={plainDisplayName} />
-        }
-      />
-      <SummaryCard label="Quantity" value={multiplier.toString()} />
-      <SummaryCard label="Total Materials" value={totalMaterials.toString()} />
-      <SummaryCard
-        label="Forge Slots"
-        value={forgeSlots.toString()}
-        subtitle={forgeSlotText}
-      />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <StatBlock label="Item">
+        <MinecraftColoredText text={displayName} title={plainDisplayName} />
+      </StatBlock>
+      <StatBlock label="Qty">
+        <span className="font-mono text-primary">{multiplier.toLocaleString()}</span>
+      </StatBlock>
+      <StatBlock label="Materials">
+        <span className="font-mono">{totalMaterials}</span>
+      </StatBlock>
+      <StatBlock label="Slots">
+        <span className="font-mono">{forgeSlots}</span>
+        {forgeSlotText && <span className="text-xs text-muted-foreground ml-1">({forgeSlotText})</span>}
+      </StatBlock>
       {totalForgeTime > 0 && (
-        <SummaryCard
-          label={`Total Forge Time${forgeTimeSubtitle ? ` ${forgeTimeSubtitle}` : ""}`}
-          value={formatForgeTime(totalForgeTime)}
-        />
+        <StatBlock label={`Forge Time${forgeTimeSubtitle ? ` (${forgeTimeSubtitle})` : ""}`}>
+          <span className="font-mono text-amber-600 dark:text-amber-500">{formatForgeTime(totalForgeTime)}</span>
+        </StatBlock>
       )}
     </div>
   );

@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { Clipboard, Heart, List, Search } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { Clipboard, Heart, Package, Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { CombinedMaterialsList } from "@/components/combined-materials-list";
 import { CombinedSummaryCards } from "@/components/combined-summary-cards";
@@ -52,12 +46,10 @@ export function SkyblockCalculatorClient() {
   const { recipes, itemsData } = useRecipeData();
   const { sharedState } = useSharedRecipe();
 
-  // Hydrate from localStorage on mount
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
-  // Load shared recipe
   const loaderActions = useMemo(
     () => ({
       setMode,
@@ -70,7 +62,6 @@ export function SkyblockCalculatorClient() {
   );
   useSharedRecipeLoader(sharedState, loaderActions);
 
-  // Sync search value with selected item
   useEffect(() => {
     if (selectedItem && mode === "single") {
       const item = recipes[selectedItem];
@@ -85,7 +76,6 @@ export function SkyblockCalculatorClient() {
     }
   }, [selectedItem, mode, recipes, itemsData, setSearchValue]);
 
-  // Tree expansion
   const {
     expandedItems,
     handleToggleExpanded,
@@ -100,7 +90,6 @@ export function SkyblockCalculatorClient() {
     handleCollapseAll: handleMultiCollapseAll,
   } = useRecipeTreeExpansion(multiTreeSelectedItem);
 
-  // Calculator results
   const forgeSettings = useMemo(
     () => ({
       forgeSlots: settings.forgeSlots,
@@ -120,54 +109,112 @@ export function SkyblockCalculatorClient() {
       materialDepth,
     );
 
+  const hasResults =
+    (mode === "single" && selectedItem) ||
+    (mode === "multi" && itemList.length > 0);
+
+  const MIN_SIDEBAR = 280;
+  const MAX_SIDEBAR = 600;
+  const DEFAULT_SIDEBAR = 340;
+
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR);
+  const isResizing = useRef(false);
+
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      isResizing.current = true;
+      const startX = e.clientX;
+      const startWidth = sidebarWidth;
+
+      const onMouseMove = (ev: MouseEvent) => {
+        if (!isResizing.current) return;
+        const delta = ev.clientX - startX;
+        const maxW = Math.min(MAX_SIDEBAR, window.innerWidth * 0.5);
+        const next = Math.max(MIN_SIDEBAR, Math.min(maxW, startWidth + delta));
+        setSidebarWidth(next);
+      };
+
+      const onMouseUp = () => {
+        isResizing.current = false;
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [sidebarWidth],
+  );
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <HeaderBar />
 
-      <div className="flex flex-col lg:flex-row gap-6 px-4 md:px-8 pb-24 h-[calc(100vh-230px)]">
-        {/* Left column: Search and Settings */}
-        <div className="w-full lg:w-80 lg:flex-shrink-0 space-y-6">
-          <ModeSwitcher mode={mode} onSwitch={handleModeSwitch} />
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Sidebar */}
+        <aside
+          className="w-full lg:w-auto lg:flex-shrink-0 border-b lg:border-b-0 border-border/60 bg-card/30 overflow-y-auto overflow-x-hidden"
+          style={{ width: sidebarWidth }}
+        >
+          <div className="p-4 space-y-4">
+            <ModeSwitcher mode={mode} onSwitch={handleModeSwitch} />
 
-          {mode === "single" && (
-            <SingleItemPanel
-              selectedItem={selectedItem}
-              searchValue={searchValue}
-              multiplier={multiplier}
-              onSearchChange={setSearchValue}
-              onSelectItem={setSelectedItem}
-              onMultiplierChange={setMultiplier}
-              onClear={() => {
-                setSelectedItem(null);
-                setMultiplier(1);
-                setSearchValue("");
-              }}
-              recipeState={{
-                recipes: getRecipeState(),
-                forgeSettings,
-              }}
-            />
-          )}
+            {mode === "single" && (
+              <SingleItemPanel
+                selectedItem={selectedItem}
+                searchValue={searchValue}
+                multiplier={multiplier}
+                onSearchChange={setSearchValue}
+                onSelectItem={setSelectedItem}
+                onMultiplierChange={setMultiplier}
+                onClear={() => {
+                  setSelectedItem(null);
+                  setMultiplier(1);
+                  setSearchValue("");
+                }}
+                recipeState={{
+                  recipes: getRecipeState(),
+                  forgeSettings,
+                }}
+              />
+            )}
 
-          {mode === "multi" && (
-            <MultiItemPanel
-              itemList={itemList}
-              onItemsChange={setItemList}
-              selectedItemId={multiTreeSelectedItem}
-              onItemClick={setMultiTreeSelectedItem}
-              recipeState={{
-                recipes: getRecipeState(),
-                forgeSettings,
-              }}
-            />
-          )}
-        </div>
+            {mode === "multi" && (
+              <MultiItemPanel
+                itemList={itemList}
+                onItemsChange={setItemList}
+                selectedItemId={multiTreeSelectedItem}
+                onItemClick={setMultiTreeSelectedItem}
+                recipeState={{
+                  recipes: getRecipeState(),
+                  forgeSettings,
+                }}
+              />
+            )}
+          </div>
+        </aside>
 
-        {/* Right column: Results */}
-        <div className="flex-1 min-w-0 flex flex-col">
-          {(mode === "single" && selectedItem) ||
-          (mode === "multi" && itemList.length > 0) ? (
-            <div className="space-y-6 flex-1 flex flex-col">
+        {/* Resize handle */}
+        <hr
+          tabIndex={0}
+          aria-orientation="vertical"
+          aria-valuenow={sidebarWidth}
+          aria-valuemin={MIN_SIDEBAR}
+          aria-valuemax={MAX_SIDEBAR}
+          aria-label="Resize sidebar"
+          onMouseDown={handleResizeStart}
+          className="hidden lg:flex items-center justify-center w-1.5 h-auto border-0 cursor-col-resize bg-border/40 hover:bg-primary/40 active:bg-primary/60 transition-colors select-none flex-shrink-0"
+        />
+
+        {/* Main content */}
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
+          {hasResults ? (
+            <div className="p-4 md:p-6 space-y-5">
               {mode === "single" && selectedItem ? (
                 <RecipeSummaryCards
                   selectedItem={selectedItem}
@@ -216,20 +263,18 @@ export function SkyblockCalculatorClient() {
               )}
 
               {mode === "single" && selectedItem ? (
-                <Card className="flex-1 flex flex-col mb-20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                      <Clipboard className="w-5 h-5" />
-                      Materials Needed
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1 overflow-auto">
+                <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 px-5 py-4 border-b border-border/40">
+                    <Clipboard className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-sm">Materials Needed</h3>
+                  </div>
+                  <div className="p-5">
                     <BaseRequirementsList
                       internalname={selectedItem}
                       multiplier={multiplier}
                     />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ) : (
                 <CombinedMaterialsList
                   baseRequirements={baseRequirements}
@@ -239,37 +284,37 @@ export function SkyblockCalculatorClient() {
               )}
             </div>
           ) : (
-            <Card className="text-center flex-1 flex flex-col justify-center">
-              <CardContent>
-                <div className="mb-4">
+            <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+              <div className="text-center max-w-sm mx-auto px-4">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   {mode === "single" ? (
-                    <Search className="w-16 h-16 mx-auto text-muted-foreground" />
+                    <Search className="w-7 h-7 text-primary/60" />
                   ) : (
-                    <List className="w-16 h-16 mx-auto text-muted-foreground" />
+                    <Package className="w-7 h-7 text-primary/60" />
                   )}
                 </div>
-                <h3 className="text-xl font-semibold text-muted-foreground mb-2">
-                  {mode === "single" ? "No Item Selected" : "No Items Added"}
-                </h3>
-                <p className="text-muted-foreground">
+                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
                   {mode === "single"
-                    ? "Search and select an item to view its crafting requirements."
-                    : "Add items to your list to calculate combined material requirements."}
+                    ? "Search for an item"
+                    : "Add items to begin"}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {mode === "single"
+                    ? "Select an item from the search to view its full crafting tree and material requirements."
+                    : "Add items to your list to calculate combined materials across multiple recipes."}
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
-        </div>
+        </main>
       </div>
 
-      <footer className="border-t border-border bg-card/60 backdrop-blur-sm fixed bottom-0 w-full">
-        <div className="px-4 py-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            made with{" "}
-            <Heart className="w-4 h-4 inline text-red-500 fill-current" /> by{" "}
-            <span className="font-semibold text-foreground">hexeption</span>
-          </p>
-        </div>
+      <footer className="border-t border-border/40 bg-card/40 backdrop-blur-sm py-3">
+        <p className="text-muted-foreground text-xs text-center">
+          made with{" "}
+          <Heart className="w-3 h-3 inline text-red-500 fill-current" /> by{" "}
+          <span className="font-medium text-foreground">hexeption</span>
+        </p>
       </footer>
     </div>
   );

@@ -1,12 +1,5 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
 import { Clipboard, Layers, Pickaxe } from "lucide-react";
 import { ItemImage } from "@/components/item-image";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
@@ -24,37 +17,41 @@ export function CombinedMaterialsList(props: {
   const isBase = !Number.isFinite(materialDepth);
 
   return (
-    <Card className="flex-1 flex flex-col mb-20">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3">
-            <Clipboard className="w-5 h-5" />
-            Combined Materials Needed
-          </CardTitle>
-          <div className="flex gap-2">
-            <Button
-              variant={!isBase ? "default" : "outline"}
-              size="sm"
-              onClick={() => onMaterialDepthChange(1)}
-            >
-              <Layers className="w-4 h-4 mr-2" />
-              Crafting
-            </Button>
-            <Button
-              variant={isBase ? "default" : "outline"}
-              size="sm"
-              onClick={() =>
-                onMaterialDepthChange(Number.POSITIVE_INFINITY)
-              }
-            >
-              <Pickaxe className="w-4 h-4 mr-2" />
-              Raw
-            </Button>
-          </div>
+    <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-border/40">
+        <div className="flex items-center gap-2">
+          <Clipboard className="w-4 h-4 text-primary" />
+          <h3 className="font-semibold text-sm">Combined Materials</h3>
         </div>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="flex rounded-md bg-muted/60 p-0.5 border border-border/40">
+          <button
+            type="button"
+            onClick={() => onMaterialDepthChange(1)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+              !isBase
+                ? "bg-card text-foreground shadow-sm border border-border/40"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Layers className="w-3 h-3" />
+            Crafting
+          </button>
+          <button
+            type="button"
+            onClick={() => onMaterialDepthChange(Number.POSITIVE_INFINITY)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+              isBase
+                ? "bg-card text-foreground shadow-sm border border-border/40"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Pickaxe className="w-3 h-3" />
+            Raw
+          </button>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
           {Object.entries(baseRequirements)
             .sort(([, a], [, b]) => b - a)
             .map(([materialName, count]) => {
@@ -66,14 +63,14 @@ export function CombinedMaterialsList(props: {
               return (
                 <div
                   key={materialName}
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border/50"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-muted/40 transition-colors"
                 >
                   <ItemImage
                     entry={entry}
                     internalname={materialName}
                     alt={plainDisplayName}
-                    width={32}
-                    height={32}
+                    width={24}
+                    height={24}
                   />
                   <div className="flex-1 min-w-0">
                     <MinecraftColoredText
@@ -81,15 +78,15 @@ export function CombinedMaterialsList(props: {
                       className="text-sm font-medium truncate block"
                       title={plainDisplayName}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      {count.toLocaleString()}x
-                    </p>
                   </div>
+                  <span className="font-mono text-xs font-semibold text-primary flex-shrink-0">
+                    {count.toLocaleString()}
+                  </span>
                 </div>
               );
             })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
