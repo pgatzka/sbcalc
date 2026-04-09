@@ -81,7 +81,7 @@ function stripNs(type: string | undefined): string {
 }
 
 // Walk a model JSON tree and return the first concrete model reference.
-// Handles: model, condition (on_false/on_true), select (first case).
+// Handles: model, condition, select, range_dispatch.
 function extractFirstModelRef(obj: unknown): string | null {
   if (!obj || typeof obj !== "object") return null;
   const o = obj as Record<string, unknown>;
@@ -98,6 +98,14 @@ function extractFirstModelRef(obj: unknown): string | null {
     if (Array.isArray(cases) && cases.length > 0) {
       return extractFirstModelRef(cases[0].model ?? cases[0]);
     }
+  }
+  if (t === "range_dispatch") {
+    const entries = o.entries;
+    if (Array.isArray(entries) && entries.length > 0) {
+      const fromEntry = extractFirstModelRef(entries[0].model ?? entries[0]);
+      if (fromEntry) return fromEntry;
+    }
+    return extractFirstModelRef(o.fallback);
   }
   return null;
 }
