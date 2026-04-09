@@ -1,7 +1,13 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { Label } from "@workspace/ui/components/label";
 import { useTexturePackStore } from "@/lib/texture-pack-store";
+
+const packLinks: Record<string, string> = {
+  fursky: "https://modrinth.com/resourcepack/furfsky-reborn",
+  packshq: "https://modrinth.com/resourcepack/packshq",
+};
 
 export function TexturePackSettings() {
   const packs = useTexturePackStore((s) => s.packs);
@@ -40,6 +46,17 @@ export function TexturePackSettings() {
           <div className="grid gap-0.5 leading-none">
             <Label htmlFor={`pack-${pack.id}`} className="cursor-pointer">
               {pack.name}
+              {packLinks[pack.id] && (
+                <a
+                  href={packLinks[pack.id]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex ml-1.5 text-muted-foreground hover:text-foreground align-middle"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="size-3" />
+                </a>
+              )}
               {pack.loading && (
                 <span className="text-muted-foreground ml-2 text-xs">
                   Loading...
