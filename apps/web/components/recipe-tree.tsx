@@ -134,69 +134,69 @@ export function RecipeTree({
             }
           }}
         >
-        {hasIngredients && (
-          <span className="text-muted-foreground flex-shrink-0">
-            {isExpanded ? (
-              <ChevronDown className="w-3.5 h-3.5" />
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5" />
-            )}
-          </span>
-        )}
-        {!hasIngredients && <span className="w-3.5 flex-shrink-0" />}
-
-        <ItemImage
-          entry={entry}
-          internalname={internalname}
-          alt={plainDisplayName}
-          width={24}
-          height={24}
-          style={{ verticalAlign: "middle", flexShrink: 0 }}
-        />
-
-        <MinecraftColoredText
-          text={displayName}
-          className="text-sm font-medium text-foreground truncate"
-          title={plainDisplayName}
-        />
-
-        <div className="ml-auto flex items-center gap-2 flex-shrink-0">
-          {isForgeRecipe && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              FORGE
-            </span>
-          )}
-          {isForgeRecipe && forgeTime && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/15 font-mono">
-              {forgeTime}
-              {forgeSettings.useMultipleSlots && multiplier > 1 && (
-                <span className="ml-1 opacity-70">
-                  ({Math.min(multiplier, forgeSettings.forgeSlots)}s)
-                </span>
+          {hasIngredients && (
+            <span className="text-muted-foreground flex-shrink-0">
+              {isExpanded ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5" />
               )}
             </span>
           )}
-          {isBaseMaterial && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              BASE
+          {!hasIngredients && <span className="w-3.5 flex-shrink-0" />}
+
+          <ItemImage
+            entry={entry}
+            internalname={internalname}
+            alt={plainDisplayName}
+            width={24}
+            height={24}
+            style={{ verticalAlign: "middle", flexShrink: 0 }}
+          />
+
+          <MinecraftColoredText
+            text={displayName}
+            className="text-sm font-medium text-foreground truncate"
+            title={plainDisplayName}
+          />
+
+          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+            {isForgeRecipe && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                FORGE
+              </span>
+            )}
+            {isForgeRecipe && forgeTime && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/15 font-mono">
+                {forgeTime}
+                {forgeSettings.useMultipleSlots && multiplier > 1 && (
+                  <span className="ml-1 opacity-70">
+                    ({Math.min(multiplier, forgeSettings.forgeSlots)}s)
+                  </span>
+                )}
+              </span>
+            )}
+            {isBaseMaterial && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                BASE
+              </span>
+            )}
+            {wikiUrl && (
+              <a
+                href={wikiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover:opacity-100"
+                title="Open wiki page"
+              >
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+              {multiplier}x
             </span>
-          )}
-          {wikiUrl && (
-            <a
-              href={wikiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="p-1 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover:opacity-100"
-              title="Open wiki page"
-            >
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
-          <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-            {multiplier}x
-          </span>
-        </div>
+          </div>
         </div>
       </div>
 

@@ -136,10 +136,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     if (get().hydrated) return;
 
     const mode = loadJson<"single" | "multi">(LOCAL_KEYS.mode, "single");
-    const selectedItem = loadJson<string | null>(
-      LOCAL_KEYS.selectedItem,
-      null,
-    );
+    const selectedItem = loadJson<string | null>(LOCAL_KEYS.selectedItem, null);
     const multiplier = loadJson<number>(LOCAL_KEYS.multiplier, 1);
     const itemList = loadJson<ItemListEntry[]>(LOCAL_KEYS.itemList, []);
     const settings = {
@@ -173,7 +170,8 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   // Helpers
   getRecipeState: () => {
     const { mode, selectedItem, multiplier, itemList } = get();
-    if (mode === "single" && selectedItem) return { [selectedItem]: multiplier };
+    if (mode === "single" && selectedItem)
+      return { [selectedItem]: multiplier };
     if (mode === "multi")
       return Object.fromEntries(
         itemList.map((item) => [item.itemId, item.quantity]),

@@ -37,7 +37,10 @@ interface TexturePackState {
 
 const STORAGE_KEY = "sbcalc-texture-pack";
 
-const PACK_REGISTRY: Omit<TexturePackEntry, "enabled" | "loaded" | "loading" | "error" | "textures">[] = [
+const PACK_REGISTRY: Omit<
+  TexturePackEntry,
+  "enabled" | "loaded" | "loading" | "error" | "textures"
+>[] = [
   { id: "fursky", name: "FurfSky Reborn", url: "/fursky.cats" },
   { id: "packshq", name: "PacksHQ", url: "/packshq.cats" },
 ];
@@ -110,7 +113,9 @@ function extractFirstModelRef(obj: unknown): string | null {
   return null;
 }
 
-async function indexTextures(archive: CatsArchive): Promise<Map<string, TextureInfo>> {
+async function indexTextures(
+  archive: CatsArchive,
+): Promise<Map<string, TextureInfo>> {
   const files = listFiles(archive);
 
   // Step 1: Find all skyblock item definition files
@@ -211,7 +216,11 @@ async function indexTextures(archive: CatsArchive): Promise<Map<string, TextureI
 
       const pngBytes = await extractFile(archive, fullPath);
       if (pngBytes && pngBytes.length >= 24) {
-        const view = new DataView(pngBytes.buffer, pngBytes.byteOffset, pngBytes.length);
+        const view = new DataView(
+          pngBytes.buffer,
+          pngBytes.byteOffset,
+          pngBytes.length,
+        );
         const w = view.getUint32(16, false);
         const h = view.getUint32(20, false);
         if (h > w && w > 0) {
@@ -239,7 +248,9 @@ async function indexTextures(archive: CatsArchive): Promise<Map<string, TextureI
   return textures;
 }
 
-async function loadPack(pack: TexturePackEntry): Promise<Map<string, TextureInfo>> {
+async function loadPack(
+  pack: TexturePackEntry,
+): Promise<Map<string, TextureInfo>> {
   const response = await fetch(pack.url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const buffer = await response.arrayBuffer();

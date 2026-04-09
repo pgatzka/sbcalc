@@ -35,12 +35,16 @@ export function MultiItemPanel(props: {
       {itemList.length > 0 && (
         <div className="space-y-4">
           <div className="border-t border-border/40 pt-4">
-            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Forge</h4>
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+              Forge
+            </h4>
             <ForgeSettings />
           </div>
 
           <div className="border-t border-border/40 pt-4">
-            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Texture Pack</h4>
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+              Texture Pack
+            </h4>
             <TexturePackSettings />
           </div>
 

@@ -136,7 +136,8 @@ export default function DemoPage() {
         {visibleCount < filtered.length && (
           <div ref={loaderRef} className="flex justify-center py-6">
             <p className="text-xs font-mono text-muted-foreground">
-              {visibleCount.toLocaleString()} / {filtered.length.toLocaleString()}
+              {visibleCount.toLocaleString()} /{" "}
+              {filtered.length.toLocaleString()}
             </p>
           </div>
         )}

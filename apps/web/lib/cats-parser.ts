@@ -178,7 +178,15 @@ export async function extractFileAsBlob(
 ): Promise<Blob | null> {
   const bytes = await extractFile(archive, path);
   if (!bytes) return null;
-  return new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer], { type: mimeType });
+  return new Blob(
+    [
+      bytes.buffer.slice(
+        bytes.byteOffset,
+        bytes.byteOffset + bytes.byteLength,
+      ) as ArrayBuffer,
+    ],
+    { type: mimeType },
+  );
 }
 
 export async function extractFileAsObjectURL(
@@ -195,12 +203,7 @@ export function listFiles(archive: CatsArchive): string[] {
   return Array.from(archive.files.keys());
 }
 
-export function listFilesInDir(
-  archive: CatsArchive,
-  dir: string,
-): string[] {
+export function listFilesInDir(archive: CatsArchive, dir: string): string[] {
   const prefix = dir.endsWith("/") ? dir : `${dir}/`;
-  return Array.from(archive.files.keys()).filter((p) =>
-    p.startsWith(prefix),
-  );
+  return Array.from(archive.files.keys()).filter((p) => p.startsWith(prefix));
 }

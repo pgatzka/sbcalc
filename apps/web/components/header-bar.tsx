@@ -17,13 +17,9 @@ export function HeaderBar() {
   return (
     <header className="border-b border-border/60 bg-card/40 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 md:px-6 h-14">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="font-display text-lg font-semibold tracking-wide text-foreground">
-              Skyblock Calculator
-            </h1>
-          </div>
-        </div>
+        <h1 className="font-display text-lg font-semibold tracking-wide text-foreground">
+          Skyblock Calculator
+        </h1>
 
         <div className="flex items-center gap-1.5">
           <Button
@@ -46,7 +42,12 @@ export function HeaderBar() {
             )}
           </Button>
           <ChangelogDialog />
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            asChild
+          >
             <Link
               href="https://github.com/Hexeption/sbcalc"
               target="_blank"

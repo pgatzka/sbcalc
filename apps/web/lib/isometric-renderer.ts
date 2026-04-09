@@ -8,28 +8,32 @@ const SKEW_B = SKEW_A * 2;
 const SECTION_SIZE = 8;
 
 type Matrix = [
-  number, number, number,
-  number, number, number,
-  number, number, number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
 ];
 
-const TRANSFORM_TOP_BOTTOM: Matrix = [
-  1, 1, 0,
-  -SKEW_A, SKEW_A, 0,
-  0, 0, 1,
-];
+const TRANSFORM_TOP_BOTTOM: Matrix = [1, 1, 0, -SKEW_A, SKEW_A, 0, 0, 0, 1];
 
 const TRANSFORM_FRONT_BACK: Matrix = [
-  1, 0, 0,
-  -SKEW_A, SKEW_B, SKEW_A,
-  0, 0, 1,
+  1,
+  0,
+  0,
+  -SKEW_A,
+  SKEW_B,
+  SKEW_A,
+  0,
+  0,
+  1,
 ];
 
-const TRANSFORM_RIGHT_LEFT: Matrix = [
-  1, 0, 0,
-  SKEW_A, SKEW_B, 0,
-  0, 0, 1,
-];
+const TRANSFORM_RIGHT_LEFT: Matrix = [1, 0, 0, SKEW_A, SKEW_B, 0, 0, 0, 1];
 
 interface SectionOpts {
   x: number;
@@ -103,23 +107,31 @@ function overlay3DSection(
 
   const baseMatrix = opts.matrix;
   const translateMatrix: Matrix = [
-    1, 0, opts.translateX,
-    0, 1, opts.translateY,
-    0, 0, 1,
+    1,
+    0,
+    opts.translateX,
+    0,
+    1,
+    opts.translateY,
+    0,
+    0,
+    1,
   ];
   const scaleX = opts.flip ? -opts.scale : opts.scale;
-  const scaleMatrix: Matrix = [
-    scaleX, 0, 0,
-    0, opts.scale, 0,
-    0, 0, 1,
-  ];
+  const scaleMatrix: Matrix = [scaleX, 0, 0, 0, opts.scale, 0, 0, 0, 1];
 
-  const finalMatrix = matMultiply(matMultiply(baseMatrix, translateMatrix), scaleMatrix);
+  const finalMatrix = matMultiply(
+    matMultiply(baseMatrix, translateMatrix),
+    scaleMatrix,
+  );
 
   const det =
-    finalMatrix[0] * (finalMatrix[4] * finalMatrix[8] - finalMatrix[5] * finalMatrix[7]) -
-    finalMatrix[1] * (finalMatrix[3] * finalMatrix[8] - finalMatrix[5] * finalMatrix[6]) +
-    finalMatrix[2] * (finalMatrix[3] * finalMatrix[7] - finalMatrix[4] * finalMatrix[6]);
+    finalMatrix[0] *
+      (finalMatrix[4] * finalMatrix[8] - finalMatrix[5] * finalMatrix[7]) -
+    finalMatrix[1] *
+      (finalMatrix[3] * finalMatrix[8] - finalMatrix[5] * finalMatrix[6]) +
+    finalMatrix[2] *
+      (finalMatrix[3] * finalMatrix[7] - finalMatrix[4] * finalMatrix[6]);
 
   if (Math.abs(det) < 1e-10) return;
 
@@ -141,7 +153,8 @@ function overlay3DSection(
       const srcX = Math.round(srcXf);
       const srcY = Math.round(srcYf);
 
-      if (srcX < 0 || srcX >= SECTION_SIZE || srcY < 0 || srcY >= SECTION_SIZE) continue;
+      if (srcX < 0 || srcX >= SECTION_SIZE || srcY < 0 || srcY >= SECTION_SIZE)
+        continue;
 
       const srcIdx = (srcY * SECTION_SIZE + srcX) * 4;
       const topA = section[srcIdx + 3]!;
@@ -157,45 +170,160 @@ function overlay3DSection(
       } else {
         const alpha = topA / 255;
         const invAlpha = 1 - alpha;
-        output[dstIdx] = Math.round(section[srcIdx]! * alpha + output[dstIdx]! * invAlpha);
-        output[dstIdx + 1] = Math.round(section[srcIdx + 1]! * alpha + output[dstIdx + 1]! * invAlpha);
-        output[dstIdx + 2] = Math.round(section[srcIdx + 2]! * alpha + output[dstIdx + 2]! * invAlpha);
-        output[dstIdx + 3] = Math.min(255, Math.round(topA + output[dstIdx + 3]! * invAlpha));
+        output[dstIdx] = Math.round(
+          section[srcIdx]! * alpha + output[dstIdx]! * invAlpha,
+        );
+        output[dstIdx + 1] = Math.round(
+          section[srcIdx + 1]! * alpha + output[dstIdx + 1]! * invAlpha,
+        );
+        output[dstIdx + 2] = Math.round(
+          section[srcIdx + 2]! * alpha + output[dstIdx + 2]! * invAlpha,
+        );
+        output[dstIdx + 3] = Math.min(
+          255,
+          Math.round(topA + output[dstIdx + 3]! * invAlpha),
+        );
       }
     }
   }
 }
 
-export function renderHead(skin: Buffer, skinW: number, outputSize: number): Buffer {
+export function renderHead(
+  skin: Buffer,
+  skinW: number,
+  outputSize: number,
+): Buffer {
   const size = outputSize;
   const scale = size / 20;
   const output = Buffer.alloc(size * size * 4);
 
   const sections: SectionOpts[] = [
     // Bottom overlay
-    { x: 6, y: 0, matrix: TRANSFORM_TOP_BOTTOM, translateX: size * (-145 / 256), translateY: size * (177 / 256), flip: false, scale, isOverlay: true },
+    {
+      x: 6,
+      y: 0,
+      matrix: TRANSFORM_TOP_BOTTOM,
+      translateX: size * (-145 / 256),
+      translateY: size * (177 / 256),
+      flip: false,
+      scale,
+      isOverlay: true,
+    },
     // Back overlay
-    { x: 7, y: 1, matrix: TRANSFORM_FRONT_BACK, translateX: size * (26 / 256), translateY: size * (70 / 256), flip: false, scale: scale * (9 / 8), isOverlay: true },
+    {
+      x: 7,
+      y: 1,
+      matrix: TRANSFORM_FRONT_BACK,
+      translateX: size * (26 / 256),
+      translateY: size * (70 / 256),
+      flip: false,
+      scale: scale * (9 / 8),
+      isOverlay: true,
+    },
     // Left overlay
-    { x: 6, y: 1, matrix: TRANSFORM_RIGHT_LEFT, translateX: size * (231 / 256) * (8 / 8.1), translateY: size * (-56 / 256), flip: true, scale: scale * (9 / 8), isOverlay: true },
+    {
+      x: 6,
+      y: 1,
+      matrix: TRANSFORM_RIGHT_LEFT,
+      translateX: size * (231 / 256) * (8 / 8.1),
+      translateY: size * (-56 / 256),
+      flip: true,
+      scale: scale * (9 / 8),
+      isOverlay: true,
+    },
     // Bottom base
-    { x: 2, y: 0, matrix: TRANSFORM_TOP_BOTTOM, translateX: size * (-145 / 256) / (8 / 8.1) + size * (10 / 256), translateY: size * (177 / 256), flip: false, scale },
+    {
+      x: 2,
+      y: 0,
+      matrix: TRANSFORM_TOP_BOTTOM,
+      translateX: (size * (-145 / 256)) / (8 / 8.1) + size * (10 / 256),
+      translateY: size * (177 / 256),
+      flip: false,
+      scale,
+    },
     // Back base
-    { x: 3, y: 1, matrix: TRANSFORM_FRONT_BACK, translateX: size * (26 / 256) * (8 / 9) + 10, translateY: size * (70 / 256) * (8 / 9) + 12, flip: false, scale },
+    {
+      x: 3,
+      y: 1,
+      matrix: TRANSFORM_FRONT_BACK,
+      translateX: size * (26 / 256) * (8 / 9) + 10,
+      translateY: size * (70 / 256) * (8 / 9) + 12,
+      flip: false,
+      scale,
+    },
     // Left base
-    { x: 0, y: 1, matrix: TRANSFORM_RIGHT_LEFT, translateX: size * (231 / 256) / (8 / 8.1) - size * (10 / 256) - 45, translateY: size * (-56 / 256) + 6, flip: false, scale },
+    {
+      x: 0,
+      y: 1,
+      matrix: TRANSFORM_RIGHT_LEFT,
+      translateX: (size * (231 / 256)) / (8 / 8.1) - size * (10 / 256) - 45,
+      translateY: size * (-56 / 256) + 6,
+      flip: false,
+      scale,
+    },
     // Top base
-    { x: 1, y: 0, matrix: TRANSFORM_TOP_BOTTOM, translateX: size * (-40 / 256), translateY: size * (83 / 256), flip: false, scale },
+    {
+      x: 1,
+      y: 0,
+      matrix: TRANSFORM_TOP_BOTTOM,
+      translateX: size * (-40 / 256),
+      translateY: size * (83 / 256),
+      flip: false,
+      scale,
+    },
     // Front base
-    { x: 1, y: 1, matrix: TRANSFORM_FRONT_BACK, translateX: size * (132.5 / 256), translateY: size * (177.5 / 256), flip: false, scale },
+    {
+      x: 1,
+      y: 1,
+      matrix: TRANSFORM_FRONT_BACK,
+      translateX: size * (132.5 / 256),
+      translateY: size * (177.5 / 256),
+      flip: false,
+      scale,
+    },
     // Right base
-    { x: 2, y: 1, matrix: TRANSFORM_RIGHT_LEFT, translateX: size * (121 / 256), translateY: size * (52 / 256), flip: true, scale },
+    {
+      x: 2,
+      y: 1,
+      matrix: TRANSFORM_RIGHT_LEFT,
+      translateX: size * (121 / 256),
+      translateY: size * (52 / 256),
+      flip: true,
+      scale,
+    },
     // Front overlay
-    { x: 5, y: 1, matrix: TRANSFORM_FRONT_BACK, translateX: size * (132.5 / 256) * (8.1 / 8), translateY: size * (177.5 / 256), flip: false, scale: scale * (9 / 8), isOverlay: true },
+    {
+      x: 5,
+      y: 1,
+      matrix: TRANSFORM_FRONT_BACK,
+      translateX: size * (132.5 / 256) * (8.1 / 8),
+      translateY: size * (177.5 / 256),
+      flip: false,
+      scale: scale * (9 / 8),
+      isOverlay: true,
+    },
     // Right overlay
-    { x: 4, y: 1, matrix: TRANSFORM_RIGHT_LEFT, translateX: size * (26 / 256) * (8 / 8.1), translateY: size * (52 / 256), flip: false, scale: scale * (9 / 8), isOverlay: true },
+    {
+      x: 4,
+      y: 1,
+      matrix: TRANSFORM_RIGHT_LEFT,
+      translateX: size * (26 / 256) * (8 / 8.1),
+      translateY: size * (52 / 256),
+      flip: false,
+      scale: scale * (9 / 8),
+      isOverlay: true,
+    },
     // Top overlay
-    { x: 5, y: 0, matrix: TRANSFORM_TOP_BOTTOM, translateX: size * (-40 / 256) * (8 / 8.1), translateY: size * (83 / 256) * (8 / 9), flip: false, scale: scale * (9 / 8), isOverlay: true },
+    {
+      x: 5,
+      y: 0,
+      matrix: TRANSFORM_TOP_BOTTOM,
+      translateX: size * (-40 / 256) * (8 / 8.1),
+      translateY: size * (83 / 256) * (8 / 9),
+      flip: false,
+      scale: scale * (9 / 8),
+      isOverlay: true,
+    },
   ];
 
   for (const section of sections) {

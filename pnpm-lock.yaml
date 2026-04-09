@@ -5200,7 +5200,7 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@25.2.2)(@vitest/ui@4.0.18)(jiti@2.6.1)(jsdom@29.0.2)(lightningcss@1.30.2)
+      vitest: 4.0.18(@types/node@25.5.2)(@vitest/ui@4.0.18)(jiti@2.6.1)(jsdom@29.0.2)(lightningcss@1.30.2)
 
   '@vitest/expect@4.0.18':
     dependencies:
@@ -5253,7 +5253,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@25.2.2)(@vitest/ui@4.0.18)(jiti@2.6.1)(jsdom@29.0.2)(lightningcss@1.30.2)
+      vitest: 4.0.18(@types/node@25.5.2)(@vitest/ui@4.0.18)(jiti@2.6.1)(jsdom@29.0.2)(lightningcss@1.30.2)
 
   '@vitest/utils@4.0.18':
     dependencies:

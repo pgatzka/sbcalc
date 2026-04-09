@@ -77,7 +77,9 @@ export function BaseRequirementsList({
                 className="text-sm font-medium text-foreground block truncate"
                 title={plainDisplayName}
               />
-              <div className="text-[10px] text-muted-foreground font-mono">{name}</div>
+              <div className="text-[10px] text-muted-foreground font-mono">
+                {name}
+              </div>
             </div>
             <span className="font-mono text-sm font-semibold text-primary">
               {count.toLocaleString()}
@@ -88,7 +90,9 @@ export function BaseRequirementsList({
 
       <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between px-3">
         <span className="text-xs text-muted-foreground">Total types</span>
-        <span className="font-mono text-sm font-bold text-primary">{sortedRequirements.length}</span>
+        <span className="font-mono text-sm font-bold text-primary">
+          {sortedRequirements.length}
+        </span>
       </div>
     </div>
   );

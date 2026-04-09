@@ -54,15 +54,30 @@ export function CraftingTreeMulti(props: {
           </h3>
         </div>
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" onClick={onExpandAll} className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onExpandAll}
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
             <ChevronDown className="w-3.5 h-3.5 mr-1" />
             Expand
           </Button>
-          <Button variant="ghost" size="sm" onClick={onCollapseAll} className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCollapseAll}
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+          >
             <ChevronUp className="w-3.5 h-3.5 mr-1" />
             Collapse
           </Button>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+          >
             <X className="w-3.5 h-3.5" />
           </Button>
         </div>

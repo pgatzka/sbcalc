@@ -3,7 +3,10 @@
 import React from "react";
 import { getMappingInfo } from "@/lib/item-id-mappings";
 import { useRecipeData } from "@/lib/recipe-data-context";
-import { type TextureInfo, useTexturePackStore } from "@/lib/texture-pack-store";
+import {
+  type TextureInfo,
+  useTexturePackStore,
+} from "@/lib/texture-pack-store";
 import type { RecipeEntry } from "@/lib/types";
 import { extractFromSNBT } from "@/lib/utils";
 

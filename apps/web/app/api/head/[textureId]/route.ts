@@ -1,5 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { loadTextureRaw, renderHead, renderToPng } from "@/lib/isometric-renderer";
+import {
+  loadTextureRaw,
+  renderHead,
+  renderToPng,
+} from "@/lib/isometric-renderer";
 
 const OUTPUT_SIZE = 128;
 const MAX_CACHE_SIZE = 500;
@@ -65,7 +69,10 @@ export async function GET(
 
     const headPixels = renderHead(pixels, width, OUTPUT_SIZE);
     const png = await renderToPng(headPixels, OUTPUT_SIZE);
-    const ab = png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer;
+    const ab = png.buffer.slice(
+      png.byteOffset,
+      png.byteOffset + png.byteLength,
+    ) as ArrayBuffer;
 
     setCached(textureId, ab);
 

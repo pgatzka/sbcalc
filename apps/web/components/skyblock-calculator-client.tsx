@@ -113,53 +113,40 @@ export function SkyblockCalculatorClient() {
     (mode === "single" && selectedItem) ||
     (mode === "multi" && itemList.length > 0);
 
-  const MIN_SIDEBAR = 280;
-  const MAX_SIDEBAR = 600;
-  const DEFAULT_SIDEBAR = 340;
-
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR);
+  const [sidebarWidth, setSidebarWidth] = useState(340);
   const isResizing = useRef(false);
 
-  const handleResizeStart = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      isResizing.current = true;
-      const startX = e.clientX;
-      const startWidth = sidebarWidth;
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
 
-      const onMouseMove = (ev: MouseEvent) => {
-        if (!isResizing.current) return;
-        const delta = ev.clientX - startX;
-        const maxW = Math.min(MAX_SIDEBAR, window.innerWidth * 0.5);
-        const next = Math.max(MIN_SIDEBAR, Math.min(maxW, startWidth + delta));
-        setSidebarWidth(next);
-      };
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isResizing.current) return;
+      const newWidth = Math.min(Math.max(startWidth + ev.clientX - startX, 260), 600);
+      setSidebarWidth(newWidth);
+    };
 
-      const onMouseUp = () => {
-        isResizing.current = false;
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-      };
+    const onMouseUp = () => {
+      isResizing.current = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
 
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    },
-    [sidebarWidth],
-  );
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }, [sidebarWidth]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <HeaderBar />
 
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar */}
         <aside
-          className="w-full lg:w-auto lg:flex-shrink-0 border-b lg:border-b-0 border-border/60 bg-card/30 overflow-y-auto overflow-x-hidden"
-          style={{ width: sidebarWidth }}
+          className="sidebar-panel shrink-0 border-b md:border-b-0 md:border-r border-border/60 bg-card/30 overflow-y-auto overflow-x-hidden"
+          style={{ "--sidebar-w": `${sidebarWidth}px` } as React.CSSProperties}
         >
           <div className="p-4 space-y-4">
             <ModeSwitcher mode={mode} onSwitch={handleModeSwitch} />
@@ -200,16 +187,12 @@ export function SkyblockCalculatorClient() {
         </aside>
 
         {/* Resize handle */}
-        <hr
-          tabIndex={0}
-          aria-orientation="vertical"
-          aria-valuenow={sidebarWidth}
-          aria-valuemin={MIN_SIDEBAR}
-          aria-valuemax={MAX_SIDEBAR}
-          aria-label="Resize sidebar"
+        <div
+          className="hidden md:flex w-1.5 cursor-col-resize items-center justify-center hover:bg-border/40 active:bg-border/60 transition-colors shrink-0"
           onMouseDown={handleResizeStart}
-          className="hidden lg:flex items-center justify-center w-1.5 h-auto border-0 cursor-col-resize bg-border/40 hover:bg-primary/40 active:bg-primary/60 transition-colors select-none flex-shrink-0"
-        />
+        >
+          <div className="w-px h-8 bg-border/60 rounded-full" />
+        </div>
 
         {/* Main content */}
         <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">

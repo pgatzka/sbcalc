@@ -150,7 +150,10 @@ export interface ColorSegment {
   color: string;
 }
 
-export const parseMinecraftColors = (text: string, isDark = true): ColorSegment[] => {
+export const parseMinecraftColors = (
+  text: string,
+  isDark = true,
+): ColorSegment[] => {
   const colors = isDark ? MINECRAFT_COLORS : MINECRAFT_COLORS_LIGHT;
   const result: ColorSegment[] = [];
   let currentColor = isDark ? "#FFFFFF" : "#1c1917";

@@ -207,4 +207,14 @@
   .font-display {
     font-family: var(--font-display, 'Exo 2', sans-serif);
   }
+
+  .sidebar-panel {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .sidebar-panel {
+      width: var(--sidebar-w, 340px);
+    }
+  }
 }
