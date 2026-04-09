@@ -29,6 +29,8 @@ export interface RecipeEntry {
   itemmodel?: string;
   item_model?: string;
   lore?: string[];
+  infoType?: string;
+  info?: string[];
 }
 
 export interface ItemListEntry {

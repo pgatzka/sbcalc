@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import type React from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackRecipeTreeItemClick } from "@/lib/analytics";
@@ -91,6 +91,12 @@ export function RecipeTree({
     : 1;
   const actualMultiplier = Math.ceil(multiplier / recipeCount);
 
+  const wikiUrl =
+    entry.infoType === "WIKI_URL" && entry.info?.length
+      ? (entry.info.find((u) => u.includes("wiki.hypixel.net")) ??
+        entry.info[0])
+      : undefined;
+
   return (
     <div>
       <div className="flex items-stretch">
@@ -174,6 +180,18 @@ export function RecipeTree({
             <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               BASE
             </span>
+          )}
+          {wikiUrl && (
+            <a
+              href={wikiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="p-1 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover:opacity-100"
+              title="Open wiki page"
+            >
+              <ExternalLink className="w-3 h-3" />
+            </a>
           )}
           <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
             {multiplier}x
