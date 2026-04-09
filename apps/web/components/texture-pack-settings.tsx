@@ -9,7 +9,7 @@ const packLinks: Record<string, string> = {
   packshq: "https://modrinth.com/resourcepack/packshq",
 };
 
-export function TexturePackSettings() {
+export function TexturePackSettings({ inline }: { inline?: boolean }) {
   const packs = useTexturePackStore((s) => s.packs);
   const selectPack = useTexturePackStore((s) => s.selectPack);
 
@@ -18,22 +18,22 @@ export function TexturePackSettings() {
   const anyEnabled = packs.some((p) => p.enabled);
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-start space-x-3">
+    <div className={inline ? "flex items-center gap-4" : "space-y-3"}>
+      <div className="flex items-center space-x-2">
         <input
           type="radio"
           name="texture-pack"
           id="pack-none"
           checked={!anyEnabled}
           onChange={() => selectPack(null)}
-          className="mt-0.5 accent-primary"
+          className="accent-primary"
         />
-        <Label htmlFor="pack-none" className="cursor-pointer">
+        <Label htmlFor="pack-none" className="cursor-pointer text-sm">
           None
         </Label>
       </div>
       {packs.map((pack) => (
-        <div key={pack.id} className="flex items-start space-x-3">
+        <div key={pack.id} className="flex items-center space-x-2">
           <input
             type="radio"
             name="texture-pack"
@@ -41,10 +41,10 @@ export function TexturePackSettings() {
             checked={pack.enabled}
             onChange={() => selectPack(pack.id)}
             disabled={pack.loading}
-            className="mt-0.5 accent-primary"
+            className="accent-primary"
           />
-          <div className="grid gap-0.5 leading-none">
-            <Label htmlFor={`pack-${pack.id}`} className="cursor-pointer">
+          <div className="flex items-center gap-0.5 leading-none">
+            <Label htmlFor={`pack-${pack.id}`} className="cursor-pointer text-sm">
               {pack.name}
               {packLinks[pack.id] && (
                 <a
