@@ -62,6 +62,12 @@
     }
   },
   "files": {
-    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"]
+    "includes": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.mjs",
+      "!!packages/ui/src/components"
+    ]
   }
 }
