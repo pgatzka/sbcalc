@@ -10,8 +10,14 @@ export function CombinedMaterialsList(props: {
   baseRequirements: Record<string, number>;
   materialDepth: number;
   onMaterialDepthChange: (depth: number) => void;
+  checkedItems?: Set<string>;
 }) {
-  const { baseRequirements, materialDepth, onMaterialDepthChange } = props;
+  const {
+    baseRequirements,
+    materialDepth,
+    onMaterialDepthChange,
+    checkedItems,
+  } = props;
   const { recipes, itemsData } = useRecipeData();
 
   const isBase = !Number.isFinite(materialDepth);
@@ -53,6 +59,7 @@ export function CombinedMaterialsList(props: {
       <div className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
           {Object.entries(baseRequirements)
+            .filter(([name]) => !checkedItems?.has(name))
             .sort(([, a], [, b]) => b - a)
             .map(([materialName, count]) => {
               const entry = recipes[materialName] || itemsData[materialName];

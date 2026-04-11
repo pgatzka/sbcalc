@@ -22,6 +22,7 @@ export function useCalculatorResults(
   itemList: Array<{ itemId: string; quantity: number }>,
   settings: ForgeSettings,
   materialDepth: number = Number.POSITIVE_INFINITY,
+  checkedItems?: Set<string>,
 ) {
   const { recipes, itemsData } = useRecipeData();
 
@@ -61,13 +62,22 @@ export function useCalculatorResults(
         multiplier,
         new Set(),
         settings,
+        checkedItems,
       );
     }
     if (mode === "multi") {
-      return getCombinedForgeTime(itemList, recipes, settings);
+      return getCombinedForgeTime(itemList, recipes, settings, checkedItems);
     }
     return 0;
-  }, [mode, selectedItem, multiplier, itemList, recipes, settings]);
+  }, [
+    mode,
+    selectedItem,
+    multiplier,
+    itemList,
+    recipes,
+    settings,
+    checkedItems,
+  ]);
 
   return { baseRequirements, totalMaterials, totalForgeTime };
 }

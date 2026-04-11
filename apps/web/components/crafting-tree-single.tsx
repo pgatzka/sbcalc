@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/button";
-import { ChevronDown, ChevronUp, Wrench } from "lucide-react";
+import { ChevronDown, ChevronUp, ListChecks, Wrench } from "lucide-react";
 import { RecipeTree } from "@/components/recipe-tree";
 
 export function CraftingTreeSingle(props: {
@@ -16,6 +16,10 @@ export function CraftingTreeSingle(props: {
     useMultipleSlots: boolean;
     quickForgeLevel: number;
   };
+  todoMode: boolean;
+  onToggleTodoMode: () => void;
+  checkedItems: Set<string>;
+  onToggleChecked: (id: string) => void;
 }) {
   const {
     selectedItem,
@@ -25,6 +29,10 @@ export function CraftingTreeSingle(props: {
     onToggleExpanded,
     multiplier,
     forgeSettings,
+    todoMode,
+    onToggleTodoMode,
+    checkedItems,
+    onToggleChecked,
   } = props;
 
   return (
@@ -35,6 +43,15 @@ export function CraftingTreeSingle(props: {
           <h3 className="font-semibold text-sm">Crafting Tree</h3>
         </div>
         <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleTodoMode}
+            className={`h-7 px-2 text-xs ${todoMode ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ListChecks className="w-3.5 h-3.5 mr-1" />
+            Todo
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -62,6 +79,9 @@ export function CraftingTreeSingle(props: {
           expandedItems={expandedItems}
           onToggleExpanded={onToggleExpanded}
           forgeSettings={forgeSettings}
+          todoMode={todoMode}
+          checkedItems={checkedItems}
+          onToggleChecked={onToggleChecked}
         />
       </div>
     </div>

@@ -44,7 +44,10 @@ export function TexturePackSettings({ inline }: { inline?: boolean }) {
             className="accent-primary"
           />
           <div className="flex items-center gap-0.5 leading-none">
-            <Label htmlFor={`pack-${pack.id}`} className="cursor-pointer text-sm">
+            <Label
+              htmlFor={`pack-${pack.id}`}
+              className="cursor-pointer text-sm"
+            >
               {pack.name}
               {packLinks[pack.id] && (
                 <a

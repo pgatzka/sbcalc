@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@workspace/ui/components/button";
-import { ChevronDown, ChevronUp, Wrench, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ListChecks, Wrench, X } from "lucide-react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { RecipeTree } from "@/components/recipe-tree";
 import { useRecipeData } from "@/lib/recipe-data-context";
@@ -20,6 +20,10 @@ export function CraftingTreeMulti(props: {
     useMultipleSlots: boolean;
     quickForgeLevel: number;
   };
+  todoMode: boolean;
+  onToggleTodoMode: () => void;
+  checkedItems: Set<string>;
+  onToggleChecked: (id: string) => void;
 }) {
   const {
     selectedItemId,
@@ -30,6 +34,10 @@ export function CraftingTreeMulti(props: {
     onToggleExpanded,
     onClose,
     forgeSettings,
+    todoMode,
+    onToggleTodoMode,
+    checkedItems,
+    onToggleChecked,
   } = props;
 
   const { recipes, itemsData } = useRecipeData();
@@ -54,6 +62,15 @@ export function CraftingTreeMulti(props: {
           </h3>
         </div>
         <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleTodoMode}
+            className={`h-7 px-2 text-xs ${todoMode ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ListChecks className="w-3.5 h-3.5 mr-1" />
+            Todo
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -89,6 +106,9 @@ export function CraftingTreeMulti(props: {
           expandedItems={expandedItems}
           onToggleExpanded={onToggleExpanded}
           forgeSettings={forgeSettings}
+          todoMode={todoMode}
+          checkedItems={checkedItems}
+          onToggleChecked={onToggleChecked}
         />
       </div>
     </div>

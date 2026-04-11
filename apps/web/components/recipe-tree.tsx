@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@workspace/ui/components/checkbox";
 import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import type React from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
@@ -29,6 +30,9 @@ interface RecipeTreeProps {
   forgeSettings?: ForgeSettings;
   isLastChild?: boolean;
   ancestorLines?: boolean[];
+  todoMode?: boolean;
+  checkedItems?: Set<string>;
+  onToggleChecked?: (itemName: string) => void;
 }
 
 export function RecipeTree({
@@ -41,6 +45,9 @@ export function RecipeTree({
   forgeSettings = { forgeSlots: 2, useMultipleSlots: true, quickForgeLevel: 0 },
   isLastChild = true,
   ancestorLines = [],
+  todoMode = false,
+  checkedItems,
+  onToggleChecked,
 }: RecipeTreeProps): React.ReactElement | null {
   const { recipes, itemsData } = useRecipeData();
 
@@ -97,6 +104,8 @@ export function RecipeTree({
         entry.info[0])
       : undefined;
 
+  const isChecked = todoMode && checkedItems?.has(internalname);
+
   return (
     <div>
       <div className="flex items-stretch">
@@ -119,7 +128,7 @@ export function RecipeTree({
         <div
           className={`group flex items-center gap-3 px-3 py-2 my-0.5 rounded-lg transition-all flex-1 min-w-0 ${
             hasIngredients ? "cursor-pointer hover:bg-accent/30" : ""
-          } ${isBaseMaterial ? "bg-emerald-500/5 border border-emerald-500/15" : "hover:bg-muted/50"}`}
+          } ${isBaseMaterial ? "bg-emerald-500/5 border border-emerald-500/15" : "hover:bg-muted/50"} ${isChecked ? "opacity-40" : ""}`}
           onClick={() => {
             if (hasIngredients) {
               onToggleExpanded(internalname);
@@ -134,6 +143,14 @@ export function RecipeTree({
             }
           }}
         >
+          {todoMode && onToggleChecked && (
+            <Checkbox
+              checked={!!isChecked}
+              onCheckedChange={() => onToggleChecked(internalname)}
+              onClick={(e) => e.stopPropagation()}
+              className="flex-shrink-0"
+            />
+          )}
           {hasIngredients && (
             <span className="text-muted-foreground flex-shrink-0">
               {isExpanded ? (
@@ -216,6 +233,9 @@ export function RecipeTree({
               ancestorLines={
                 depth === 0 ? [] : [...ancestorLines, !isLastChild]
               }
+              todoMode={todoMode}
+              checkedItems={checkedItems}
+              onToggleChecked={onToggleChecked}
             />
           ))}
         </div>

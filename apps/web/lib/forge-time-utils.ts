@@ -56,8 +56,10 @@ export function getTotalForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
+  excludeItems?: Set<string>,
 ): number {
   if (visited.has(internalname)) return 0;
+  if (excludeItems?.has(internalname)) return 0;
   const newVisited = new Set(visited);
   newVisited.add(internalname);
 
@@ -82,6 +84,7 @@ export function getTotalForgeTime(
       count * multiplier,
       newVisited,
       options,
+      excludeItems,
     );
   }
   return total;
@@ -142,6 +145,7 @@ export function getCombinedForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
+  excludeItems?: Set<string>,
 ): number {
   let totalTime = 0;
 
@@ -152,6 +156,7 @@ export function getCombinedForgeTime(
       quantity,
       new Set(),
       options,
+      excludeItems,
     );
     totalTime += time;
   }

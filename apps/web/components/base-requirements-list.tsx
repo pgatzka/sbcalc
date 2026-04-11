@@ -12,11 +12,13 @@ import { ItemImage } from "./item-image";
 interface BaseRequirementsListProps {
   internalname: string;
   multiplier: number;
+  checkedItems?: Set<string>;
 }
 
 export function BaseRequirementsList({
   internalname,
   multiplier,
+  checkedItems,
 }: BaseRequirementsListProps) {
   const { recipes, itemsData } = useRecipeData();
   const baseRequirements = getBaseRequirements(
@@ -28,9 +30,9 @@ export function BaseRequirementsList({
     itemsData,
   );
 
-  const sortedRequirements = Object.entries(baseRequirements).sort(
-    ([, a], [, b]) => b - a,
-  );
+  const sortedRequirements = Object.entries(baseRequirements)
+    .filter(([name]) => !checkedItems?.has(name))
+    .sort(([, a], [, b]) => b - a);
 
   useEffect(() => {
     if (sortedRequirements.length > 0) {

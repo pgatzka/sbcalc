@@ -17,7 +17,13 @@ import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
 import { useSharedRecipeLoader } from "@/hooks/use-shared-recipe-loader";
 import { useCalculatorStore } from "@/lib/calculator-store";
+import { BASE_MATERIALS } from "@/lib/constants";
 import { useRecipeData } from "@/lib/recipe-data-context";
+import {
+  aggregateIngredients,
+  getIngredientsFromRecipe,
+  getRecipe,
+} from "@/lib/recipe-utils";
 import { getDisplayName } from "@/lib/utils";
 
 export function SkyblockCalculatorClient() {
@@ -41,6 +47,10 @@ export function SkyblockCalculatorClient() {
     handleModeSwitch,
     getRecipeState,
     hydrate,
+    todoMode,
+    checkedItems,
+    toggleTodoMode,
+    toggleChecked,
   } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
@@ -107,36 +117,75 @@ export function SkyblockCalculatorClient() {
       itemList,
       forgeSettings,
       materialDepth,
+      todoMode ? checkedItems : undefined,
     );
 
   const hasResults =
     (mode === "single" && selectedItem) ||
     (mode === "multi" && itemList.length > 0);
 
+  const handleToggleChecked = useCallback(
+    (itemName: string) => {
+      const getDescendants = (
+        name: string,
+        visited: Set<string> = new Set(),
+      ): string[] => {
+        if (visited.has(name)) return [];
+        visited.add(name);
+
+        const entry = recipes[name];
+        if (!entry) return [];
+
+        const recipe = getRecipe(entry);
+        if (!recipe) return [];
+
+        const ingredients = getIngredientsFromRecipe(recipe);
+        if (ingredients.length === 0 || BASE_MATERIALS.has(name)) return [];
+
+        const counts = aggregateIngredients(ingredients);
+        const result: string[] = [];
+        for (const child of Object.keys(counts)) {
+          result.push(child);
+          result.push(...getDescendants(child, visited));
+        }
+        return result;
+      };
+
+      toggleChecked(itemName, getDescendants(itemName));
+    },
+    [recipes, toggleChecked],
+  );
+
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const isResizing = useRef(false);
 
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    isResizing.current = true;
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      isResizing.current = true;
+      const startX = e.clientX;
+      const startWidth = sidebarWidth;
 
-    const onMouseMove = (ev: MouseEvent) => {
-      if (!isResizing.current) return;
-      const newWidth = Math.min(Math.max(startWidth + ev.clientX - startX, 260), 600);
-      setSidebarWidth(newWidth);
-    };
+      const onMouseMove = (ev: MouseEvent) => {
+        if (!isResizing.current) return;
+        const newWidth = Math.min(
+          Math.max(startWidth + ev.clientX - startX, 260),
+          600,
+        );
+        setSidebarWidth(newWidth);
+      };
 
-    const onMouseUp = () => {
-      isResizing.current = false;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
+      const onMouseUp = () => {
+        isResizing.current = false;
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
 
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-  }, [sidebarWidth]);
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [sidebarWidth],
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
@@ -229,6 +278,10 @@ export function SkyblockCalculatorClient() {
                   onToggleExpanded={handleToggleExpanded}
                   multiplier={multiplier}
                   forgeSettings={forgeSettings}
+                  todoMode={todoMode}
+                  onToggleTodoMode={toggleTodoMode}
+                  checkedItems={checkedItems}
+                  onToggleChecked={handleToggleChecked}
                 />
               )}
 
@@ -242,6 +295,10 @@ export function SkyblockCalculatorClient() {
                   onToggleExpanded={handleMultiToggleExpanded}
                   onClose={() => setMultiTreeSelectedItem(null)}
                   forgeSettings={forgeSettings}
+                  todoMode={todoMode}
+                  onToggleTodoMode={toggleTodoMode}
+                  checkedItems={checkedItems}
+                  onToggleChecked={handleToggleChecked}
                 />
               )}
 
@@ -255,6 +312,7 @@ export function SkyblockCalculatorClient() {
                     <BaseRequirementsList
                       internalname={selectedItem}
                       multiplier={multiplier}
+                      checkedItems={todoMode ? checkedItems : undefined}
                     />
                   </div>
                 </div>
@@ -263,6 +321,7 @@ export function SkyblockCalculatorClient() {
                   baseRequirements={baseRequirements}
                   materialDepth={materialDepth}
                   onMaterialDepthChange={setMaterialDepth}
+                  checkedItems={todoMode ? checkedItems : undefined}
                 />
               )}
             </div>

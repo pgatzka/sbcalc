@@ -13,6 +13,22 @@ export interface ChangelogEntry {
 // Keep the newest entries first for easy visibility.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-04-11",
+    title: "April 2026",
+    items: [
+      {
+        title: "Todo mode for crafting trees",
+        description:
+          "Toggle the new Todo button in the crafting tree header to show checkboxes next to every step. Check off completed steps to dim them. Checking a parent automatically checks all its sub-steps. Works in both Single and Multi item modes.",
+      },
+      {
+        title: "Checked items excluded from materials and forge time",
+        description:
+          "When Todo mode is active, checked-off items are removed from the Materials Needed list, Combined Materials list, and the total forge time calculation.",
+      },
+    ],
+  },
+  {
     date: "2026-04-09",
     title: "April 2026",
     items: [

@@ -30,6 +30,12 @@ interface CalculatorState {
   settings: Settings;
   updateSettings: (partial: Partial<Settings>) => void;
 
+  // Todo mode
+  todoMode: boolean;
+  checkedItems: Set<string>;
+  toggleTodoMode: () => void;
+  toggleChecked: (itemName: string, descendants: string[]) => void;
+
   // Hydration
   hydrated: boolean;
   hydrate: () => void;
@@ -76,6 +82,8 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   materialDepth: Number.POSITIVE_INFINITY,
   settings: { ...DEFAULT_FORGE_SETTINGS },
   hydrated: false,
+  todoMode: false,
+  checkedItems: new Set<string>(),
 
   // Mode
   setMode: (mode) => {
@@ -123,6 +131,27 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
 
   // Material depth
   setMaterialDepth: (depth) => set({ materialDepth: depth }),
+
+  // Todo mode
+  toggleTodoMode: () => {
+    const { todoMode } = get();
+    set({
+      todoMode: !todoMode,
+      checkedItems: todoMode ? new Set<string>() : get().checkedItems,
+    });
+  },
+  toggleChecked: (itemName, descendants) => {
+    const prev = get().checkedItems;
+    const next = new Set(prev);
+    if (next.has(itemName)) {
+      next.delete(itemName);
+      for (const d of descendants) next.delete(d);
+    } else {
+      next.add(itemName);
+      for (const d of descendants) next.add(d);
+    }
+    set({ checkedItems: next });
+  },
 
   // Settings
   updateSettings: (partial) => {
