@@ -91,21 +91,8 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     saveJson(LOCAL_KEYS.mode, mode);
   },
   handleModeSwitch: (newMode) => {
-    if (newMode === "single") {
-      set({ mode: newMode, itemList: [], multiTreeSelectedItem: null });
-      saveJson(LOCAL_KEYS.mode, newMode);
-      saveJson(LOCAL_KEYS.itemList, []);
-    } else {
-      set({
-        mode: newMode,
-        selectedItem: null,
-        multiplier: 1,
-        searchValue: "",
-      });
-      saveJson(LOCAL_KEYS.mode, newMode);
-      saveJson(LOCAL_KEYS.selectedItem, null);
-      saveJson(LOCAL_KEYS.multiplier, 1);
-    }
+    set({ mode: newMode });
+    saveJson(LOCAL_KEYS.mode, newMode);
   },
 
   // Single item
@@ -179,9 +166,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       null,
     );
     const multiTreeSelectedItem =
-      mode === "multi" &&
-      lastMulti &&
-      itemList.some((i) => i.itemId === lastMulti)
+      lastMulti && itemList.some((i) => i.itemId === lastMulti)
         ? lastMulti
         : null;
 

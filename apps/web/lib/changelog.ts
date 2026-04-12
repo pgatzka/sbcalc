@@ -13,6 +13,17 @@ export interface ChangelogEntry {
 // Keep the newest entries first for easy visibility.
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "2026-04-12",
+    title: "April 2026",
+    items: [
+      {
+        title: "Mode switching preserves selections",
+        description:
+          "Switching between Single and Multi item modes no longer clears your selections. Your chosen item and quantity stay in Single mode, and your item list stays in Multi mode, so you can swap back and forth freely.",
+      },
+    ],
+  },
+  {
     date: "2026-04-11",
     title: "April 2026",
     items: [
