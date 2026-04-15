@@ -51,6 +51,7 @@ const LOCAL_KEYS = {
   itemList: "sbcalc_itemList",
   lastMultiSelectedItem: "sbcalc_lastMultiSelectedItem",
   settings: "sbcalc-settings",
+  checkedItems: "sbcalc_checkedItems",
 } as const;
 
 function loadJson<T>(key: string, fallback: T): T {
@@ -122,10 +123,12 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   // Todo mode
   toggleTodoMode: () => {
     const { todoMode } = get();
+    const clearing = todoMode;
     set({
       todoMode: !todoMode,
-      checkedItems: todoMode ? new Set<string>() : get().checkedItems,
+      checkedItems: clearing ? new Set<string>() : get().checkedItems,
     });
+    if (clearing) saveJson(LOCAL_KEYS.checkedItems, []);
   },
   toggleChecked: (itemName, descendants) => {
     const prev = get().checkedItems;
@@ -138,6 +141,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       for (const d of descendants) next.add(d);
     }
     set({ checkedItems: next });
+    saveJson(LOCAL_KEYS.checkedItems, Array.from(next));
   },
 
   // Settings
@@ -169,6 +173,10 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       lastMulti && itemList.some((i) => i.itemId === lastMulti)
         ? lastMulti
         : null;
+    const checkedItems = new Set(
+      loadJson<string[]>(LOCAL_KEYS.checkedItems, []),
+    );
+    const todoMode = checkedItems.size > 0;
 
     set({
       mode,
@@ -177,6 +185,8 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       itemList,
       settings,
       multiTreeSelectedItem,
+      checkedItems,
+      todoMode,
       hydrated: true,
     });
   },
