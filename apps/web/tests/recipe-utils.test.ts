@@ -403,4 +403,72 @@ describe("getCraftingFlow", () => {
     expect(flow.nodes).toEqual([{ id: "LONELY", quantity: 5 }]);
     expect(flow.edges).toEqual([]);
   });
+
+  it("drops checked-off subtrees so only remaining work is shown", () => {
+    const recipes: RecipesData = {
+      SUPER_ITEM: {
+        internalname: "SUPER_ITEM",
+        recipe: { A1: "ENCHANTED_DIAMOND:2", count: "1" },
+      },
+      ENCHANTED_DIAMOND: {
+        internalname: "ENCHANTED_DIAMOND",
+        recipe: { A1: "DIAMOND:160", count: "1" },
+      },
+      DIAMOND: { internalname: "DIAMOND" },
+    };
+    const diamondPath = ["SUPER_ITEM", "ENCHANTED_DIAMOND", "DIAMOND"].join(
+      PATH_DELIM,
+    );
+
+    const flow = getCraftingFlow(
+      "SUPER_ITEM",
+      recipes,
+      1,
+      undefined,
+      new Set([diamondPath]),
+    );
+
+    // DIAMOND is gathered -> its node and the ENCHANTED_DIAMOND->DIAMOND edge
+    // are gone; ENCHANTED_DIAMOND remains as a (now childless) node.
+    expect(flow.nodes.map((n) => n.id).sort()).toEqual([
+      "ENCHANTED_DIAMOND",
+      "SUPER_ITEM",
+    ]);
+    expect(flow.edges).toEqual([
+      { from: "SUPER_ITEM", to: "ENCHANTED_DIAMOND", quantity: 2 },
+    ]);
+  });
+
+  it("respects checks per appearance for duplicated items", () => {
+    const recipes: RecipesData = {
+      GADGET: {
+        internalname: "GADGET",
+        recipe: { A1: "WIDGET:1", B1: "BOLT:1", count: "1" },
+      },
+      WIDGET: { internalname: "WIDGET", recipe: { A1: "SCREW:2", count: "1" } },
+      BOLT: { internalname: "BOLT", recipe: { A1: "SCREW:3", count: "1" } },
+      SCREW: { internalname: "SCREW" },
+    };
+    const screwUnderWidget = ["GADGET", "WIDGET", "SCREW"].join(PATH_DELIM);
+
+    const flow = getCraftingFlow(
+      "GADGET",
+      recipes,
+      1,
+      undefined,
+      new Set([screwUnderWidget]),
+    );
+
+    // Only the WIDGET->SCREW edge is gone; BOLT still needs its SCREW, so SCREW
+    // remains as a node with quantity 3 (the WIDGET demand of 2 is dropped).
+    const edgeMap = Object.fromEntries(
+      flow.edges.map((e) => [`${e.from}->${e.to}`, e.quantity]),
+    );
+    expect(edgeMap).toEqual({
+      "GADGET->WIDGET": 1,
+      "GADGET->BOLT": 1,
+      "BOLT->SCREW": 3,
+    });
+    expect(flow.nodes.find((n) => n.id === "SCREW")?.quantity).toBe(3);
+  });
 });

@@ -81,9 +81,11 @@ const nodeTypes = { item: ItemNode };
 function CraftingFlowInner({
   selectedItem,
   multiplier,
+  checkedItems,
 }: {
   selectedItem: string;
   multiplier: number;
+  checkedItems?: Set<string>;
 }) {
   const { recipes, itemsData } = useRecipeData();
 
@@ -92,7 +94,13 @@ function CraftingFlowInner({
     edges: initialEdges,
     truncated,
   } = useMemo(() => {
-    const flow = getCraftingFlow(selectedItem, recipes, multiplier, itemsData);
+    const flow = getCraftingFlow(
+      selectedItem,
+      recipes,
+      multiplier,
+      itemsData,
+      checkedItems,
+    );
 
     const cappedNodes =
       flow.nodes.length > MAX_NODES
@@ -125,7 +133,7 @@ function CraftingFlowInner({
       edges: laid.edges,
       truncated: flow.nodes.length > MAX_NODES,
     };
-  }, [selectedItem, multiplier, recipes, itemsData]);
+  }, [selectedItem, multiplier, recipes, itemsData, checkedItems]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -135,6 +143,16 @@ function CraftingFlowInner({
     setNodes(initialNodes);
     setEdges(initialEdges);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
+
+  if (initialNodes.length === 0) {
+    return (
+      <div className="h-[600px] w-full flex items-center justify-center text-center px-6">
+        <p className="text-sm text-muted-foreground">
+          Everything's checked off — nothing left to craft.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[600px] w-full">
@@ -163,9 +181,11 @@ function CraftingFlowInner({
 export function CraftingFlowSingle({
   selectedItem,
   multiplier,
+  checkedItems,
 }: {
   selectedItem: string;
   multiplier: number;
+  checkedItems?: Set<string>;
 }) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
@@ -178,6 +198,7 @@ export function CraftingFlowSingle({
           <CraftingFlowInner
             selectedItem={selectedItem}
             multiplier={multiplier}
+            checkedItems={checkedItems}
           />
         </ReactFlowProvider>
       </div>
