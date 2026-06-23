@@ -303,6 +303,7 @@ export function SkyblockCalculatorClient() {
                     <CraftingFlowSingle
                       selectedItem={selectedItem}
                       multiplier={multiplier}
+                      checkedItems={todoMode ? checkedItems : undefined}
                     />
                   )}
                 </div>

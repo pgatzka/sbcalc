@@ -345,13 +345,25 @@ export const getCraftingFlow = (
   recipes: RecipesData,
   multiplier = 1,
   itemsData?: RecipesData,
+  checkedPaths?: Set<string>,
 ): CraftingFlow => {
   const nodeQty = new Map<string, number>();
   const edgeQty = new Map<string, number>();
 
-  // The root has no parent edge, so seed its quantity directly.
+  // The root has no parent edge, so seed its quantity directly. If the root
+  // itself is checked off, the whole craft is done -> empty graph.
+  if (checkedPaths?.has(rootName)) return { nodes: [], edges: [] };
   nodeQty.set(rootName, multiplier);
-  collectFlow(rootName, recipes, multiplier, nodeQty, edgeQty, new Set());
+  collectFlow(
+    rootName,
+    recipes,
+    multiplier,
+    rootName,
+    nodeQty,
+    edgeQty,
+    new Set(),
+    checkedPaths,
+  );
 
   // itemsData is unused for the graph shape but kept in the signature for
   // parity with the other requirement helpers and future leaf-display needs.
@@ -379,14 +391,22 @@ const toFlow = (
 /**
  * Recursive worker mirroring getBaseRequirements' branch-local `visited` cycle
  * guard. Accumulates node and edge quantities into the supplied maps.
+ *
+ * `path` is the unique node path (root->node internalname chain, joined with
+ * PATH_DELIM) matching the keys the tree stores in `checkedItems`. When
+ * `checkedPaths` is supplied (todo mode), a child whose path is checked is
+ * skipped entirely — its node, its edge, and its whole subtree — so the graph
+ * shows only the work that remains.
  */
 const collectFlow = (
   name: string,
   recipes: RecipesData,
   multiplier: number,
+  path: string,
   nodeQty: Map<string, number>,
   edgeQty: Map<string, number>,
   visited: Set<string>,
+  checkedPaths?: Set<string>,
 ): void => {
   // Defensive: ensure the item exists as a node (root/children are seeded by
   // their caller before recursion, so this rarely fires).
@@ -411,6 +431,10 @@ const collectFlow = (
 
   const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
   for (const [child, count] of Object.entries(counts)) {
+    const childPath = `${path}${PATH_DELIM}${child}`;
+    // Checked-off subtree: it's done, so it contributes nothing to the graph.
+    if (checkedPaths?.has(childPath)) continue;
+
     const childTotal = count * actualMultiplier;
     nodeQty.set(child, (nodeQty.get(child) || 0) + childTotal);
 
@@ -420,7 +444,16 @@ const collectFlow = (
     const expandable =
       !BASE_MATERIALS.has(child) && recipes[child] && getRecipe(recipes[child]);
     if (expandable) {
-      collectFlow(child, recipes, childTotal, nodeQty, edgeQty, newVisited);
+      collectFlow(
+        child,
+        recipes,
+        childTotal,
+        childPath,
+        nodeQty,
+        edgeQty,
+        newVisited,
+        checkedPaths,
+      );
     }
   }
 };
@@ -433,13 +466,24 @@ export const getCombinedCraftingFlow = (
   itemList: Array<{ itemId: string; quantity: number }>,
   recipes: RecipesData,
   itemsData?: RecipesData,
+  checkedPaths?: Set<string>,
 ): CraftingFlow => {
   const nodeQty = new Map<string, number>();
   const edgeQty = new Map<string, number>();
 
   for (const { itemId, quantity } of itemList) {
+    if (checkedPaths?.has(itemId)) continue;
     nodeQty.set(itemId, (nodeQty.get(itemId) || 0) + quantity);
-    collectFlow(itemId, recipes, quantity, nodeQty, edgeQty, new Set());
+    collectFlow(
+      itemId,
+      recipes,
+      quantity,
+      itemId,
+      nodeQty,
+      edgeQty,
+      new Set(),
+      checkedPaths,
+    );
   }
 
   void itemsData;
