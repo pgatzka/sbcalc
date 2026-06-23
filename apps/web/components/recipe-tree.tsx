@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import type React from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackRecipeTreeItemClick } from "@/lib/analytics";
-import { BASE_MATERIALS } from "@/lib/constants";
+import { BASE_MATERIALS, PATH_DELIM } from "@/lib/constants";
 import {
   calculateOptimalForgeTime,
   formatForgeTime,
@@ -22,6 +22,9 @@ import { ItemImage } from "./item-image";
 
 interface RecipeTreeProps {
   internalname: string;
+  /** Unique node path (root->node internalname chain). Defaults to the
+   * internalname for the root node. */
+  path?: string;
   multiplier?: number;
   depth?: number;
   visited?: Set<string>;
@@ -32,11 +35,12 @@ interface RecipeTreeProps {
   ancestorLines?: boolean[];
   todoMode?: boolean;
   checkedItems?: Set<string>;
-  onToggleChecked?: (itemName: string) => void;
+  onToggleChecked?: (path: string, internalname: string) => void;
 }
 
 export function RecipeTree({
   internalname,
+  path,
   multiplier = 1,
   depth = 0,
   visited = new Set(),
@@ -51,6 +55,7 @@ export function RecipeTree({
 }: RecipeTreeProps): React.ReactElement | null {
   const { recipes, itemsData } = useRecipeData();
 
+  const nodePath = path ?? internalname;
   const expandedItems = externalExpandedItems ?? new Set([internalname]);
 
   if (visited.has(internalname)) {
@@ -104,7 +109,7 @@ export function RecipeTree({
         entry.info[0])
       : undefined;
 
-  const isChecked = todoMode && checkedItems?.has(internalname);
+  const isChecked = todoMode && checkedItems?.has(nodePath);
 
   return (
     <div>
@@ -146,7 +151,7 @@ export function RecipeTree({
           {todoMode && onToggleChecked && (
             <Checkbox
               checked={!!isChecked}
-              onCheckedChange={() => onToggleChecked(internalname)}
+              onCheckedChange={() => onToggleChecked(nodePath, internalname)}
               onClick={(e) => e.stopPropagation()}
               className="flex-shrink-0"
             />
@@ -223,6 +228,7 @@ export function RecipeTree({
             <RecipeTree
               key={name}
               internalname={name}
+              path={`${nodePath}${PATH_DELIM}${name}`}
               multiplier={count * actualMultiplier}
               depth={depth + 1}
               visited={nextVisited}

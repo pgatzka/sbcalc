@@ -7,7 +7,9 @@ import { useRecipeData } from "@/lib/recipe-data-context";
 import {
   getBaseRequirements,
   getCombinedBaseRequirements,
+  getCombinedFrontierRequirements,
   getCombinedRequirementsAtDepth,
+  getFrontierRequirements,
 } from "@/lib/recipe-utils";
 import type { ForgeSettings } from "@/lib/types";
 
@@ -28,9 +30,21 @@ export function useCalculatorResults(
 
   const baseRequirements = useMemo(() => {
     if (mode === "single" && selectedItem) {
+      // In todo mode, show the most granular items still needed (frontier).
+      if (checkedItems) {
+        return getFrontierRequirements(
+          selectedItem,
+          recipes,
+          multiplier,
+          checkedItems,
+        );
+      }
       return getBaseRequirements(selectedItem, recipes, multiplier);
     }
     if (mode === "multi") {
+      if (checkedItems) {
+        return getCombinedFrontierRequirements(itemList, recipes, checkedItems);
+      }
       if (Number.isFinite(materialDepth)) {
         return getCombinedRequirementsAtDepth(
           itemList,
@@ -50,6 +64,7 @@ export function useCalculatorResults(
     recipes,
     itemsData,
     materialDepth,
+    checkedItems,
   ]);
 
   const totalMaterials = Object.keys(baseRequirements).length;

@@ -17,7 +17,7 @@ import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
 import { useSharedRecipeLoader } from "@/hooks/use-shared-recipe-loader";
 import { useCalculatorStore } from "@/lib/calculator-store";
-import { BASE_MATERIALS } from "@/lib/constants";
+import { BASE_MATERIALS, PATH_DELIM } from "@/lib/constants";
 import { useRecipeData } from "@/lib/recipe-data-context";
 import {
   aggregateIngredients,
@@ -125,33 +125,42 @@ export function SkyblockCalculatorClient() {
     (mode === "multi" && itemList.length > 0);
 
   const handleToggleChecked = useCallback(
-    (itemName: string) => {
-      const getDescendants = (
+    (path: string, internalname: string) => {
+      // Collect the PATHS of every descendant within this node's own subtree,
+      // mirroring the tree's branch-local `visited` cycle guard so the cascade
+      // matches exactly the nodes rendered under this parent.
+      const collectDescendantPaths = (
         name: string,
-        visited: Set<string> = new Set(),
+        basePath: string,
+        visited: Set<string>,
       ): string[] => {
-        if (visited.has(name)) return [];
-        visited.add(name);
-
         const entry = recipes[name];
-        if (!entry) return [];
+        const recipe = entry ? getRecipe(entry) : undefined;
+        if (!recipe || BASE_MATERIALS.has(name)) return [];
 
-        const recipe = getRecipe(entry);
-        if (!recipe) return [];
-
-        const ingredients = getIngredientsFromRecipe(recipe);
-        if (ingredients.length === 0 || BASE_MATERIALS.has(name)) return [];
-
-        const counts = aggregateIngredients(ingredients);
+        const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
         const result: string[] = [];
         for (const child of Object.keys(counts)) {
-          result.push(child);
-          result.push(...getDescendants(child, visited));
+          if (visited.has(child)) continue;
+          const childPath = `${basePath}${PATH_DELIM}${child}`;
+          result.push(childPath);
+          result.push(
+            ...collectDescendantPaths(
+              child,
+              childPath,
+              new Set(visited).add(child),
+            ),
+          );
         }
         return result;
       };
 
-      toggleChecked(itemName, getDescendants(itemName));
+      // The path is the chain of ancestor names; use it to seed the cycle guard.
+      const ancestorNames = new Set(path.split(PATH_DELIM));
+      toggleChecked(
+        path,
+        collectDescendantPaths(internalname, path, ancestorNames),
+      );
     },
     [recipes, toggleChecked],
   );
@@ -312,7 +321,8 @@ export function SkyblockCalculatorClient() {
                     <BaseRequirementsList
                       internalname={selectedItem}
                       multiplier={multiplier}
-                      checkedItems={todoMode ? checkedItems : undefined}
+                      todoMode={todoMode}
+                      checkedItems={checkedItems}
                     />
                   </div>
                 </div>
@@ -321,7 +331,7 @@ export function SkyblockCalculatorClient() {
                   baseRequirements={baseRequirements}
                   materialDepth={materialDepth}
                   onMaterialDepthChange={setMaterialDepth}
-                  checkedItems={todoMode ? checkedItems : undefined}
+                  todoMode={todoMode}
                 />
               )}
             </div>

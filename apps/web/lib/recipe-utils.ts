@@ -1,4 +1,4 @@
-import { BASE_MATERIALS } from "./constants";
+import { BASE_MATERIALS, PATH_DELIM } from "./constants";
 import type {
   CraftingRecipe,
   ForgeRecipe,
@@ -200,6 +200,110 @@ export const getRequirementsAtDepth = (
   }
 
   return acc;
+};
+
+/**
+ * "Frontier" requirements for todo mode.
+ *
+ * Walks the crafting tree keyed by unique node PATH (root->node chain) and
+ * returns the most granular items still needed, given the set of checked-off
+ * node paths. Rules per node:
+ *  - path is checked        -> the whole subtree is done, contributes nothing.
+ *  - leaf / base material   -> it's a granular item still needed.
+ *  - has ingredients        -> recurse; if every child contributes nothing
+ *                              (all gathered) the node itself becomes the
+ *                              granular item to craft, otherwise return the
+ *                              union of the children's contributions.
+ *
+ * Output is aggregated by item name (Record<name, qty>), matching the shape of
+ * getBaseRequirements so list components need no structural change.
+ */
+export const getFrontierRequirements = (
+  internalname: string,
+  recipes: RecipesData,
+  multiplier: number,
+  checkedPaths: Set<string>,
+  path: string = internalname,
+  visited: Set<string> = new Set(),
+): Record<string, number> => {
+  // Entire subtree already gathered/crafted.
+  if (checkedPaths.has(path)) return {};
+
+  // Cycle guard (mirrors getBaseRequirements' branch-local visited): if this
+  // name already appears on the current branch, treat it as a leaf.
+  if (visited.has(internalname)) return { [internalname]: multiplier };
+
+  const entry = recipes[internalname];
+  const recipe = entry ? getRecipe(entry) : undefined;
+
+  // Leaf / base material -> the granular item still needed. Items missing from
+  // `recipes` (e.g. items.json-only) are treated as base here as well.
+  if (BASE_MATERIALS.has(internalname) || !entry || !recipe) {
+    return { [internalname]: multiplier };
+  }
+
+  const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
+  if (Object.keys(counts).length === 0) {
+    return { [internalname]: multiplier };
+  }
+
+  const newVisited = new Set(visited);
+  newVisited.add(internalname);
+
+  // Mirror recipe-tree's multiplier math: forge recipes craft 1 per run,
+  // crafting recipes craft `recipe.count` per run.
+  const isForge = (recipe as ForgeRecipe).type === "forge";
+  const recipeCount = !isForge
+    ? Number((recipe as Record<string, string | number>).count) || 1
+    : 1;
+  const actualMultiplier = Math.ceil(multiplier / recipeCount);
+
+  const childAcc: Record<string, number> = {};
+  for (const [name, count] of Object.entries(counts)) {
+    const childResult = getFrontierRequirements(
+      name,
+      recipes,
+      count * actualMultiplier,
+      checkedPaths,
+      `${path}${PATH_DELIM}${name}`,
+      newVisited,
+    );
+    for (const [material, qty] of Object.entries(childResult)) {
+      childAcc[material] = (childAcc[material] || 0) + qty;
+    }
+  }
+
+  // All ingredients gathered -> this node is now the granular item to craft.
+  if (Object.keys(childAcc).length === 0) {
+    return { [internalname]: multiplier };
+  }
+  return childAcc;
+};
+
+/**
+ * Combined frontier requirements for multiple items (multi-item mode). Each
+ * root's path is its own itemId, so paths from different roots never collide.
+ */
+export const getCombinedFrontierRequirements = (
+  itemList: Array<{ itemId: string; quantity: number }>,
+  recipes: RecipesData,
+  checkedPaths: Set<string>,
+): Record<string, number> => {
+  const combined: Record<string, number> = {};
+
+  for (const { itemId, quantity } of itemList) {
+    const requirements = getFrontierRequirements(
+      itemId,
+      recipes,
+      quantity,
+      checkedPaths,
+    );
+    for (const [material, count] of Object.entries(requirements)) {
+      combined[material] = (combined[material] || 0) + count;
+    }
+  }
+
+  return combined;
 };
 
 /**
