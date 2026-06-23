@@ -32,9 +32,11 @@ interface CalculatorState {
 
   // Todo mode
   todoMode: boolean;
+  // Set of checked-off node PATHS (root->node internalname chains), so each
+  // appearance of an item in the tree is tracked independently.
   checkedItems: Set<string>;
   toggleTodoMode: () => void;
-  toggleChecked: (itemName: string, descendants: string[]) => void;
+  toggleChecked: (path: string, descendantPaths: string[]) => void;
 
   // Hydration
   hydrated: boolean;
@@ -130,15 +132,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     });
     if (clearing) saveJson(LOCAL_KEYS.checkedItems, []);
   },
-  toggleChecked: (itemName, descendants) => {
+  toggleChecked: (path, descendantPaths) => {
     const prev = get().checkedItems;
     const next = new Set(prev);
-    if (next.has(itemName)) {
-      next.delete(itemName);
-      for (const d of descendants) next.delete(d);
+    if (next.has(path)) {
+      next.delete(path);
+      for (const d of descendantPaths) next.delete(d);
     } else {
-      next.add(itemName);
-      for (const d of descendants) next.add(d);
+      next.add(path);
+      for (const d of descendantPaths) next.add(d);
     }
     set({ checkedItems: next });
     saveJson(LOCAL_KEYS.checkedItems, Array.from(next));

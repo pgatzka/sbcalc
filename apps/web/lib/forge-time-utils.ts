@@ -1,3 +1,4 @@
+import { PATH_DELIM } from "@/lib/constants";
 import {
   aggregateIngredients,
   getIngredientsFromRecipe,
@@ -56,10 +57,12 @@ export function getTotalForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
-  excludeItems?: Set<string>,
+  checkedPaths?: Set<string>,
+  path: string = internalname,
 ): number {
   if (visited.has(internalname)) return 0;
-  if (excludeItems?.has(internalname)) return 0;
+  // A checked-off node excludes its whole subtree's forge time.
+  if (checkedPaths?.has(path)) return 0;
   const newVisited = new Set(visited);
   newVisited.add(internalname);
 
@@ -84,7 +87,8 @@ export function getTotalForgeTime(
       count * multiplier,
       newVisited,
       options,
-      excludeItems,
+      checkedPaths,
+      `${path}${PATH_DELIM}${name}`,
     );
   }
   return total;
@@ -145,7 +149,7 @@ export function getCombinedForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
-  excludeItems?: Set<string>,
+  checkedPaths?: Set<string>,
 ): number {
   let totalTime = 0;
 
@@ -156,7 +160,8 @@ export function getCombinedForgeTime(
       quantity,
       new Set(),
       options,
-      excludeItems,
+      checkedPaths,
+      itemId,
     );
     totalTime += time;
   }

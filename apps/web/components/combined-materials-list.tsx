@@ -10,14 +10,10 @@ export function CombinedMaterialsList(props: {
   baseRequirements: Record<string, number>;
   materialDepth: number;
   onMaterialDepthChange: (depth: number) => void;
-  checkedItems?: Set<string>;
+  todoMode?: boolean;
 }) {
-  const {
-    baseRequirements,
-    materialDepth,
-    onMaterialDepthChange,
-    checkedItems,
-  } = props;
+  const { baseRequirements, materialDepth, onMaterialDepthChange, todoMode } =
+    props;
   const { recipes, itemsData } = useRecipeData();
 
   const isBase = !Number.isFinite(materialDepth);
@@ -29,37 +25,40 @@ export function CombinedMaterialsList(props: {
           <Clipboard className="w-4 h-4 text-primary" />
           <h3 className="font-semibold text-sm">Combined Materials</h3>
         </div>
-        <div className="flex rounded-md bg-muted/60 p-0.5 border border-border/40">
-          <button
-            type="button"
-            onClick={() => onMaterialDepthChange(1)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              !isBase
-                ? "bg-card text-foreground shadow-sm border border-border/40"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Layers className="w-3 h-3" />
-            Crafting
-          </button>
-          <button
-            type="button"
-            onClick={() => onMaterialDepthChange(Number.POSITIVE_INFINITY)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              isBase
-                ? "bg-card text-foreground shadow-sm border border-border/40"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Pickaxe className="w-3 h-3" />
-            Raw
-          </button>
-        </div>
+        {/* In todo mode the frontier defines granularity dynamically, so the
+            Crafting/Raw depth toggle is hidden. */}
+        {!todoMode && (
+          <div className="flex rounded-md bg-muted/60 p-0.5 border border-border/40">
+            <button
+              type="button"
+              onClick={() => onMaterialDepthChange(1)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                !isBase
+                  ? "bg-card text-foreground shadow-sm border border-border/40"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              Crafting
+            </button>
+            <button
+              type="button"
+              onClick={() => onMaterialDepthChange(Number.POSITIVE_INFINITY)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                isBase
+                  ? "bg-card text-foreground shadow-sm border border-border/40"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Pickaxe className="w-3 h-3" />
+              Raw
+            </button>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
           {Object.entries(baseRequirements)
-            .filter(([name]) => !checkedItems?.has(name))
             .sort(([, a], [, b]) => b - a)
             .map(([materialName, count]) => {
               const entry = recipes[materialName] || itemsData[materialName];

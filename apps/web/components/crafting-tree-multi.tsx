@@ -23,7 +23,7 @@ export function CraftingTreeMulti(props: {
   todoMode: boolean;
   onToggleTodoMode: () => void;
   checkedItems: Set<string>;
-  onToggleChecked: (id: string) => void;
+  onToggleChecked: (path: string, internalname: string) => void;
 }) {
   const {
     selectedItemId,

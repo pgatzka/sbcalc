@@ -5,34 +5,44 @@ import { useEffect } from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackBaseRequirementsView } from "@/lib/analytics";
 import { useRecipeData } from "@/lib/recipe-data-context";
-import { getBaseRequirements } from "@/lib/recipe-utils";
+import {
+  getBaseRequirements,
+  getFrontierRequirements,
+} from "@/lib/recipe-utils";
 import { getDisplayName } from "@/lib/utils";
 import { ItemImage } from "./item-image";
 
 interface BaseRequirementsListProps {
   internalname: string;
   multiplier: number;
+  todoMode?: boolean;
   checkedItems?: Set<string>;
 }
 
 export function BaseRequirementsList({
   internalname,
   multiplier,
+  todoMode,
   checkedItems,
 }: BaseRequirementsListProps) {
   const { recipes, itemsData } = useRecipeData();
-  const baseRequirements = getBaseRequirements(
-    internalname,
-    recipes,
-    multiplier,
-    {},
-    new Set(),
-    itemsData,
-  );
+  // In todo mode, show the most granular items still needed (frontier), rolling
+  // up to the next un-crafted parent as leaves get checked off.
+  const baseRequirements =
+    todoMode && checkedItems
+      ? getFrontierRequirements(internalname, recipes, multiplier, checkedItems)
+      : getBaseRequirements(
+          internalname,
+          recipes,
+          multiplier,
+          {},
+          new Set(),
+          itemsData,
+        );
 
-  const sortedRequirements = Object.entries(baseRequirements)
-    .filter(([name]) => !checkedItems?.has(name))
-    .sort(([, a], [, b]) => b - a);
+  const sortedRequirements = Object.entries(baseRequirements).sort(
+    ([, a], [, b]) => b - a,
+  );
 
   useEffect(() => {
     if (sortedRequirements.length > 0) {
