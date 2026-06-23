@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { CombinedMaterialsList } from "@/components/combined-materials-list";
 import { CombinedSummaryCards } from "@/components/combined-summary-cards";
+import { CraftingFlowSingle } from "@/components/crafting-flow-single";
 import { CraftingTreeMulti } from "@/components/crafting-tree-multi";
 import { CraftingTreeSingle } from "@/components/crafting-tree-single";
 import { HeaderBar } from "@/components/header-bar";
@@ -12,6 +13,7 @@ import { ModeSwitcher } from "@/components/mode-switcher";
 import { MultiItemPanel } from "@/components/multi-item-panel";
 import { RecipeSummaryCards } from "@/components/recipe-summary-cards";
 import { SingleItemPanel } from "@/components/single-item-panel";
+import { type CraftView, ViewToggle } from "@/components/view-toggle";
 import { useCalculatorResults } from "@/hooks/use-calculator-results";
 import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
@@ -165,6 +167,8 @@ export function SkyblockCalculatorClient() {
     [recipes, toggleChecked],
   );
 
+  const [craftView, setCraftView] = useState<CraftView>("tree");
+
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const isResizing = useRef(false);
 
@@ -279,19 +283,29 @@ export function SkyblockCalculatorClient() {
               )}
 
               {mode === "single" && selectedItem && (
-                <CraftingTreeSingle
-                  selectedItem={selectedItem}
-                  expandedItems={expandedItems}
-                  onExpandAll={handleExpandAll}
-                  onCollapseAll={handleCollapseAll}
-                  onToggleExpanded={handleToggleExpanded}
-                  multiplier={multiplier}
-                  forgeSettings={forgeSettings}
-                  todoMode={todoMode}
-                  onToggleTodoMode={toggleTodoMode}
-                  checkedItems={checkedItems}
-                  onToggleChecked={handleToggleChecked}
-                />
+                <div className="space-y-3">
+                  <ViewToggle view={craftView} onChange={setCraftView} />
+                  {craftView === "tree" ? (
+                    <CraftingTreeSingle
+                      selectedItem={selectedItem}
+                      expandedItems={expandedItems}
+                      onExpandAll={handleExpandAll}
+                      onCollapseAll={handleCollapseAll}
+                      onToggleExpanded={handleToggleExpanded}
+                      multiplier={multiplier}
+                      forgeSettings={forgeSettings}
+                      todoMode={todoMode}
+                      onToggleTodoMode={toggleTodoMode}
+                      checkedItems={checkedItems}
+                      onToggleChecked={handleToggleChecked}
+                    />
+                  ) : (
+                    <CraftingFlowSingle
+                      selectedItem={selectedItem}
+                      multiplier={multiplier}
+                    />
+                  )}
+                </div>
               )}
 
               {mode === "multi" && multiTreeSelectedItem && (

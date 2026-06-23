@@ -306,6 +306,147 @@ export const getCombinedFrontierRequirements = (
   return combined;
 };
 
+export interface FlowNode {
+  id: string;
+  /** Total units of this item needed across the whole crafting tree. */
+  quantity: number;
+}
+export interface FlowEdge {
+  /** Parent item that consumes `to`. */
+  from: string;
+  /** Child item (ingredient) consumed by `from`. */
+  to: string;
+  /** Units of `to` consumed to produce its parent across the whole tree. */
+  quantity: number;
+}
+export interface CraftingFlow {
+  nodes: FlowNode[];
+  edges: FlowEdge[];
+}
+
+const EDGE_KEY_SEP = "|";
+
+/**
+ * Build an aggregated crafting flow graph (a DAG) for a single root item.
+ *
+ * Unlike the recipe tree (which renders an item once per appearance), every
+ * item is collapsed into a single node and every (parent, child) ingredient
+ * relationship into a single edge, with quantities summed across the whole
+ * tree. Quantities mirror what the tree displays — i.e. they use
+ * `actualMultiplier = ceil(multiplier / recipeCount)`, NOT the simpler
+ * `getBaseRequirements` math.
+ *
+ * Node quantity = total units of that item needed across the tree (the root's
+ * quantity is the requested `multiplier`). Edge quantity = total units of the
+ * child consumed by that specific parent.
+ */
+export const getCraftingFlow = (
+  rootName: string,
+  recipes: RecipesData,
+  multiplier = 1,
+  itemsData?: RecipesData,
+): CraftingFlow => {
+  const nodeQty = new Map<string, number>();
+  const edgeQty = new Map<string, number>();
+
+  // The root has no parent edge, so seed its quantity directly.
+  nodeQty.set(rootName, multiplier);
+  collectFlow(rootName, recipes, multiplier, nodeQty, edgeQty, new Set());
+
+  // itemsData is unused for the graph shape but kept in the signature for
+  // parity with the other requirement helpers and future leaf-display needs.
+  void itemsData;
+
+  return toFlow(nodeQty, edgeQty);
+};
+
+/** Convert the accumulator maps into the public CraftingFlow shape. */
+const toFlow = (
+  nodeQty: Map<string, number>,
+  edgeQty: Map<string, number>,
+): CraftingFlow => {
+  const nodes: FlowNode[] = Array.from(nodeQty, ([id, quantity]) => ({
+    id,
+    quantity,
+  }));
+  const edges: FlowEdge[] = Array.from(edgeQty, ([key, quantity]) => {
+    const [from, to] = key.split(EDGE_KEY_SEP) as [string, string];
+    return { from, to, quantity };
+  });
+  return { nodes, edges };
+};
+
+/**
+ * Recursive worker mirroring getBaseRequirements' branch-local `visited` cycle
+ * guard. Accumulates node and edge quantities into the supplied maps.
+ */
+const collectFlow = (
+  name: string,
+  recipes: RecipesData,
+  multiplier: number,
+  nodeQty: Map<string, number>,
+  edgeQty: Map<string, number>,
+  visited: Set<string>,
+): void => {
+  // Defensive: ensure the item exists as a node (root/children are seeded by
+  // their caller before recursion, so this rarely fires).
+  if (!nodeQty.has(name)) nodeQty.set(name, 0);
+
+  if (visited.has(name)) return; // cycle guard
+  if (BASE_MATERIALS.has(name)) return; // leaf: never expand
+
+  const entry = recipes[name];
+  if (!entry) return;
+  const recipe = getRecipe(entry);
+  if (!recipe) return;
+
+  const newVisited = new Set(visited);
+  newVisited.add(name);
+
+  const isForge = (recipe as ForgeRecipe).type === "forge";
+  const recipeCount = !isForge
+    ? Number((recipe as Record<string, string | number>).count) || 1
+    : 1;
+  const actualMultiplier = Math.ceil(multiplier / recipeCount);
+
+  const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
+  for (const [child, count] of Object.entries(counts)) {
+    const childTotal = count * actualMultiplier;
+    nodeQty.set(child, (nodeQty.get(child) || 0) + childTotal);
+
+    const edgeKey = `${name}${EDGE_KEY_SEP}${child}`;
+    edgeQty.set(edgeKey, (edgeQty.get(edgeKey) || 0) + childTotal);
+
+    const expandable =
+      !BASE_MATERIALS.has(child) && recipes[child] && getRecipe(recipes[child]);
+    if (expandable) {
+      collectFlow(child, recipes, childTotal, nodeQty, edgeQty, newVisited);
+    }
+  }
+};
+
+/**
+ * Combined crafting flow for multiple root items (multi-item mode). Merges the
+ * per-root node/edge quantity maps. Not yet wired into the UI.
+ */
+export const getCombinedCraftingFlow = (
+  itemList: Array<{ itemId: string; quantity: number }>,
+  recipes: RecipesData,
+  itemsData?: RecipesData,
+): CraftingFlow => {
+  const nodeQty = new Map<string, number>();
+  const edgeQty = new Map<string, number>();
+
+  for (const { itemId, quantity } of itemList) {
+    nodeQty.set(itemId, (nodeQty.get(itemId) || 0) + quantity);
+    collectFlow(itemId, recipes, quantity, nodeQty, edgeQty, new Set());
+  }
+
+  void itemsData;
+
+  return toFlow(nodeQty, edgeQty);
+};
+
 /**
  * Get combined requirements for multiple items at a given depth.
  */

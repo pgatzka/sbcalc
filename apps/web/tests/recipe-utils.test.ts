@@ -3,6 +3,7 @@ import { PATH_DELIM } from "@/lib/constants";
 import {
   aggregateIngredients,
   getBaseRequirements,
+  getCraftingFlow,
   getFrontierRequirements,
   getIngredientsFromRecipe,
   getRecipe,
@@ -282,5 +283,124 @@ describe("getFrontierRequirements", () => {
 
     // WIDGET (and its SCREW) gone; only BOLT's SCREW remains.
     expect(result).toEqual({ SCREW: 3 });
+  });
+});
+
+describe("getCraftingFlow", () => {
+  const nodeQty = (flow: { nodes: { id: string; quantity: number }[] }) =>
+    Object.fromEntries(flow.nodes.map((n) => [n.id, n.quantity]));
+  const edgeQty = (flow: {
+    edges: { from: string; to: string; quantity: number }[];
+  }) =>
+    Object.fromEntries(
+      flow.edges.map((e) => [`${e.from}->${e.to}`, e.quantity]),
+    );
+
+  it("aggregates nodes and edges with tree quantities", () => {
+    const recipes: RecipesData = {
+      HYPERION: {
+        internalname: "HYPERION",
+        recipe: { A1: "ENCHANTED_IRON:64", B1: "DIAMOND:32", count: "1" },
+      },
+      ENCHANTED_IRON: {
+        internalname: "ENCHANTED_IRON",
+        recipe: { A1: "IRON_INGOT:160", count: "1" },
+      },
+      IRON_INGOT: { internalname: "IRON_INGOT" },
+      DIAMOND: { internalname: "DIAMOND" },
+    };
+
+    const flow = getCraftingFlow("HYPERION", recipes, 1);
+
+    expect(nodeQty(flow)).toEqual({
+      HYPERION: 1,
+      ENCHANTED_IRON: 64,
+      IRON_INGOT: 10240, // 64 * 160
+      DIAMOND: 32,
+    });
+    expect(edgeQty(flow)).toEqual({
+      "HYPERION->ENCHANTED_IRON": 64,
+      "HYPERION->DIAMOND": 32, // DIAMOND is a base material -> leaf, no children
+      "ENCHANTED_IRON->IRON_INGOT": 10240,
+    });
+  });
+
+  it("collapses a duplicate ingredient into one node with summed edges", () => {
+    // GADGET needs WIDGET and BOLT; both consume SCREW.
+    const recipes: RecipesData = {
+      GADGET: {
+        internalname: "GADGET",
+        recipe: { A1: "WIDGET:1", B1: "BOLT:1", count: "1" },
+      },
+      WIDGET: { internalname: "WIDGET", recipe: { A1: "SCREW:2", count: "1" } },
+      BOLT: { internalname: "BOLT", recipe: { A1: "SCREW:3", count: "1" } },
+      SCREW: { internalname: "SCREW" },
+    };
+
+    const flow = getCraftingFlow("GADGET", recipes, 1);
+
+    // SCREW appears once, with two incoming edges (2 + 3 total demand).
+    expect(flow.nodes.filter((n) => n.id === "SCREW")).toHaveLength(1);
+    expect(nodeQty(flow).SCREW).toBe(5);
+    expect(edgeQty(flow)).toMatchObject({
+      "WIDGET->SCREW": 2,
+      "BOLT->SCREW": 3,
+    });
+  });
+
+  it("uses ceil(multiplier / count) for batch crafting recipes", () => {
+    const recipes: RecipesData = {
+      PLATE: {
+        internalname: "PLATE",
+        recipe: { A1: "IRON_INGOT:5", count: "2" }, // 1 craft yields 2 plates
+      },
+      IRON_INGOT: { internalname: "IRON_INGOT" },
+    };
+
+    // Need 3 plates -> ceil(3/2) = 2 crafts -> 2 * 5 = 10 iron.
+    const flow = getCraftingFlow("PLATE", recipes, 3);
+    expect(nodeQty(flow).PLATE).toBe(3);
+    expect(edgeQty(flow)["PLATE->IRON_INGOT"]).toBe(10);
+  });
+
+  it("treats forge recipes as count = 1", () => {
+    const recipes: RecipesData = {
+      AMBER_MATERIAL: {
+        internalname: "AMBER_MATERIAL",
+        recipes: [
+          {
+            type: "forge",
+            duration: 1000,
+            inputs: ["GOLDEN_PLATE:1", "FINE_AMBER_GEM:12"],
+          },
+        ],
+      },
+      GOLDEN_PLATE: { internalname: "GOLDEN_PLATE" },
+      FINE_AMBER_GEM: { internalname: "FINE_AMBER_GEM" },
+    };
+
+    const flow = getCraftingFlow("AMBER_MATERIAL", recipes, 2);
+    // count forced to 1 -> child qty = count * multiplier.
+    expect(edgeQty(flow)).toMatchObject({
+      "AMBER_MATERIAL->GOLDEN_PLATE": 2,
+      "AMBER_MATERIAL->FINE_AMBER_GEM": 24,
+    });
+  });
+
+  it("terminates on cycles", () => {
+    const recipes: RecipesData = {
+      A: { internalname: "A", recipe: { A1: "B:1", count: "1" } },
+      B: { internalname: "B", recipe: { A1: "A:1", count: "1" } },
+    };
+
+    const flow = getCraftingFlow("A", recipes, 1);
+    expect(flow.nodes.map((n) => n.id).sort()).toEqual(["A", "B"]);
+  });
+
+  it("returns just the root node when it has no recipe", () => {
+    const recipes: RecipesData = { LONELY: { internalname: "LONELY" } };
+    const flow = getCraftingFlow("LONELY", recipes, 5);
+    expect(flow.nodes).toEqual([{ id: "LONELY", quantity: 5 }]);
+    expect(flow.edges).toEqual([]);
   });
 });
