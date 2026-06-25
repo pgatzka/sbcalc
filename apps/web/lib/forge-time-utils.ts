@@ -1,10 +1,4 @@
-import { PATH_DELIM } from "@/lib/constants";
-import {
-  aggregateIngredients,
-  getIngredientsFromRecipe,
-  getRecipe,
-} from "@/lib/recipe-utils";
-import type { ForgeRecipe, ForgeSettings, RecipesData } from "@/lib/types";
+import type { ForgeSettings } from "@/lib/types";
 
 // Calculate optimal forge time considering multiple slots
 export function calculateOptimalForgeTime(
@@ -47,57 +41,6 @@ export function calculateOptimalForgeTime(
 }
 
 // Recursively sum total forge time for a given item and multiplier
-export function getTotalForgeTime(
-  internalname: string,
-  recipes: RecipesData,
-  multiplier = 1,
-  visited: Set<string> = new Set(),
-  options: ForgeSettings = {
-    forgeSlots: 2,
-    useMultipleSlots: true,
-    quickForgeLevel: 0,
-  },
-  checkedCounts?: Map<string, number>,
-  path: string = internalname,
-): number {
-  if (visited.has(internalname)) return 0;
-  // Partial check-off: only the remaining (needed - checked) units still take
-  // forge time. A fully-checked node (remaining <= 0) excludes its subtree.
-  const remaining = multiplier - (checkedCounts?.get(path) ?? 0);
-  if (remaining <= 0) return 0;
-  const newVisited = new Set(visited);
-  newVisited.add(internalname);
-
-  const entry = recipes[internalname];
-  if (!entry) return 0;
-
-  const recipe = getRecipe(entry);
-  if (!recipe) return 0;
-
-  let total = 0;
-  if ((recipe as ForgeRecipe).type === "forge") {
-    const forgeTime = (recipe as ForgeRecipe).forge_time || 0;
-    total += calculateOptimalForgeTime(forgeTime, remaining, options);
-  }
-
-  const ingredients = getIngredientsFromRecipe(recipe);
-  const counts = aggregateIngredients(ingredients);
-  for (const [name, count] of Object.entries(counts)) {
-    // Recurse with the child's FULL needed (count * multiplier); a partial
-    // parent doesn't reduce child forge time — each node subtracts its own.
-    total += getTotalForgeTime(
-      name,
-      recipes,
-      count * multiplier,
-      newVisited,
-      options,
-      checkedCounts,
-      `${path}${PATH_DELIM}${name}`,
-    );
-  }
-  return total;
-}
-
 // Format seconds as s/m/h/d
 export function formatForgeTime(seconds?: number): string {
   if (typeof seconds !== "number" || Number.isNaN(seconds)) return "";
@@ -140,35 +83,4 @@ export function applyQuickForgeReduction(
   const reductionMultiplier = (100 - reductionPercent) / 100;
 
   return Math.floor(forgeTime * reductionMultiplier);
-}
-
-/**
- * Get combined forge time for multiple items
- */
-export function getCombinedForgeTime(
-  itemList: Array<{ itemId: string; quantity: number }>,
-  recipes: RecipesData,
-  options: ForgeSettings = {
-    forgeSlots: 2,
-    useMultipleSlots: true,
-    quickForgeLevel: 0,
-  },
-  checkedCounts?: Map<string, number>,
-): number {
-  let totalTime = 0;
-
-  for (const { itemId, quantity } of itemList) {
-    const time = getTotalForgeTime(
-      itemId,
-      recipes,
-      quantity,
-      new Set(),
-      options,
-      checkedCounts,
-      itemId,
-    );
-    totalTime += time;
-  }
-
-  return totalTime;
 }

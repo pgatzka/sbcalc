@@ -6,13 +6,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { CraftingTreeSingle } from "@/components/crafting-tree-single";
 import { HeaderBar } from "@/components/header-bar";
+import { InventoryPanel } from "@/components/inventory-panel";
 import { RecipeSummaryCards } from "@/components/recipe-summary-cards";
 import { SingleItemPanel } from "@/components/single-item-panel";
-import { useCalculatorResults } from "@/hooks/use-calculator-results";
 import { useRecipeTreeExpansion } from "@/hooks/use-recipe-tree-expansion";
 import { useSharedRecipe } from "@/hooks/use-shared-recipe";
 import { useSharedRecipeLoader } from "@/hooks/use-shared-recipe-loader";
 import { useCalculatorStore } from "@/lib/calculator-store";
+import { getNetTree, summarizeNetTree } from "@/lib/net-requirements";
 import { useRecipeData } from "@/lib/recipe-data-context";
 import { getDisplayName } from "@/lib/utils";
 
@@ -28,10 +29,10 @@ export function SkyblockCalculatorClient() {
     updateSettings,
     getRecipeState,
     hydrate,
-    checkedItems,
-    setItemCheckedCount,
-    setPathsChecked,
-    clearChecked,
+    inventory,
+    setInventoryItem,
+    addToInventory,
+    clearInventory,
   } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
@@ -81,32 +82,50 @@ export function SkyblockCalculatorClient() {
     [settings.forgeSlots, settings.useMultipleSlots, settings.quickForgeLevel],
   );
 
-  const { totalMaterials, totalForgeTime } = useCalculatorResults(
-    selectedItem,
-    multiplier,
-    forgeSettings,
-    checkedItems,
+  // The net requirements tree (after deducting inventory) drives the tree, the
+  // materials list, and the summary headline.
+  const netTree = useMemo(
+    () =>
+      selectedItem
+        ? getNetTree(
+            selectedItem,
+            recipes,
+            multiplier,
+            inventory,
+            forgeSettings,
+            itemsData,
+          )
+        : null,
+    [selectedItem, recipes, multiplier, inventory, forgeSettings, itemsData],
   );
 
-  const handleSetItemCheckedCount = useCallback(
-    (paths: Array<{ path: string; needed: number }>, totalCount: number) =>
-      setItemCheckedCount(paths, totalCount),
-    [setItemCheckedCount],
+  const { listItems, totalMaterials, totalForgeTime } = useMemo(() => {
+    if (!netTree)
+      return { listItems: [], totalMaterials: 0, totalForgeTime: 0 };
+    const summary = summarizeNetTree(netTree);
+    const items = Array.from(summary.byName, ([name, v]) => ({
+      name,
+      net: v.net,
+    })).sort((a, b) => b.net - a.net);
+    return {
+      listItems: items,
+      totalMaterials: summary.baseMaterialTypes,
+      totalForgeTime: summary.totalForgeSeconds,
+    };
+  }, [netTree]);
+
+  const handleAddToInventory = useCallback(
+    (name: string, qty: number) => addToInventory(name, Math.max(1, qty)),
+    [addToInventory],
   );
 
-  const handleSetPathsChecked = useCallback(
-    (paths: Array<{ path: string; needed: number }>, checked: boolean) =>
-      setPathsChecked(paths, checked),
-    [setPathsChecked],
-  );
-
-  // Reset the selection and clear all checked-off amounts in the checklist.
+  // Reset the selection and clear the inventory.
   const handleReset = useCallback(() => {
-    clearChecked();
+    clearInventory();
     setSelectedItem(null);
     setMultiplier(1);
     setSearchValue("");
-  }, [clearChecked, setSelectedItem, setMultiplier, setSearchValue]);
+  }, [clearInventory, setSelectedItem, setMultiplier, setSearchValue]);
 
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const isResizing = useRef(false);
@@ -176,7 +195,7 @@ export function SkyblockCalculatorClient() {
 
         {/* Main content */}
         <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
-          {selectedItem ? (
+          {selectedItem && netTree ? (
             <div className="p-4 md:p-6 space-y-5">
               <RecipeSummaryCards
                 selectedItem={selectedItem}
@@ -187,23 +206,31 @@ export function SkyblockCalculatorClient() {
                 useMultipleSlots={settings.useMultipleSlots}
               />
 
-              {/* Tree (left) and checklist (right), side by side */}
+              {/* Inventory on top of the tree */}
+              <InventoryPanel
+                inventory={inventory}
+                onAddItem={(name) => addToInventory(name, 1)}
+                onSetItem={setInventoryItem}
+                onClear={clearInventory}
+              />
+
+              {/* Tree (left) and remaining-materials list (right) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                 <CraftingTreeSingle
-                  selectedItem={selectedItem}
+                  node={netTree}
                   expandedItems={expandedItems}
                   onExpandAll={handleExpandAll}
                   onCollapseAll={handleCollapseAll}
                   onToggleExpanded={handleToggleExpanded}
-                  multiplier={multiplier}
                   forgeSettings={forgeSettings}
+                  onAddToInventory={handleAddToInventory}
                 />
 
                 <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
                   <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border/40">
                     <div className="flex items-center gap-3">
                       <Clipboard className="w-4 h-4 text-primary" />
-                      <h3 className="font-semibold text-sm">Checklist</h3>
+                      <h3 className="font-semibold text-sm">Still Needed</h3>
                     </div>
                     <Button
                       variant="ghost"
@@ -217,11 +244,8 @@ export function SkyblockCalculatorClient() {
                   </div>
                   <div className="p-5">
                     <BaseRequirementsList
-                      internalname={selectedItem}
-                      multiplier={multiplier}
-                      checkedItems={checkedItems}
-                      onSetItemCheckedCount={handleSetItemCheckedCount}
-                      onSetPathsChecked={handleSetPathsChecked}
+                      items={listItems}
+                      onAddToInventory={handleAddToInventory}
                     />
                   </div>
                 </div>
