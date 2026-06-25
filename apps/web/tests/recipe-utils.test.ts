@@ -8,6 +8,7 @@ import {
   getIngredientsFromRecipe,
   getItemCheckoffs,
   getRecipe,
+  getSubtreeCheckPaths,
 } from "@/lib/recipe-utils";
 import type { ForgeRecipe, RecipeEntry, RecipesData } from "@/lib/types";
 
@@ -579,5 +580,26 @@ describe("getItemCheckoffs", () => {
     // Need 3 plates -> ceil(3/2)=2 crafts -> 10 iron.
     const map = getItemCheckoffs("PLATE", batched, 3);
     expect(map.get("IRON")?.needed).toBe(10);
+  });
+
+  it("getSubtreeCheckPaths returns an item's appearances plus descendants", () => {
+    const map = getItemCheckoffs("GADGET", recipes, 1);
+    const widgetPaths = map.get("WIDGET")?.paths ?? [];
+
+    const subtree = getSubtreeCheckPaths(map, widgetPaths);
+    const paths = subtree.map((p) => p.path).sort();
+
+    // WIDGET itself and the SCREW beneath WIDGET — but NOT the SCREW under BOLT.
+    expect(paths).toEqual(
+      [
+        ["GADGET", "WIDGET"].join(PATH_DELIM),
+        ["GADGET", "WIDGET", "SCREW"].join(PATH_DELIM),
+      ].sort(),
+    );
+    // The SCREW under WIDGET needs 2.
+    const screw = subtree.find((p) =>
+      p.path.endsWith(`${PATH_DELIM}WIDGET${PATH_DELIM}SCREW`),
+    );
+    expect(screw?.needed).toBe(2);
   });
 });

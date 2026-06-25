@@ -395,6 +395,30 @@ const collectItemCheckoffs = (
   }
 };
 
+/**
+ * Given the appearances of an item (from getItemCheckoffs) plus the full
+ * checkoff map, return that item's appearance paths AND every descendant path
+ * beneath them (with each path's needed). Used to cascade a list checkbox the
+ * same way the tree does: checking a product also checks everything it's made
+ * from.
+ */
+export const getSubtreeCheckPaths = (
+  itemCheckoffs: Map<string, ItemCheckoff>,
+  appearancePaths: Array<{ path: string; needed: number }>,
+): Array<{ path: string; needed: number }> => {
+  const prefixes = appearancePaths.map((p) => p.path);
+  const result = new Map<string, number>();
+  for (const item of itemCheckoffs.values()) {
+    for (const p of item.paths) {
+      const underPrefix = prefixes.some(
+        (pre) => p.path === pre || p.path.startsWith(pre + PATH_DELIM),
+      );
+      if (underPrefix) result.set(p.path, p.needed);
+    }
+  }
+  return Array.from(result, ([path, needed]) => ({ path, needed }));
+};
+
 export interface FlowNode {
   id: string;
   /** Total units of this item needed across the whole crafting tree. */

@@ -47,10 +47,16 @@ interface CalculatorState {
   // Stepper (+/-): set a single node's checked count (node-only, no cascade).
   setCheckedCount: (path: string, count: number) => void;
   // Materials list: set an item's TOTAL checked count, distributed across all
-  // of its appearances (paths). Used by the list's aggregated checkbox/stepper.
+  // of its appearances (paths). Used by the list's aggregated +/- stepper.
   setItemCheckedCount: (
     paths: Array<{ path: string; needed: number }>,
     totalCount: number,
+  ) => void;
+  // Materials list checkbox: fully check (each path -> its needed) or clear a
+  // set of paths at once. Used to cascade a product and its whole subtree.
+  setPathsChecked: (
+    paths: Array<{ path: string; needed: number }>,
+    checked: boolean,
   ) => void;
 
   // Hydration
@@ -166,6 +172,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const next = new Map(get().checkedItems);
     if (count <= 0) next.delete(path);
     else next.set(path, count);
+    set({ checkedItems: next });
+    saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
+  },
+  setPathsChecked: (paths, checked) => {
+    const next = new Map(get().checkedItems);
+    for (const { path, needed } of paths) {
+      if (checked) next.set(path, needed);
+      else next.delete(path);
+    }
     set({ checkedItems: next });
     saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
   },
