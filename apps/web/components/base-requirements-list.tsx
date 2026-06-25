@@ -11,6 +11,7 @@ import {
   getBaseRequirements,
   getFrontierRequirements,
   getItemCheckoffs,
+  getSubtreeCheckPaths,
 } from "@/lib/recipe-utils";
 import { getDisplayName } from "@/lib/utils";
 import { ItemImage } from "./item-image";
@@ -24,6 +25,11 @@ interface BaseRequirementsListProps {
   onSetItemCheckedCount?: (
     paths: Array<{ path: string; needed: number }>,
     totalCount: number,
+  ) => void;
+  /** Fully check/clear a set of paths at once (item + its whole subtree). */
+  onSetPathsChecked?: (
+    paths: Array<{ path: string; needed: number }>,
+    checked: boolean,
   ) => void;
 }
 
@@ -44,6 +50,7 @@ export function BaseRequirementsList({
   todoMode,
   checkedItems,
   onSetItemCheckedCount,
+  onSetPathsChecked,
 }: BaseRequirementsListProps) {
   const { recipes, itemsData } = useRecipeData();
   // Toggle: "needed" = the granular/actionable set (current behavior);
@@ -203,9 +210,9 @@ export function BaseRequirementsList({
                           : false
                     }
                     onCheckedChange={() =>
-                      onSetItemCheckedCount?.(
-                        row.paths,
-                        isFullyChecked ? 0 : row.needed,
+                      onSetPathsChecked?.(
+                        getSubtreeCheckPaths(itemCheckoffs, row.paths),
+                        !isFullyChecked,
                       )
                     }
                     className="flex-shrink-0"
