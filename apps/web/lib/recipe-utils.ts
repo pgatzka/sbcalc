@@ -313,6 +313,88 @@ export const getCombinedFrontierRequirements = (
   return combined;
 };
 
+export interface ItemCheckoff {
+  /** Total units of this item needed across the whole tree (all appearances). */
+  needed: number;
+  /** True if the item is a base material / has no expandable recipe. */
+  isLeaf: boolean;
+  /** Every tree path where this item appears, with that appearance's needed. */
+  paths: Array<{ path: string; needed: number }>;
+}
+
+/**
+ * Walk the whole crafting tree and group every product (intermediate craftables
+ * and base materials, but NOT the root itself) by item name, recording each
+ * appearance's tree path and needed quantity. The paths match the keys the tree
+ * stores in `checkedItems`, so the materials list can drive/read per-appearance
+ * check-off state aggregated by item.
+ */
+export const getItemCheckoffs = (
+  rootName: string,
+  recipes: RecipesData,
+  multiplier = 1,
+  itemsData?: RecipesData,
+): Map<string, ItemCheckoff> => {
+  const acc = new Map<string, ItemCheckoff>();
+  collectItemCheckoffs(rootName, recipes, multiplier, rootName, new Set(), acc);
+  // itemsData unused for the shape; kept for parity / future leaf-display needs.
+  void itemsData;
+  return acc;
+};
+
+const collectItemCheckoffs = (
+  name: string,
+  recipes: RecipesData,
+  multiplier: number,
+  path: string,
+  visited: Set<string>,
+  acc: Map<string, ItemCheckoff>,
+): void => {
+  const entry = recipes[name];
+  const recipe = entry ? getRecipe(entry) : undefined;
+  // Leaf / base material -> no children to expand.
+  if (!recipe || BASE_MATERIALS.has(name)) return;
+
+  const isForge = (recipe as ForgeRecipe).type === "forge";
+  const recipeCount = !isForge
+    ? Number((recipe as Record<string, string | number>).count) || 1
+    : 1;
+  const actualMultiplier = Math.ceil(multiplier / recipeCount);
+
+  const newVisited = new Set(visited).add(name);
+  const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
+  for (const [child, count] of Object.entries(counts)) {
+    // Cycle: the tree renders nothing for a child already on the branch.
+    if (newVisited.has(child)) continue;
+
+    const childPath = `${path}${PATH_DELIM}${child}`;
+    const childNeeded = count * actualMultiplier;
+    const childEntry = recipes[child];
+    const childRecipe = childEntry ? getRecipe(childEntry) : undefined;
+    const childIsLeaf =
+      BASE_MATERIALS.has(child) || !childEntry || !childRecipe;
+
+    let item = acc.get(child);
+    if (!item) {
+      item = { needed: 0, isLeaf: childIsLeaf, paths: [] };
+      acc.set(child, item);
+    }
+    item.needed += childNeeded;
+    item.paths.push({ path: childPath, needed: childNeeded });
+
+    if (!childIsLeaf) {
+      collectItemCheckoffs(
+        child,
+        recipes,
+        childNeeded,
+        childPath,
+        newVisited,
+        acc,
+      );
+    }
+  }
+};
+
 export interface FlowNode {
   id: string;
   /** Total units of this item needed across the whole crafting tree. */
