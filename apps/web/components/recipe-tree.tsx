@@ -1,18 +1,10 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
-import { Checkbox } from "@workspace/ui/components/checkbox";
-import {
-  ChevronDown,
-  ChevronRight,
-  ExternalLink,
-  Minus,
-  Plus,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import type React from "react";
 import { MinecraftColoredText } from "@/components/minecraft-colored-text";
 import { trackRecipeTreeItemClick } from "@/lib/analytics";
-import { BASE_MATERIALS, PATH_DELIM } from "@/lib/constants";
+import { BASE_MATERIALS } from "@/lib/constants";
 import {
   calculateOptimalForgeTime,
   formatForgeTime,
@@ -29,9 +21,6 @@ import { ItemImage } from "./item-image";
 
 interface RecipeTreeProps {
   internalname: string;
-  /** Unique node path (root->node internalname chain). Defaults to the
-   * internalname for the root node. */
-  path?: string;
   multiplier?: number;
   depth?: number;
   visited?: Set<string>;
@@ -40,19 +29,10 @@ interface RecipeTreeProps {
   forgeSettings?: ForgeSettings;
   isLastChild?: boolean;
   ancestorLines?: boolean[];
-  todoMode?: boolean;
-  checkedItems?: Map<string, number>;
-  onToggleChecked?: (
-    path: string,
-    internalname: string,
-    needed: number,
-  ) => void;
-  onSetCheckedCount?: (path: string, count: number) => void;
 }
 
 export function RecipeTree({
   internalname,
-  path,
   multiplier = 1,
   depth = 0,
   visited = new Set(),
@@ -61,14 +41,9 @@ export function RecipeTree({
   forgeSettings = { forgeSlots: 2, useMultipleSlots: true, quickForgeLevel: 0 },
   isLastChild = true,
   ancestorLines = [],
-  todoMode = false,
-  checkedItems,
-  onToggleChecked,
-  onSetCheckedCount,
 }: RecipeTreeProps): React.ReactElement | null {
   const { recipes, itemsData } = useRecipeData();
 
-  const nodePath = path ?? internalname;
   const expandedItems = externalExpandedItems ?? new Set([internalname]);
 
   if (visited.has(internalname)) {
@@ -122,11 +97,6 @@ export function RecipeTree({
         entry.info[0])
       : undefined;
 
-  const checkedCount = checkedItems?.get(nodePath) ?? 0;
-  const isFullyChecked = todoMode && checkedCount >= multiplier;
-  const isPartiallyChecked =
-    todoMode && checkedCount > 0 && checkedCount < multiplier;
-
   return (
     <div>
       <div className="flex items-stretch">
@@ -149,7 +119,7 @@ export function RecipeTree({
         <div
           className={`group flex items-center gap-3 px-3 py-2 my-0.5 rounded-lg transition-all flex-1 min-w-0 ${
             hasIngredients ? "cursor-pointer hover:bg-accent/30" : ""
-          } ${isBaseMaterial ? "bg-emerald-500/5 border border-emerald-500/15" : "hover:bg-muted/50"} ${isFullyChecked ? "opacity-40" : ""}`}
+          } ${isBaseMaterial ? "bg-emerald-500/5 border border-emerald-500/15" : "hover:bg-muted/50"}`}
           onClick={() => {
             if (hasIngredients) {
               onToggleExpanded(internalname);
@@ -164,22 +134,6 @@ export function RecipeTree({
             }
           }}
         >
-          {todoMode && onToggleChecked && (
-            <Checkbox
-              checked={
-                isFullyChecked
-                  ? true
-                  : isPartiallyChecked
-                    ? "indeterminate"
-                    : false
-              }
-              onCheckedChange={() =>
-                onToggleChecked(nodePath, internalname, multiplier)
-              }
-              onClick={(e) => e.stopPropagation()}
-              className="flex-shrink-0"
-            />
-          )}
           {hasIngredients && (
             <span className="text-muted-foreground flex-shrink-0">
               {isExpanded ? (
@@ -239,41 +193,6 @@ export function RecipeTree({
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
-            {todoMode && onSetCheckedCount && multiplier > 1 && (
-              <div
-                className="flex items-center gap-0.5"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  disabled={checkedCount <= 0}
-                  onClick={() =>
-                    onSetCheckedCount(nodePath, Math.max(0, checkedCount - 1))
-                  }
-                  aria-label={`Remove one ${plainDisplayName}`}
-                >
-                  <Minus />
-                </Button>
-                <span className="font-mono text-[10px] tabular-nums text-muted-foreground min-w-[2.75rem] text-center">
-                  {checkedCount}/{multiplier}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  disabled={checkedCount >= multiplier}
-                  onClick={() =>
-                    onSetCheckedCount(
-                      nodePath,
-                      Math.min(multiplier, checkedCount + 1),
-                    )
-                  }
-                  aria-label={`Add one ${plainDisplayName}`}
-                >
-                  <Plus />
-                </Button>
-              </div>
-            )}
             <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
               {multiplier}x
             </span>
@@ -287,7 +206,6 @@ export function RecipeTree({
             <RecipeTree
               key={name}
               internalname={name}
-              path={`${nodePath}${PATH_DELIM}${name}`}
               multiplier={count * actualMultiplier}
               depth={depth + 1}
               visited={nextVisited}
@@ -298,10 +216,6 @@ export function RecipeTree({
               ancestorLines={
                 depth === 0 ? [] : [...ancestorLines, !isLastChild]
               }
-              todoMode={todoMode}
-              checkedItems={checkedItems}
-              onToggleChecked={onToggleChecked}
-              onSetCheckedCount={onSetCheckedCount}
             />
           ))}
         </div>

@@ -24,7 +24,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dagrejs/dagre": "^1.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
@@ -35,7 +34,6 @@
     "@workspace/neu-recipe-processor": "workspace:*",
     "@workspace/snbt-parser": "workspace:*",
     "@workspace/ui": "workspace:*",
-    "@xyflow/react": "^12",
     "lucide-react": "1.8.0",
     "next": "16.2.3",
     "next-themes": "^0.4.6",

@@ -1,98 +1,39 @@
 import { useMemo } from "react";
-import {
-  getCombinedForgeTime,
-  getTotalForgeTime,
-} from "@/lib/forge-time-utils";
+import { getTotalForgeTime } from "@/lib/forge-time-utils";
 import { useRecipeData } from "@/lib/recipe-data-context";
-import {
-  getBaseRequirements,
-  getCombinedBaseRequirements,
-  getCombinedFrontierRequirements,
-  getCombinedRequirementsAtDepth,
-  getFrontierRequirements,
-} from "@/lib/recipe-utils";
+import { getBaseRequirements } from "@/lib/recipe-utils";
 import type { ForgeSettings } from "@/lib/types";
 
 /**
- * Derives base material requirements and total forge time
- * from the current mode, selection, and settings.
+ * Derives base material requirements and total forge time for the selected
+ * item. Forge time is reduced by whatever is checked off in the checklist.
  */
 export function useCalculatorResults(
-  mode: "single" | "multi",
   selectedItem: string | null,
   multiplier: number,
-  itemList: Array<{ itemId: string; quantity: number }>,
   settings: ForgeSettings,
-  materialDepth: number = Number.POSITIVE_INFINITY,
   checkedItems?: Map<string, number>,
 ) {
-  const { recipes, itemsData } = useRecipeData();
+  const { recipes } = useRecipeData();
 
   const baseRequirements = useMemo(() => {
-    if (mode === "single" && selectedItem) {
-      // In todo mode, show the most granular items still needed (frontier).
-      if (checkedItems) {
-        return getFrontierRequirements(
-          selectedItem,
-          recipes,
-          multiplier,
-          checkedItems,
-        );
-      }
-      return getBaseRequirements(selectedItem, recipes, multiplier);
-    }
-    if (mode === "multi") {
-      if (checkedItems) {
-        return getCombinedFrontierRequirements(itemList, recipes, checkedItems);
-      }
-      if (Number.isFinite(materialDepth)) {
-        return getCombinedRequirementsAtDepth(
-          itemList,
-          recipes,
-          materialDepth,
-          itemsData,
-        );
-      }
-      return getCombinedBaseRequirements(itemList, recipes, itemsData);
-    }
-    return {};
-  }, [
-    mode,
-    selectedItem,
-    multiplier,
-    itemList,
-    recipes,
-    itemsData,
-    materialDepth,
-    checkedItems,
-  ]);
+    if (!selectedItem) return {};
+    return getBaseRequirements(selectedItem, recipes, multiplier);
+  }, [selectedItem, multiplier, recipes]);
 
   const totalMaterials = Object.keys(baseRequirements).length;
 
   const totalForgeTime = useMemo(() => {
-    if (mode === "single" && selectedItem) {
-      return getTotalForgeTime(
-        selectedItem,
-        recipes,
-        multiplier,
-        new Set(),
-        settings,
-        checkedItems,
-      );
-    }
-    if (mode === "multi") {
-      return getCombinedForgeTime(itemList, recipes, settings, checkedItems);
-    }
-    return 0;
-  }, [
-    mode,
-    selectedItem,
-    multiplier,
-    itemList,
-    recipes,
-    settings,
-    checkedItems,
-  ]);
+    if (!selectedItem) return 0;
+    return getTotalForgeTime(
+      selectedItem,
+      recipes,
+      multiplier,
+      new Set(),
+      settings,
+      checkedItems,
+    );
+  }, [selectedItem, multiplier, recipes, settings, checkedItems]);
 
   return { baseRequirements, totalMaterials, totalForgeTime };
 }
