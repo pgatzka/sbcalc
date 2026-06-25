@@ -6,6 +6,7 @@ import {
   getCraftingFlow,
   getFrontierRequirements,
   getIngredientsFromRecipe,
+  getItemCheckoffs,
   getRecipe,
 } from "@/lib/recipe-utils";
 import type { ForgeRecipe, RecipeEntry, RecipesData } from "@/lib/types";
@@ -529,5 +530,54 @@ describe("getCraftingFlow", () => {
       "BOLT->SCREW": 3,
     });
     expect(flow.nodes.find((n) => n.id === "SCREW")?.quantity).toBe(3);
+  });
+});
+
+describe("getItemCheckoffs", () => {
+  // GADGET -> WIDGET (-> 2 SCREW) + BOLT (-> 3 SCREW); SCREW appears twice.
+  const recipes: RecipesData = {
+    GADGET: {
+      internalname: "GADGET",
+      recipe: { A1: "WIDGET:1", B1: "BOLT:1", count: "1" },
+    },
+    WIDGET: { internalname: "WIDGET", recipe: { A1: "SCREW:2", count: "1" } },
+    BOLT: { internalname: "BOLT", recipe: { A1: "SCREW:3", count: "1" } },
+    SCREW: { internalname: "SCREW" },
+  };
+
+  it("groups every product (intermediate + base) by name, excluding the root", () => {
+    const map = getItemCheckoffs("GADGET", recipes, 1);
+
+    expect([...map.keys()].sort()).toEqual(["BOLT", "SCREW", "WIDGET"]);
+    expect(map.get("GADGET")).toBeUndefined(); // root is not a material
+    expect(map.get("WIDGET")?.isLeaf).toBe(false);
+    expect(map.get("SCREW")?.isLeaf).toBe(true);
+  });
+
+  it("sums needed across appearances and records every path", () => {
+    const map = getItemCheckoffs("GADGET", recipes, 1);
+
+    const screw = map.get("SCREW");
+    expect(screw?.needed).toBe(5); // 2 under WIDGET + 3 under BOLT
+    expect(screw?.paths.map((p) => p.needed).sort()).toEqual([2, 3]);
+    expect(screw?.paths.map((p) => p.path).sort()).toEqual(
+      [
+        ["GADGET", "BOLT", "SCREW"].join(PATH_DELIM),
+        ["GADGET", "WIDGET", "SCREW"].join(PATH_DELIM),
+      ].sort(),
+    );
+  });
+
+  it("scales by the multiplier and recipe count", () => {
+    const batched: RecipesData = {
+      PLATE: {
+        internalname: "PLATE",
+        recipe: { A1: "IRON:5", count: "2" }, // 1 craft yields 2 plates
+      },
+      IRON: { internalname: "IRON" },
+    };
+    // Need 3 plates -> ceil(3/2)=2 crafts -> 10 iron.
+    const map = getItemCheckoffs("PLATE", batched, 3);
+    expect(map.get("IRON")?.needed).toBe(10);
   });
 });

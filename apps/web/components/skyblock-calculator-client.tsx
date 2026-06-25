@@ -55,6 +55,7 @@ export function SkyblockCalculatorClient() {
     toggleTodoMode,
     toggleChecked,
     setCheckedCount,
+    setItemCheckedCount,
   } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
@@ -183,6 +184,12 @@ export function SkyblockCalculatorClient() {
   const handleSetCheckedCount = useCallback(
     (path: string, count: number) => setCheckedCount(path, count),
     [setCheckedCount],
+  );
+
+  const handleSetItemCheckedCount = useCallback(
+    (paths: Array<{ path: string; needed: number }>, totalCount: number) =>
+      setItemCheckedCount(paths, totalCount),
+    [setItemCheckedCount],
   );
 
   const [craftView, setCraftView] = useState<CraftView>("tree");
@@ -358,6 +365,7 @@ export function SkyblockCalculatorClient() {
                       multiplier={multiplier}
                       todoMode={todoMode}
                       checkedItems={checkedItems}
+                      onSetItemCheckedCount={handleSetItemCheckedCount}
                     />
                   </div>
                 </div>
