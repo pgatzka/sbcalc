@@ -85,7 +85,7 @@ function CraftingFlowInner({
 }: {
   selectedItem: string;
   multiplier: number;
-  checkedItems?: Set<string>;
+  checkedItems?: Map<string, number>;
 }) {
   const { recipes, itemsData } = useRecipeData();
 
@@ -185,7 +185,7 @@ export function CraftingFlowSingle({
 }: {
   selectedItem: string;
   multiplier: number;
-  checkedItems?: Set<string>;
+  checkedItems?: Map<string, number>;
 }) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">

@@ -32,11 +32,20 @@ interface CalculatorState {
 
   // Todo mode
   todoMode: boolean;
-  // Set of checked-off node PATHS (root->node internalname chains), so each
-  // appearance of an item in the tree is tracked independently.
-  checkedItems: Set<string>;
+  // Map of checked-off node PATH (root->node internalname chain) -> how many of
+  // that node's needed quantity are gathered/crafted. A node is fully checked
+  // when its count reaches its needed amount; partial counts are supported.
+  checkedItems: Map<string, number>;
   toggleTodoMode: () => void;
-  toggleChecked: (path: string, descendantPaths: string[]) => void;
+  // Checkbox: fully checks/unchecks `path` (to `needed`) and cascades the whole
+  // sub-branch (each descendant set to its own `needed`, or cleared).
+  toggleChecked: (
+    path: string,
+    needed: number,
+    descendants: Array<{ path: string; needed: number }>,
+  ) => void;
+  // Stepper (+/-): set a single node's checked count (node-only, no cascade).
+  setCheckedCount: (path: string, count: number) => void;
 
   // Hydration
   hydrated: boolean;
@@ -86,7 +95,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   settings: { ...DEFAULT_FORGE_SETTINGS },
   hydrated: false,
   todoMode: false,
-  checkedItems: new Set<string>(),
+  checkedItems: new Map<string, number>(),
 
   // Mode
   setMode: (mode) => {
@@ -128,22 +137,31 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const clearing = todoMode;
     set({
       todoMode: !todoMode,
-      checkedItems: clearing ? new Set<string>() : get().checkedItems,
+      checkedItems: clearing ? new Map<string, number>() : get().checkedItems,
     });
     if (clearing) saveJson(LOCAL_KEYS.checkedItems, []);
   },
-  toggleChecked: (path, descendantPaths) => {
-    const prev = get().checkedItems;
-    const next = new Set(prev);
-    if (next.has(path)) {
+  toggleChecked: (path, needed, descendants) => {
+    const next = new Map(get().checkedItems);
+    const isFull = (next.get(path) ?? 0) >= needed;
+    if (isFull) {
+      // Uncheck this node and clear its whole sub-branch.
       next.delete(path);
-      for (const d of descendantPaths) next.delete(d);
+      for (const d of descendants) next.delete(d.path);
     } else {
-      next.add(path);
-      for (const d of descendantPaths) next.add(d);
+      // Fully check this node and cascade each descendant to its own needed.
+      next.set(path, needed);
+      for (const d of descendants) next.set(d.path, d.needed);
     }
     set({ checkedItems: next });
-    saveJson(LOCAL_KEYS.checkedItems, Array.from(next));
+    saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
+  },
+  setCheckedCount: (path, count) => {
+    const next = new Map(get().checkedItems);
+    if (count <= 0) next.delete(path);
+    else next.set(path, count);
+    set({ checkedItems: next });
+    saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
   },
 
   // Settings
@@ -175,9 +193,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       lastMulti && itemList.some((i) => i.itemId === lastMulti)
         ? lastMulti
         : null;
-    const checkedItems = new Set(
-      loadJson<string[]>(LOCAL_KEYS.checkedItems, []),
-    );
+    // Stored as [path, count][]. The previous (binary) format was a string[]
+    // of paths — detect it (array of strings, not tuples) and discard, since
+    // we can't recover per-node counts. Todo progress isn't critical state.
+    const storedChecked = loadJson<unknown[]>(LOCAL_KEYS.checkedItems, []);
+    const isOldFormat =
+      storedChecked.length > 0 && !Array.isArray(storedChecked[0]);
+    const checkedItems = isOldFormat
+      ? new Map<string, number>()
+      : new Map(storedChecked as Array<[string, number]>);
     const todoMode = checkedItems.size > 0;
 
     set({

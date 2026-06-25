@@ -57,12 +57,14 @@ export function getTotalForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
-  checkedPaths?: Set<string>,
+  checkedCounts?: Map<string, number>,
   path: string = internalname,
 ): number {
   if (visited.has(internalname)) return 0;
-  // A checked-off node excludes its whole subtree's forge time.
-  if (checkedPaths?.has(path)) return 0;
+  // Partial check-off: only the remaining (needed - checked) units still take
+  // forge time. A fully-checked node (remaining <= 0) excludes its subtree.
+  const remaining = multiplier - (checkedCounts?.get(path) ?? 0);
+  if (remaining <= 0) return 0;
   const newVisited = new Set(visited);
   newVisited.add(internalname);
 
@@ -75,19 +77,21 @@ export function getTotalForgeTime(
   let total = 0;
   if ((recipe as ForgeRecipe).type === "forge") {
     const forgeTime = (recipe as ForgeRecipe).forge_time || 0;
-    total += calculateOptimalForgeTime(forgeTime, multiplier, options);
+    total += calculateOptimalForgeTime(forgeTime, remaining, options);
   }
 
   const ingredients = getIngredientsFromRecipe(recipe);
   const counts = aggregateIngredients(ingredients);
   for (const [name, count] of Object.entries(counts)) {
+    // Recurse with the child's FULL needed (count * multiplier); a partial
+    // parent doesn't reduce child forge time — each node subtracts its own.
     total += getTotalForgeTime(
       name,
       recipes,
       count * multiplier,
       newVisited,
       options,
-      checkedPaths,
+      checkedCounts,
       `${path}${PATH_DELIM}${name}`,
     );
   }
@@ -149,7 +153,7 @@ export function getCombinedForgeTime(
     useMultipleSlots: true,
     quickForgeLevel: 0,
   },
-  checkedPaths?: Set<string>,
+  checkedCounts?: Map<string, number>,
 ): number {
   let totalTime = 0;
 
@@ -160,7 +164,7 @@ export function getCombinedForgeTime(
       quantity,
       new Set(),
       options,
-      checkedPaths,
+      checkedCounts,
       itemId,
     );
     totalTime += time;

@@ -18,8 +18,9 @@ export function CraftingTreeSingle(props: {
   };
   todoMode: boolean;
   onToggleTodoMode: () => void;
-  checkedItems: Set<string>;
-  onToggleChecked: (path: string, internalname: string) => void;
+  checkedItems: Map<string, number>;
+  onToggleChecked: (path: string, internalname: string, needed: number) => void;
+  onSetCheckedCount: (path: string, count: number) => void;
 }) {
   const {
     selectedItem,
@@ -33,6 +34,7 @@ export function CraftingTreeSingle(props: {
     onToggleTodoMode,
     checkedItems,
     onToggleChecked,
+    onSetCheckedCount,
   } = props;
 
   return (
@@ -82,6 +84,7 @@ export function CraftingTreeSingle(props: {
           todoMode={todoMode}
           checkedItems={checkedItems}
           onToggleChecked={onToggleChecked}
+          onSetCheckedCount={onSetCheckedCount}
         />
       </div>
     </div>

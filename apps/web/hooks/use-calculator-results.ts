@@ -24,7 +24,7 @@ export function useCalculatorResults(
   itemList: Array<{ itemId: string; quantity: number }>,
   settings: ForgeSettings,
   materialDepth: number = Number.POSITIVE_INFINITY,
-  checkedItems?: Set<string>,
+  checkedItems?: Map<string, number>,
 ) {
   const { recipes, itemsData } = useRecipeData();
 

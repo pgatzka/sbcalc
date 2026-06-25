@@ -16,7 +16,7 @@ interface BaseRequirementsListProps {
   internalname: string;
   multiplier: number;
   todoMode?: boolean;
-  checkedItems?: Set<string>;
+  checkedItems?: Map<string, number>;
 }
 
 export function BaseRequirementsList({
