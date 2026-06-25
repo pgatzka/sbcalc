@@ -3,28 +3,26 @@
 import { Button } from "@workspace/ui/components/button";
 import { ChevronDown, ChevronUp, Wrench } from "lucide-react";
 import { RecipeTree } from "@/components/recipe-tree";
+import type { NetTreeNode } from "@/lib/net-requirements";
+import type { ForgeSettings } from "@/lib/types";
 
 export function CraftingTreeSingle(props: {
-  selectedItem: string;
+  node: NetTreeNode;
   expandedItems: Set<string>;
   onExpandAll: () => void;
   onCollapseAll: () => void;
   onToggleExpanded: (id: string) => void;
-  multiplier: number;
-  forgeSettings: {
-    forgeSlots: number;
-    useMultipleSlots: boolean;
-    quickForgeLevel: number;
-  };
+  forgeSettings: ForgeSettings;
+  onAddToInventory: (name: string, qty: number) => void;
 }) {
   const {
-    selectedItem,
+    node,
     expandedItems,
     onExpandAll,
     onCollapseAll,
     onToggleExpanded,
-    multiplier,
     forgeSettings,
+    onAddToInventory,
   } = props;
 
   return (
@@ -56,13 +54,19 @@ export function CraftingTreeSingle(props: {
         </div>
       </div>
       <div className="p-4 overflow-auto">
-        <RecipeTree
-          internalname={selectedItem}
-          multiplier={multiplier}
-          expandedItems={expandedItems}
-          onToggleExpanded={onToggleExpanded}
-          forgeSettings={forgeSettings}
-        />
+        {node.net > 0 ? (
+          <RecipeTree
+            node={node}
+            expandedItems={expandedItems}
+            onToggleExpanded={onToggleExpanded}
+            forgeSettings={forgeSettings}
+            onAddToInventory={onAddToInventory}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-8">
+            You already have everything in your inventory.
+          </p>
+        )}
       </div>
     </div>
   );

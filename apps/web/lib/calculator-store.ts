@@ -15,25 +15,15 @@ interface CalculatorState {
   settings: Settings;
   updateSettings: (partial: Partial<Settings>) => void;
 
-  // Checklist: map of checked-off node PATH (root->node internalname chain) ->
-  // how many of that node's needed quantity are gathered/crafted. A node is
-  // fully checked when its count reaches its needed amount; partial counts are
-  // supported. Driven entirely by the materials list (the tree is read-only).
-  checkedItems: Map<string, number>;
-  // Set an item's TOTAL checked count, distributed across all of its
-  // appearances (paths). Used by the list's aggregated +/- stepper.
-  setItemCheckedCount: (
-    paths: Array<{ path: string; needed: number }>,
-    totalCount: number,
-  ) => void;
-  // Fully check (each path -> its needed) or clear a set of paths at once. Used
-  // by the list checkbox to cascade a product and its whole subtree.
-  setPathsChecked: (
-    paths: Array<{ path: string; needed: number }>,
-    checked: boolean,
-  ) => void;
-  // Clear every checked-off amount in the checklist.
-  clearChecked: () => void;
+  // Inventory: items you already own, by internalname -> quantity. The net
+  // requirements (tree + list + forge time) are computed after deducting these.
+  inventory: Map<string, number>;
+  // Set an item's owned quantity (qty <= 0 removes it).
+  setInventoryItem: (name: string, qty: number) => void;
+  // Add `qty` to an item's owned quantity (used by per-row "add to inventory").
+  addToInventory: (name: string, qty: number) => void;
+  // Empty the whole inventory.
+  clearInventory: () => void;
 
   // Hydration
   hydrated: boolean;
@@ -47,7 +37,7 @@ const LOCAL_KEYS = {
   selectedItem: "sbcalc_selectedItem",
   multiplier: "sbcalc_multiplier",
   settings: "sbcalc-settings",
-  checkedItems: "sbcalc_checkedItems",
+  inventory: "sbcalc_inventory",
 } as const;
 
 function loadJson<T>(key: string, fallback: T): T {
@@ -75,7 +65,7 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   searchValue: "",
   settings: { ...DEFAULT_FORGE_SETTINGS },
   hydrated: false,
-  checkedItems: new Map<string, number>(),
+  inventory: new Map<string, number>(),
 
   // Single item
   setSelectedItem: (item) => {
@@ -88,33 +78,25 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
   },
   setSearchValue: (v) => set({ searchValue: v }),
 
-  // Checklist
-  setPathsChecked: (paths, checked) => {
-    const next = new Map(get().checkedItems);
-    for (const { path, needed } of paths) {
-      if (checked) next.set(path, needed);
-      else next.delete(path);
-    }
-    set({ checkedItems: next });
-    saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
+  // Inventory
+  setInventoryItem: (name, qty) => {
+    const next = new Map(get().inventory);
+    if (qty <= 0) next.delete(name);
+    else next.set(name, Math.floor(qty));
+    set({ inventory: next });
+    saveJson(LOCAL_KEYS.inventory, Array.from(next.entries()));
   },
-  clearChecked: () => {
-    set({ checkedItems: new Map<string, number>() });
-    saveJson(LOCAL_KEYS.checkedItems, []);
+  addToInventory: (name, qty) => {
+    const next = new Map(get().inventory);
+    const total = (next.get(name) ?? 0) + Math.floor(qty);
+    if (total <= 0) next.delete(name);
+    else next.set(name, total);
+    set({ inventory: next });
+    saveJson(LOCAL_KEYS.inventory, Array.from(next.entries()));
   },
-  setItemCheckedCount: (paths, totalCount) => {
-    const next = new Map(get().checkedItems);
-    // Fill the item's appearances in order until the requested total is met,
-    // capping each path at its own needed amount.
-    let left = totalCount;
-    for (const { path, needed } of paths) {
-      const give = Math.max(0, Math.min(needed, left));
-      if (give <= 0) next.delete(path);
-      else next.set(path, give);
-      left -= give;
-    }
-    set({ checkedItems: next });
-    saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
+  clearInventory: () => {
+    set({ inventory: new Map<string, number>() });
+    saveJson(LOCAL_KEYS.inventory, []);
   },
 
   // Settings
@@ -134,22 +116,15 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
       ...DEFAULT_FORGE_SETTINGS,
       ...loadJson<Partial<Settings>>(LOCAL_KEYS.settings, {}),
     };
-
-    // Stored as [path, count][]. An older (binary) format was a string[] of
-    // paths — detect it (array of strings, not tuples) and discard, since we
-    // can't recover per-node counts. Checklist progress isn't critical state.
-    const storedChecked = loadJson<unknown[]>(LOCAL_KEYS.checkedItems, []);
-    const isOldFormat =
-      storedChecked.length > 0 && !Array.isArray(storedChecked[0]);
-    const checkedItems = isOldFormat
-      ? new Map<string, number>()
-      : new Map(storedChecked as Array<[string, number]>);
+    const inventory = new Map(
+      loadJson<Array<[string, number]>>(LOCAL_KEYS.inventory, []),
+    );
 
     set({
       selectedItem,
       multiplier,
       settings,
-      checkedItems,
+      inventory,
       hydrated: true,
     });
   },
