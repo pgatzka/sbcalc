@@ -1,6 +1,7 @@
 "use client";
 
-import { Clipboard, Heart, Search } from "lucide-react";
+import { Button } from "@workspace/ui/components/button";
+import { Clipboard, Heart, RotateCcw, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BaseRequirementsList } from "@/components/base-requirements-list";
 import { CraftingTreeSingle } from "@/components/crafting-tree-single";
@@ -30,6 +31,7 @@ export function SkyblockCalculatorClient() {
     checkedItems,
     setItemCheckedCount,
     setPathsChecked,
+    clearChecked,
   } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
@@ -98,6 +100,14 @@ export function SkyblockCalculatorClient() {
     [setPathsChecked],
   );
 
+  // Reset the selection and clear all checked-off amounts in the checklist.
+  const handleReset = useCallback(() => {
+    clearChecked();
+    setSelectedItem(null);
+    setMultiplier(1);
+    setSearchValue("");
+  }, [clearChecked, setSelectedItem, setMultiplier, setSearchValue]);
+
   const [sidebarWidth, setSidebarWidth] = useState(340);
   const isResizing = useRef(false);
 
@@ -147,11 +157,7 @@ export function SkyblockCalculatorClient() {
               onSearchChange={setSearchValue}
               onSelectItem={setSelectedItem}
               onMultiplierChange={setMultiplier}
-              onClear={() => {
-                setSelectedItem(null);
-                setMultiplier(1);
-                setSearchValue("");
-              }}
+              onClear={handleReset}
               recipeState={{
                 recipes: getRecipeState(),
                 forgeSettings,
@@ -194,9 +200,20 @@ export function SkyblockCalculatorClient() {
                 />
 
                 <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm">
-                  <div className="flex items-center gap-3 px-5 py-4 border-b border-border/40">
-                    <Clipboard className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold text-sm">Checklist</h3>
+                  <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border/40">
+                    <div className="flex items-center gap-3">
+                      <Clipboard className="w-4 h-4 text-primary" />
+                      <h3 className="font-semibold text-sm">Checklist</h3>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleReset}
+                      className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                      Reset
+                    </Button>
                   </div>
                   <div className="p-5">
                     <BaseRequirementsList

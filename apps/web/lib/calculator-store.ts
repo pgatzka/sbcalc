@@ -32,6 +32,8 @@ interface CalculatorState {
     paths: Array<{ path: string; needed: number }>,
     checked: boolean,
   ) => void;
+  // Clear every checked-off amount in the checklist.
+  clearChecked: () => void;
 
   // Hydration
   hydrated: boolean;
@@ -95,6 +97,10 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     }
     set({ checkedItems: next });
     saveJson(LOCAL_KEYS.checkedItems, Array.from(next.entries()));
+  },
+  clearChecked: () => {
+    set({ checkedItems: new Map<string, number>() });
+    saveJson(LOCAL_KEYS.checkedItems, []);
   },
   setItemCheckedCount: (paths, totalCount) => {
     const next = new Map(get().checkedItems);
