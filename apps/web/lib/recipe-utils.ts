@@ -222,16 +222,19 @@ export const getFrontierRequirements = (
   internalname: string,
   recipes: RecipesData,
   multiplier: number,
-  checkedPaths: Set<string>,
+  checkedCounts?: Map<string, number>,
   path: string = internalname,
   visited: Set<string> = new Set(),
 ): Record<string, number> => {
-  // Entire subtree already gathered/crafted.
-  if (checkedPaths.has(path)) return {};
+  // Partial check-off: `needed` for this node is `multiplier`; the amount
+  // already gathered/crafted is the checked count. The remainder is what's
+  // still needed. remaining <= 0 means the whole subtree is done.
+  const remaining = multiplier - (checkedCounts?.get(path) ?? 0);
+  if (remaining <= 0) return {};
 
   // Cycle guard (mirrors getBaseRequirements' branch-local visited): if this
   // name already appears on the current branch, treat it as a leaf.
-  if (visited.has(internalname)) return { [internalname]: multiplier };
+  if (visited.has(internalname)) return { [internalname]: remaining };
 
   const entry = recipes[internalname];
   const recipe = entry ? getRecipe(entry) : undefined;
@@ -239,12 +242,12 @@ export const getFrontierRequirements = (
   // Leaf / base material -> the granular item still needed. Items missing from
   // `recipes` (e.g. items.json-only) are treated as base here as well.
   if (BASE_MATERIALS.has(internalname) || !entry || !recipe) {
-    return { [internalname]: multiplier };
+    return { [internalname]: remaining };
   }
 
   const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
   if (Object.keys(counts).length === 0) {
-    return { [internalname]: multiplier };
+    return { [internalname]: remaining };
   }
 
   const newVisited = new Set(visited);
@@ -260,11 +263,14 @@ export const getFrontierRequirements = (
 
   const childAcc: Record<string, number> = {};
   for (const [name, count] of Object.entries(counts)) {
+    // Recurse with the child's FULL needed (count * actualMultiplier), not a
+    // partial-parent-scaled amount: a partial parent doesn't reduce child
+    // demand; each node only subtracts its own checked count.
     const childResult = getFrontierRequirements(
       name,
       recipes,
       count * actualMultiplier,
-      checkedPaths,
+      checkedCounts,
       `${path}${PATH_DELIM}${name}`,
       newVisited,
     );
@@ -273,9 +279,10 @@ export const getFrontierRequirements = (
     }
   }
 
-  // All ingredients gathered -> this node is now the granular item to craft.
+  // All ingredients gathered -> this node is now the granular item to craft,
+  // and `remaining` of them are still left.
   if (Object.keys(childAcc).length === 0) {
-    return { [internalname]: multiplier };
+    return { [internalname]: remaining };
   }
   return childAcc;
 };
@@ -287,7 +294,7 @@ export const getFrontierRequirements = (
 export const getCombinedFrontierRequirements = (
   itemList: Array<{ itemId: string; quantity: number }>,
   recipes: RecipesData,
-  checkedPaths: Set<string>,
+  checkedCounts?: Map<string, number>,
 ): Record<string, number> => {
   const combined: Record<string, number> = {};
 
@@ -296,7 +303,7 @@ export const getCombinedFrontierRequirements = (
       itemId,
       recipes,
       quantity,
-      checkedPaths,
+      checkedCounts,
     );
     for (const [material, count] of Object.entries(requirements)) {
       combined[material] = (combined[material] || 0) + count;
@@ -345,15 +352,16 @@ export const getCraftingFlow = (
   recipes: RecipesData,
   multiplier = 1,
   itemsData?: RecipesData,
-  checkedPaths?: Set<string>,
+  checkedCounts?: Map<string, number>,
 ): CraftingFlow => {
   const nodeQty = new Map<string, number>();
   const edgeQty = new Map<string, number>();
 
-  // The root has no parent edge, so seed its quantity directly. If the root
-  // itself is checked off, the whole craft is done -> empty graph.
-  if (checkedPaths?.has(rootName)) return { nodes: [], edges: [] };
-  nodeQty.set(rootName, multiplier);
+  // The root has no parent edge, so seed its remaining quantity directly. If
+  // the root is fully checked off, the whole craft is done -> empty graph.
+  const rootRemaining = multiplier - (checkedCounts?.get(rootName) ?? 0);
+  if (rootRemaining <= 0) return { nodes: [], edges: [] };
+  nodeQty.set(rootName, rootRemaining);
   collectFlow(
     rootName,
     recipes,
@@ -362,7 +370,7 @@ export const getCraftingFlow = (
     nodeQty,
     edgeQty,
     new Set(),
-    checkedPaths,
+    checkedCounts,
   );
 
   // itemsData is unused for the graph shape but kept in the signature for
@@ -394,9 +402,9 @@ const toFlow = (
  *
  * `path` is the unique node path (root->node internalname chain, joined with
  * PATH_DELIM) matching the keys the tree stores in `checkedItems`. When
- * `checkedPaths` is supplied (todo mode), a child whose path is checked is
- * skipped entirely — its node, its edge, and its whole subtree — so the graph
- * shows only the work that remains.
+ * `checkedCounts` is supplied (todo mode), each child's edge/node quantity is
+ * reduced by how many are already checked off; a fully-checked child (and its
+ * whole subtree) is skipped, so the graph shows only the work that remains.
  */
 const collectFlow = (
   name: string,
@@ -406,7 +414,7 @@ const collectFlow = (
   nodeQty: Map<string, number>,
   edgeQty: Map<string, number>,
   visited: Set<string>,
-  checkedPaths?: Set<string>,
+  checkedCounts?: Map<string, number>,
 ): void => {
   // Defensive: ensure the item exists as a node (root/children are seeded by
   // their caller before recursion, so this rarely fires).
@@ -432,27 +440,31 @@ const collectFlow = (
   const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
   for (const [child, count] of Object.entries(counts)) {
     const childPath = `${path}${PATH_DELIM}${child}`;
-    // Checked-off subtree: it's done, so it contributes nothing to the graph.
-    if (checkedPaths?.has(childPath)) continue;
+    const childNeeded = count * actualMultiplier;
+    // Subtract what's already checked off; a fully-checked child (remaining
+    // <= 0) contributes nothing — its node, edge, and subtree are skipped.
+    const childRemaining = childNeeded - (checkedCounts?.get(childPath) ?? 0);
+    if (childRemaining <= 0) continue;
 
-    const childTotal = count * actualMultiplier;
-    nodeQty.set(child, (nodeQty.get(child) || 0) + childTotal);
+    nodeQty.set(child, (nodeQty.get(child) || 0) + childRemaining);
 
     const edgeKey = `${name}${EDGE_KEY_SEP}${child}`;
-    edgeQty.set(edgeKey, (edgeQty.get(edgeKey) || 0) + childTotal);
+    edgeQty.set(edgeKey, (edgeQty.get(edgeKey) || 0) + childRemaining);
 
     const expandable =
       !BASE_MATERIALS.has(child) && recipes[child] && getRecipe(recipes[child]);
     if (expandable) {
+      // Recurse with the child's FULL needed (not remaining): a partial parent
+      // doesn't rescale grandchild demand.
       collectFlow(
         child,
         recipes,
-        childTotal,
+        childNeeded,
         childPath,
         nodeQty,
         edgeQty,
         newVisited,
-        checkedPaths,
+        checkedCounts,
       );
     }
   }
@@ -466,14 +478,15 @@ export const getCombinedCraftingFlow = (
   itemList: Array<{ itemId: string; quantity: number }>,
   recipes: RecipesData,
   itemsData?: RecipesData,
-  checkedPaths?: Set<string>,
+  checkedCounts?: Map<string, number>,
 ): CraftingFlow => {
   const nodeQty = new Map<string, number>();
   const edgeQty = new Map<string, number>();
 
   for (const { itemId, quantity } of itemList) {
-    if (checkedPaths?.has(itemId)) continue;
-    nodeQty.set(itemId, (nodeQty.get(itemId) || 0) + quantity);
+    const rootRemaining = quantity - (checkedCounts?.get(itemId) ?? 0);
+    if (rootRemaining <= 0) continue;
+    nodeQty.set(itemId, (nodeQty.get(itemId) || 0) + rootRemaining);
     collectFlow(
       itemId,
       recipes,
@@ -482,7 +495,7 @@ export const getCombinedCraftingFlow = (
       nodeQty,
       edgeQty,
       new Set(),
-      checkedPaths,
+      checkedCounts,
     );
   }
 

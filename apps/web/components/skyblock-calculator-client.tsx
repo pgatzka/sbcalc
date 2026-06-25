@@ -26,6 +26,7 @@ import {
   getIngredientsFromRecipe,
   getRecipe,
 } from "@/lib/recipe-utils";
+import type { ForgeRecipe } from "@/lib/types";
 import { getDisplayName } from "@/lib/utils";
 
 export function SkyblockCalculatorClient() {
@@ -53,6 +54,7 @@ export function SkyblockCalculatorClient() {
     checkedItems,
     toggleTodoMode,
     toggleChecked,
+    setCheckedCount,
   } = useCalculatorStore();
 
   const { recipes, itemsData } = useRecipeData();
@@ -127,29 +129,39 @@ export function SkyblockCalculatorClient() {
     (mode === "multi" && itemList.length > 0);
 
   const handleToggleChecked = useCallback(
-    (path: string, internalname: string) => {
-      // Collect the PATHS of every descendant within this node's own subtree,
-      // mirroring the tree's branch-local `visited` cycle guard so the cascade
-      // matches exactly the nodes rendered under this parent.
-      const collectDescendantPaths = (
+    (path: string, internalname: string, needed: number) => {
+      // Collect every descendant within this node's own subtree along with its
+      // own needed quantity, mirroring the tree's branch-local `visited` cycle
+      // guard AND its multiplier math (forge count = 1, crafting = recipe.count)
+      // so the cascade writes the same per-node needed the tree displays.
+      const collectDescendants = (
         name: string,
         basePath: string,
+        baseNeeded: number,
         visited: Set<string>,
-      ): string[] => {
+      ): Array<{ path: string; needed: number }> => {
         const entry = recipes[name];
         const recipe = entry ? getRecipe(entry) : undefined;
         if (!recipe || BASE_MATERIALS.has(name)) return [];
 
+        const isForge = (recipe as ForgeRecipe).type === "forge";
+        const recipeCount = !isForge
+          ? Number((recipe as Record<string, string | number>).count) || 1
+          : 1;
+        const actualMultiplier = Math.ceil(baseNeeded / recipeCount);
+
         const counts = aggregateIngredients(getIngredientsFromRecipe(recipe));
-        const result: string[] = [];
-        for (const child of Object.keys(counts)) {
+        const result: Array<{ path: string; needed: number }> = [];
+        for (const [child, count] of Object.entries(counts)) {
           if (visited.has(child)) continue;
           const childPath = `${basePath}${PATH_DELIM}${child}`;
-          result.push(childPath);
+          const childNeeded = count * actualMultiplier;
+          result.push({ path: childPath, needed: childNeeded });
           result.push(
-            ...collectDescendantPaths(
+            ...collectDescendants(
               child,
               childPath,
+              childNeeded,
               new Set(visited).add(child),
             ),
           );
@@ -161,10 +173,16 @@ export function SkyblockCalculatorClient() {
       const ancestorNames = new Set(path.split(PATH_DELIM));
       toggleChecked(
         path,
-        collectDescendantPaths(internalname, path, ancestorNames),
+        needed,
+        collectDescendants(internalname, path, needed, ancestorNames),
       );
     },
     [recipes, toggleChecked],
+  );
+
+  const handleSetCheckedCount = useCallback(
+    (path: string, count: number) => setCheckedCount(path, count),
+    [setCheckedCount],
   );
 
   const [craftView, setCraftView] = useState<CraftView>("tree");
@@ -298,6 +316,7 @@ export function SkyblockCalculatorClient() {
                       onToggleTodoMode={toggleTodoMode}
                       checkedItems={checkedItems}
                       onToggleChecked={handleToggleChecked}
+                      onSetCheckedCount={handleSetCheckedCount}
                     />
                   ) : (
                     <CraftingFlowSingle
@@ -323,6 +342,7 @@ export function SkyblockCalculatorClient() {
                   onToggleTodoMode={toggleTodoMode}
                   checkedItems={checkedItems}
                   onToggleChecked={handleToggleChecked}
+                  onSetCheckedCount={handleSetCheckedCount}
                 />
               )}
 

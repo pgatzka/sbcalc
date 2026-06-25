@@ -22,8 +22,9 @@ export function CraftingTreeMulti(props: {
   };
   todoMode: boolean;
   onToggleTodoMode: () => void;
-  checkedItems: Set<string>;
-  onToggleChecked: (path: string, internalname: string) => void;
+  checkedItems: Map<string, number>;
+  onToggleChecked: (path: string, internalname: string, needed: number) => void;
+  onSetCheckedCount: (path: string, count: number) => void;
 }) {
   const {
     selectedItemId,
@@ -38,6 +39,7 @@ export function CraftingTreeMulti(props: {
     onToggleTodoMode,
     checkedItems,
     onToggleChecked,
+    onSetCheckedCount,
   } = props;
 
   const { recipes, itemsData } = useRecipeData();
@@ -109,6 +111,7 @@ export function CraftingTreeMulti(props: {
           todoMode={todoMode}
           checkedItems={checkedItems}
           onToggleChecked={onToggleChecked}
+          onSetCheckedCount={onSetCheckedCount}
         />
       </div>
     </div>

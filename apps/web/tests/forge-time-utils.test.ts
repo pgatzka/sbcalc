@@ -200,3 +200,54 @@ describe("getTotalForgeTime", () => {
     expect(result).toBe(0);
   });
 });
+
+describe("getTotalForgeTime with checked counts", () => {
+  // recipes[] array form so getRecipe resolves a forge recipe.
+  const recipes: RecipesData = {
+    PLATE: {
+      internalname: "PLATE",
+      recipes: [{ type: "forge", duration: 600, inputs: ["BASE:1"] }],
+    },
+    BASE: { internalname: "BASE" },
+  };
+  const settings: ForgeSettings = {
+    forgeSlots: 1,
+    useMultipleSlots: false,
+    quickForgeLevel: 0,
+  };
+
+  it("scales forge time to the remaining (needed - checked) count", () => {
+    const full = getTotalForgeTime("PLATE", recipes, 4, new Set(), settings);
+    const partial = getTotalForgeTime(
+      "PLATE",
+      recipes,
+      4,
+      new Set(),
+      settings,
+      new Map([["PLATE", 1]]), // 1 of 4 already forged
+    );
+    const remaining3 = getTotalForgeTime(
+      "PLATE",
+      recipes,
+      3,
+      new Set(),
+      settings,
+    );
+
+    // Forging 1 fewer (3 left) takes the same time as a fresh order of 3.
+    expect(partial).toBe(remaining3);
+    expect(partial).toBeLessThan(full);
+  });
+
+  it("returns 0 when fully checked off", () => {
+    const result = getTotalForgeTime(
+      "PLATE",
+      recipes,
+      4,
+      new Set(),
+      settings,
+      new Map([["PLATE", 4]]),
+    );
+    expect(result).toBe(0);
+  });
+});

@@ -229,41 +229,71 @@ describe("getFrontierRequirements", () => {
     };
   });
 
+  const diamondPath = ["SUPER_ITEM", "ENCHANTED_DIAMOND", "DIAMOND"].join(
+    PATH_DELIM,
+  );
+  const screwUnderWidget = ["GADGET", "WIDGET", "SCREW"].join(PATH_DELIM);
+  const widgetPath = ["GADGET", "WIDGET"].join(PATH_DELIM);
+
   it("returns the deepest base materials when nothing is checked", () => {
-    const result = getFrontierRequirements(
-      "SUPER_ITEM",
-      recipesData,
-      1,
-      new Set(),
-    );
+    const result = getFrontierRequirements("SUPER_ITEM", recipesData, 1);
 
     expect(result).toEqual({ DIAMOND: 320 }); // 2 * 160
   });
 
-  it("rolls up to the next un-crafted parent when a leaf is checked", () => {
-    const diamondPath = ["SUPER_ITEM", "ENCHANTED_DIAMOND", "DIAMOND"].join(
-      PATH_DELIM,
-    );
-
+  it("rolls up to the next un-crafted parent when a leaf is fully checked", () => {
     const result = getFrontierRequirements(
       "SUPER_ITEM",
       recipesData,
       1,
-      new Set([diamondPath]),
+      new Map([[diamondPath, 320]]), // all 320 diamonds gathered
     );
 
     // Diamonds gathered -> the next granular item is the enchanted diamond.
     expect(result).toEqual({ ENCHANTED_DIAMOND: 2 });
   });
 
-  it("treats duplicate appearances of an item independently", () => {
-    const screwUnderWidget = ["GADGET", "WIDGET", "SCREW"].join(PATH_DELIM);
+  it("subtracts a partial leaf count from the remaining", () => {
+    const result = getFrontierRequirements(
+      "SUPER_ITEM",
+      recipesData,
+      1,
+      new Map([[diamondPath, 100]]), // 100 of 320 gathered
+    );
 
+    expect(result).toEqual({ DIAMOND: 220 });
+  });
+
+  it("clamps over-counts (never goes negative / rolls up)", () => {
+    const result = getFrontierRequirements(
+      "SUPER_ITEM",
+      recipesData,
+      1,
+      new Map([[diamondPath, 999]]),
+    );
+
+    expect(result).toEqual({ ENCHANTED_DIAMOND: 2 });
+  });
+
+  it("a partial parent does not rescale child demand", () => {
+    const enchantedPath = ["SUPER_ITEM", "ENCHANTED_DIAMOND"].join(PATH_DELIM);
+    const result = getFrontierRequirements(
+      "SUPER_ITEM",
+      recipesData,
+      1,
+      new Map([[enchantedPath, 1]]), // 1 of 2 enchanted diamonds crafted
+    );
+
+    // Children still show full demand until the diamonds themselves are gathered.
+    expect(result).toEqual({ DIAMOND: 320 });
+  });
+
+  it("treats duplicate appearances of an item independently", () => {
     const result = getFrontierRequirements(
       "GADGET",
       recipesData,
       1,
-      new Set([screwUnderWidget]),
+      new Map([[screwUnderWidget, 2]]), // SCREW under WIDGET fully gathered
     );
 
     // The SCREW under WIDGET is done (so WIDGET rolls up), but the SCREW under
@@ -271,14 +301,12 @@ describe("getFrontierRequirements", () => {
     expect(result).toEqual({ WIDGET: 1, SCREW: 3 });
   });
 
-  it("excludes a whole subtree when a parent node is checked", () => {
-    const widgetPath = ["GADGET", "WIDGET"].join(PATH_DELIM);
-
+  it("excludes a whole subtree when a parent node is fully checked", () => {
     const result = getFrontierRequirements(
       "GADGET",
       recipesData,
       1,
-      new Set([widgetPath]),
+      new Map([[widgetPath, 1]]),
     );
 
     // WIDGET (and its SCREW) gone; only BOLT's SCREW remains.
@@ -425,7 +453,7 @@ describe("getCraftingFlow", () => {
       recipes,
       1,
       undefined,
-      new Set([diamondPath]),
+      new Map([[diamondPath, 320]]), // all 320 diamonds gathered
     );
 
     // DIAMOND is gathered -> its node and the ENCHANTED_DIAMOND->DIAMOND edge
@@ -437,6 +465,37 @@ describe("getCraftingFlow", () => {
     expect(flow.edges).toEqual([
       { from: "SUPER_ITEM", to: "ENCHANTED_DIAMOND", quantity: 2 },
     ]);
+  });
+
+  it("reduces node and edge quantities by a partial count", () => {
+    const recipes: RecipesData = {
+      SUPER_ITEM: {
+        internalname: "SUPER_ITEM",
+        recipe: { A1: "ENCHANTED_DIAMOND:2", count: "1" },
+      },
+      ENCHANTED_DIAMOND: {
+        internalname: "ENCHANTED_DIAMOND",
+        recipe: { A1: "DIAMOND:160", count: "1" },
+      },
+      DIAMOND: { internalname: "DIAMOND" },
+    };
+    const diamondPath = ["SUPER_ITEM", "ENCHANTED_DIAMOND", "DIAMOND"].join(
+      PATH_DELIM,
+    );
+
+    const flow = getCraftingFlow(
+      "SUPER_ITEM",
+      recipes,
+      1,
+      undefined,
+      new Map([[diamondPath, 100]]), // 100 of 320 gathered
+    );
+
+    const edgeMap = Object.fromEntries(
+      flow.edges.map((e) => [`${e.from}->${e.to}`, e.quantity]),
+    );
+    expect(edgeMap["ENCHANTED_DIAMOND->DIAMOND"]).toBe(220);
+    expect(flow.nodes.find((n) => n.id === "DIAMOND")?.quantity).toBe(220);
   });
 
   it("respects checks per appearance for duplicated items", () => {
@@ -456,7 +515,7 @@ describe("getCraftingFlow", () => {
       recipes,
       1,
       undefined,
-      new Set([screwUnderWidget]),
+      new Map([[screwUnderWidget, 2]]), // SCREW under WIDGET fully gathered
     );
 
     // Only the WIDGET->SCREW edge is gone; BOLT still needs its SCREW, so SCREW
